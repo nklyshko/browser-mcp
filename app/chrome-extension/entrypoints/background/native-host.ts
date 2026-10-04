@@ -835,10 +835,21 @@ export function connectNativeHost(port: number = NATIVE_HOST.DEFAULT_PORT): bool
             if (protocolMessage.event === 'tool.progress' && protocolMessage.requestId) {
               // Progress is consumed by the native request callback; no local action is needed.
             } else if (protocolMessage.event === 'native.serverStarted') {
-              const port = (protocolMessage.data as { port?: unknown } | undefined)?.port;
+              const data = protocolMessage.data as { port?: unknown; reused?: unknown } | undefined;
+              if (data?.reused === true) {
+                // Another process already owns the HTTP port, so this host cannot
+                // serve MCP requests: they arrive at the other process instead.
+                // Reporting "running" here is what made a dead bridge look healthy.
+                await markServerStopped('http_port_owned_by_other_process');
+                setNativeConnectionState('degraded', 'http_port_owned_by_other_process');
+                // The native channel itself is fine, so stop the reconnect backoff;
+                // retrying cannot free a port another browser is using.
+                resetReconnectState();
+                return;
+              }
               currentServerStatus = {
                 isRunning: true,
-                port: normalizePort(port) ?? currentServerStatus.port,
+                port: normalizePort(data?.port) ?? currentServerStatus.port,
                 lastUpdated: Date.now(),
               };
               await saveServerStatus(currentServerStatus);

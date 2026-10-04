@@ -741,9 +741,12 @@ export class NativeMessagingHost {
         }
       }
 
-      // If another unrelated/native host owns the port, keep the connection
-      // alive and let the existing server decide whether it can serve requests.
+      // Another process owns the port and would not hand it over, because it is
+      // already driving its own browser. Keep the native connection so the popup can
+      // explain the situation, but do not pretend this host is serving MCP: its tool
+      // calls would never arrive, since HTTP requests reach the other process.
       if (isAddressInUse(error)) {
+        structuredLog('native.http_port_unavailable', { port });
         this.sendMessage({
           version: NATIVE_PROTOCOL_VERSION,
           type: 'event',

@@ -600,6 +600,37 @@ describe('server', () => {
     }
   });
 
+  test('a bridge driving a browser refuses to hand over its port', async () => {
+    // The accept path calls process.exit(0), which would take the test runner with
+    // it, so only the refusal branch is exercised here.
+    const server = Server as any;
+    const connected = jest
+      .spyOn(nativeMessagingHostInstance, 'isExtensionConnected')
+      .mockReturnValue(true);
+    const wasRunning = server.isRunning;
+    const previousNativeHost = server.nativeHost;
+    // Tests never run the real entry point, so the server has no native host wired;
+    // production sets it in index.ts before the HTTP server ever listens.
+    server.nativeHost = nativeMessagingHostInstance;
+    server.isRunning = true;
+    server.takeoverRequested = false;
+    try {
+      const response = await supertest(Server.getInstance().server)
+        .post('/__chrome_mcp_bridge/takeover')
+        .set('Origin', 'http://127.0.0.1:1420')
+        .expect(409);
+      expect(response.body).toEqual({ status: 'busy_with_extension' });
+      // Refusing must not begin a shutdown: that is what let two browsers trade
+      // the port back and forth indefinitely.
+      expect(server.takeoverRequested).toBe(false);
+    } finally {
+      server.isRunning = wasRunning;
+      server.nativeHost = previousNativeHost;
+      server.takeoverRequested = false;
+      connected.mockRestore();
+    }
+  });
+
   test('the agent settings accept a cross-origin PUT to save', async () => {
     const response = await supertest(Server.getInstance().server)
       .options('/agent/settings/deepseek')

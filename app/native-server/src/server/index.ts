@@ -785,6 +785,15 @@ export class Server {
       if (!this.isRunning || this.takeoverRequested) {
         return reply.status(404).send({ status: 'not_available' });
       }
+      // Only a bridge that is not already driving a browser may hand the port over.
+      // Yielding while an extension is attached would kill a working bridge, and the
+      // evicted host's extension reconnects and takes the port straight back — two
+      // browsers then trade it indefinitely. The original reason for takeover (a
+      // manually launched standalone server with no browser attached) still applies,
+      // because such a process reports no extension here.
+      if (this.nativeHost?.isExtensionConnected()) {
+        return reply.status(HTTP_STATUS.CONFLICT).send({ status: 'busy_with_extension' });
+      }
       this.takeoverRequested = true;
       reply.status(HTTP_STATUS.OK).send({ status: 'stopping' });
       const stop = () => {
