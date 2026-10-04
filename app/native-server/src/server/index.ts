@@ -1223,6 +1223,15 @@ export class Server {
             }
           };
           await getMcpServer().connect(transport);
+        } else if (sessionId) {
+          // The bridge restarted (or the session timed out), so transportsMap no
+          // longer has this ID. 404 is the spec's signal for "discard the session
+          // and send a fresh InitializeRequest"; 400 would read as a permanent
+          // protocol error and strand the client until it reconnects by hand.
+          requestStatus = 'error';
+          requestError = ERROR_MESSAGES.UNKNOWN_SESSION_ID;
+          reply.code(HTTP_STATUS.NOT_FOUND).send({ error: requestError });
+          return;
         } else {
           requestStatus = 'error';
           requestError = ERROR_MESSAGES.INVALID_MCP_REQUEST;
@@ -1268,7 +1277,13 @@ export class Server {
       const transport = session?.transport as StreamableHTTPServerTransport | undefined;
 
       if (!transport) {
-        reply.code(HTTP_STATUS.BAD_REQUEST).send({ error: ERROR_MESSAGES.INVALID_SSE_SESSION });
+        // Same split as POST /mcp: a stale ID earns a 404 so the client re-initializes,
+        // a missing ID is a malformed request.
+        if (sessionId) {
+          reply.code(HTTP_STATUS.NOT_FOUND).send({ error: ERROR_MESSAGES.UNKNOWN_SESSION_ID });
+        } else {
+          reply.code(HTTP_STATUS.BAD_REQUEST).send({ error: ERROR_MESSAGES.INVALID_SSE_SESSION });
+        }
         return;
       }
 
@@ -1296,7 +1311,13 @@ export class Server {
       const transport = session?.transport as StreamableHTTPServerTransport | undefined;
 
       if (!transport) {
-        reply.code(HTTP_STATUS.BAD_REQUEST).send({ error: ERROR_MESSAGES.INVALID_SESSION_ID });
+        // DELETE of an already-gone session is not an error worth distinguishing for
+        // the client, but 404 keeps the semantics consistent with POST and GET.
+        if (sessionId) {
+          reply.code(HTTP_STATUS.NOT_FOUND).send({ error: ERROR_MESSAGES.UNKNOWN_SESSION_ID });
+        } else {
+          reply.code(HTTP_STATUS.BAD_REQUEST).send({ error: ERROR_MESSAGES.INVALID_SESSION_ID });
+        }
         return;
       }
 

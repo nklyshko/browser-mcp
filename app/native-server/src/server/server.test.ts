@@ -451,6 +451,155 @@ describe('server', () => {
     }
   });
 
+  test('stale session IDs return 404 so clients re-initialize', async () => {
+    Server.serviceEnabled = true;
+    const staleSessionId = '11111111-2222-3333-4444-555555555555';
+    const origin = 'http://127.0.0.1:1420';
+    try {
+      const posted = await supertest(Server.getInstance().server)
+        .post('/mcp')
+        .set('Origin', origin)
+        .set('Accept', 'application/json, text/event-stream')
+        .set('Mcp-Session-Id', staleSessionId)
+        .send({ jsonrpc: '2.0', id: 1, method: 'tools/list', params: {} })
+        .expect(404);
+      expect(posted.body.error).toBe(ERROR_MESSAGES.UNKNOWN_SESSION_ID);
+
+      const streamed = await supertest(Server.getInstance().server)
+        .get('/mcp')
+        .set('Origin', origin)
+        .set('Mcp-Session-Id', staleSessionId)
+        .expect(404);
+      expect(streamed.body.error).toBe(ERROR_MESSAGES.UNKNOWN_SESSION_ID);
+
+      const deleted = await supertest(Server.getInstance().server)
+        .delete('/mcp')
+        .set('Origin', origin)
+        .set('Mcp-Session-Id', staleSessionId)
+        .expect(404);
+      expect(deleted.body.error).toBe(ERROR_MESSAGES.UNKNOWN_SESSION_ID);
+
+      // A wholly missing session ID stays a 400: it is a malformed request, not a
+      // session the client could recover by re-initializing.
+      const missing = await supertest(Server.getInstance().server)
+        .delete('/mcp')
+        .set('Origin', origin)
+        .expect(400);
+      expect(missing.body.error).toBe(ERROR_MESSAGES.INVALID_SESSION_ID);
+    } finally {
+      Server.serviceEnabled = false;
+    }
+  });
+
+  test('concurrent sessions do not cross tool-call results', async () => {
+    Server.serviceEnabled = true;
+    const origin = 'http://127.0.0.1:1420';
+    const connected = jest
+      .spyOn(nativeMessagingHostInstance, 'isExtensionConnected')
+      .mockReturnValue(true);
+    // Echo the requested tabId back so each response is traceable to its caller.
+    const sendToExtension = jest
+      .spyOn(nativeMessagingHostInstance, 'sendRequestToExtensionAndWait')
+      .mockImplementation(
+        async (payload: any) =>
+          ({
+            status: 'success',
+            data: {
+              content: [{ type: 'text', text: JSON.stringify({ tabId: payload?.args?.tabId }) }],
+              isError: false,
+            },
+          }) as any,
+      );
+    const sessionIds: string[] = [];
+
+    const initialize = async (clientName: string): Promise<string> => {
+      const response = await supertest(Server.getInstance().server)
+        .post('/mcp')
+        .set('Origin', origin)
+        .set('Accept', 'application/json, text/event-stream')
+        .send({
+          jsonrpc: '2.0',
+          id: 1,
+          method: 'initialize',
+          params: {
+            protocolVersion: '2025-03-26',
+            capabilities: {},
+            clientInfo: { name: clientName, version: '1.0.0' },
+          },
+        })
+        .expect(200);
+      const sessionId = response.headers['mcp-session-id'];
+      await supertest(Server.getInstance().server)
+        .post('/mcp')
+        .set('Origin', origin)
+        .set('Accept', 'application/json, text/event-stream')
+        .set('Mcp-Session-Id', sessionId)
+        .send({ jsonrpc: '2.0', method: 'notifications/initialized' })
+        .expect(202);
+      return sessionId;
+    };
+
+    const callTool = (sessionId: string, tabId: number) =>
+      supertest(Server.getInstance().server)
+        .post('/mcp')
+        .set('Origin', origin)
+        .set('Accept', 'application/json, text/event-stream')
+        .set('Mcp-Session-Id', sessionId)
+        .send({
+          jsonrpc: '2.0',
+          id: tabId,
+          method: 'tools/call',
+          params: { name: 'chrome_get_tab_url', arguments: { tabId } },
+        })
+        .expect(200);
+
+    try {
+      sessionIds.push(await initialize('concurrent-client-a'));
+      sessionIds.push(await initialize('concurrent-client-b'));
+      const [sessionA, sessionB] = sessionIds;
+      expect(sessionA).toEqual(expect.any(String));
+      expect(sessionB).toEqual(expect.any(String));
+      expect(sessionA).not.toBe(sessionB);
+
+      // Genuinely in flight at the same time: a shared transport would cross the
+      // replies here, which is the regression this guards.
+      const [firstA, firstB] = await Promise.all([callTool(sessionA, 11), callTool(sessionB, 22)]);
+      expect(parseMcpResponse(firstA).result.content[0].text).toBe(JSON.stringify({ tabId: 11 }));
+      expect(parseMcpResponse(firstB).result.content[0].text).toBe(JSON.stringify({ tabId: 22 }));
+
+      // Session A still works after B has been active.
+      const secondA = await callTool(sessionA, 33);
+      expect(parseMcpResponse(secondA).result.content[0].text).toBe(JSON.stringify({ tabId: 33 }));
+
+      const status = await supertest(Server.getInstance().server)
+        .get('/status')
+        .set('Origin', origin)
+        .expect(200);
+      expect(status.body.mcp.clients).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            sessionId: sessionA,
+            clientInfo: { name: 'concurrent-client-a', version: '1.0.0' },
+          }),
+          expect.objectContaining({
+            sessionId: sessionB,
+            clientInfo: { name: 'concurrent-client-b', version: '1.0.0' },
+          }),
+        ]),
+      );
+    } finally {
+      for (const sessionId of sessionIds) {
+        await supertest(Server.getInstance().server)
+          .delete('/mcp')
+          .set('Origin', origin)
+          .set('Mcp-Session-Id', sessionId);
+      }
+      connected.mockRestore();
+      sendToExtension.mockRestore();
+      Server.serviceEnabled = false;
+    }
+  });
+
   test('the agent settings accept a cross-origin PUT to save', async () => {
     const response = await supertest(Server.getInstance().server)
       .options('/agent/settings/deepseek')

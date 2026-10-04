@@ -75,6 +75,9 @@ export const ERROR_MESSAGES = {
   MCP_SESSION_DELETION_ERROR: 'Internal server error during MCP session deletion.',
   MCP_REQUEST_PROCESSING_ERROR: 'Internal server error during MCP request processing.',
   INVALID_SSE_SESSION: 'Invalid or missing MCP session ID for SSE.',
+  // Returned with 404 so MCP clients know to discard the session and re-initialize
+  // instead of treating a restarted bridge as a permanent protocol error.
+  UNKNOWN_SESSION_ID: 'Unknown MCP session ID; the session no longer exists.',
 } as const;
 
 // ============================================================
