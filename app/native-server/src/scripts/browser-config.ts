@@ -7,7 +7,27 @@ import { HOST_NAME } from './constant';
 export enum BrowserType {
   CHROME = 'chrome',
   CHROMIUM = 'chromium',
+  CANARY = 'canary',
 }
+
+/**
+ * Single source of truth for "all browsers". Callers used to spell the list out,
+ * so every new browser meant hunting down each copy.
+ */
+export const ALL_BROWSER_TYPES: BrowserType[] = Object.values(BrowserType);
+
+/** Human-readable names; the enum values are too terse for 'canary'. */
+const DISPLAY_NAMES: Record<BrowserType, string> = {
+  [BrowserType.CHROME]: 'Chrome',
+  [BrowserType.CHROMIUM]: 'Chromium',
+  [BrowserType.CANARY]: 'Chrome Canary',
+};
+
+/** Message fragment for CLI validation errors, derived so it cannot drift. */
+export const BROWSER_CHOICES_HINT = `${ALL_BROWSER_TYPES.map((type) => `'${type}'`).join(', ')}, or 'all'`;
+
+/** Unquoted variant for --help option descriptions. */
+export const BROWSER_LIST_HINT = `${ALL_BROWSER_TYPES.join(', ')}, or all`;
 
 export interface BrowserConfig {
   type: BrowserType;
@@ -31,6 +51,15 @@ function getUserManifestPathForBrowser(browser: BrowserType): string {
         return path.join(appData, 'Google', 'Chrome', 'NativeMessagingHosts', `${HOST_NAME}.json`);
       case BrowserType.CHROMIUM:
         return path.join(appData, 'Chromium', 'NativeMessagingHosts', `${HOST_NAME}.json`);
+      case BrowserType.CANARY:
+        // Canary installs side-by-side with stable under the "Chrome SxS" name.
+        return path.join(
+          appData,
+          'Google',
+          'Chrome SxS',
+          'NativeMessagingHosts',
+          `${HOST_NAME}.json`,
+        );
       default:
         return path.join(appData, 'Google', 'Chrome', 'NativeMessagingHosts', `${HOST_NAME}.json`);
     }
@@ -53,6 +82,16 @@ function getUserManifestPathForBrowser(browser: BrowserType): string {
           'Library',
           'Application Support',
           'Chromium',
+          'NativeMessagingHosts',
+          `${HOST_NAME}.json`,
+        );
+      case BrowserType.CANARY:
+        return path.join(
+          home,
+          'Library',
+          'Application Support',
+          'Google',
+          'Chrome Canary',
           'NativeMessagingHosts',
           `${HOST_NAME}.json`,
         );
@@ -81,6 +120,16 @@ function getUserManifestPathForBrowser(browser: BrowserType): string {
         );
       case BrowserType.CHROMIUM:
         return path.join(home, '.config', 'chromium', 'NativeMessagingHosts', `${HOST_NAME}.json`);
+      case BrowserType.CANARY:
+        // Linux has no Canary channel; google-chrome-unstable is the dev-channel
+        // equivalent and keeps its own profile directory.
+        return path.join(
+          home,
+          '.config',
+          'google-chrome-unstable',
+          'NativeMessagingHosts',
+          `${HOST_NAME}.json`,
+        );
       default:
         return path.join(
           home,
@@ -112,6 +161,14 @@ function getSystemManifestPathForBrowser(browser: BrowserType): string {
         );
       case BrowserType.CHROMIUM:
         return path.join(programFiles, 'Chromium', 'NativeMessagingHosts', `${HOST_NAME}.json`);
+      case BrowserType.CANARY:
+        return path.join(
+          programFiles,
+          'Google',
+          'Chrome SxS',
+          'NativeMessagingHosts',
+          `${HOST_NAME}.json`,
+        );
       default:
         return path.join(
           programFiles,
@@ -139,6 +196,14 @@ function getSystemManifestPathForBrowser(browser: BrowserType): string {
           'NativeMessagingHosts',
           `${HOST_NAME}.json`,
         );
+      case BrowserType.CANARY:
+        return path.join(
+          '/Library',
+          'Google',
+          'Chrome Canary',
+          'NativeMessagingHosts',
+          `${HOST_NAME}.json`,
+        );
       default:
         return path.join(
           '/Library',
@@ -155,6 +220,11 @@ function getSystemManifestPathForBrowser(browser: BrowserType): string {
         return path.join('/etc', 'opt', 'chrome', 'native-messaging-hosts', `${HOST_NAME}.json`);
       case BrowserType.CHROMIUM:
         return path.join('/etc', 'chromium', 'native-messaging-hosts', `${HOST_NAME}.json`);
+      case BrowserType.CANARY:
+        // The google-chrome-* Debian/RPM packages share /etc/opt/chrome, so this is
+        // intentionally the same directory as stable. Both would write an identical
+        // manifest, which makes the overlap harmless.
+        return path.join('/etc', 'opt', 'chrome', 'native-messaging-hosts', `${HOST_NAME}.json`);
       default:
         return path.join('/etc', 'opt', 'chrome', 'native-messaging-hosts', `${HOST_NAME}.json`);
     }
@@ -176,6 +246,10 @@ function getRegistryKeys(browser: BrowserType): { user: string; system: string }
       user: `HKCU\\Software\\Chromium\\NativeMessagingHosts\\${HOST_NAME}`,
       system: `HKLM\\Software\\Chromium\\NativeMessagingHosts\\${HOST_NAME}`,
     },
+    [BrowserType.CANARY]: {
+      user: `HKCU\\Software\\Google\\Chrome SxS\\NativeMessagingHosts\\${HOST_NAME}`,
+      system: `HKLM\\Software\\Google\\Chrome SxS\\NativeMessagingHosts\\${HOST_NAME}`,
+    },
   };
 
   return browserPaths[browser];
@@ -189,7 +263,7 @@ export function getBrowserConfig(browser: BrowserType): BrowserConfig {
 
   return {
     type: browser,
-    displayName: browser.charAt(0).toUpperCase() + browser.slice(1),
+    displayName: DISPLAY_NAMES[browser],
     userManifestPath: getUserManifestPathForBrowser(browser),
     systemManifestPath: getSystemManifestPathForBrowser(browser),
     registryKey: registryKeys?.user,
@@ -205,29 +279,45 @@ export function detectInstalledBrowsers(): BrowserType[] {
   const platform = os.platform();
 
   if (platform === 'win32') {
-    // Check Windows registry for installed browsers
-    const browsers: Array<{ type: BrowserType; registryPath: string }> = [
-      { type: BrowserType.CHROME, registryPath: 'HKLM\\SOFTWARE\\Google\\Chrome' },
-      { type: BrowserType.CHROMIUM, registryPath: 'HKLM\\SOFTWARE\\Chromium' },
+    // Canary installs per-user, so it is absent from HKLM; each browser gets a list
+    // and counts as present when any one path resolves.
+    const browsers: Array<{ type: BrowserType; registryPaths: string[] }> = [
+      { type: BrowserType.CHROME, registryPaths: ['HKLM\\SOFTWARE\\Google\\Chrome'] },
+      { type: BrowserType.CHROMIUM, registryPaths: ['HKLM\\SOFTWARE\\Chromium'] },
+      {
+        type: BrowserType.CANARY,
+        registryPaths: ['HKCU\\SOFTWARE\\Google\\Chrome SxS', 'HKLM\\SOFTWARE\\Google\\Chrome SxS'],
+      },
     ];
 
     for (const browser of browsers) {
-      try {
-        execSync(`reg query "${browser.registryPath}" 2>nul`, { stdio: 'pipe' });
-        detectedBrowsers.push(browser.type);
-      } catch {
-        // Browser not installed
+      for (const registryPath of browser.registryPaths) {
+        try {
+          execSync(`reg query "${registryPath}" 2>nul`, { stdio: 'pipe' });
+          detectedBrowsers.push(browser.type);
+          break;
+        } catch {
+          // Try the next path for this browser
+        }
       }
     }
   } else if (platform === 'darwin') {
-    // Check macOS Applications folder
-    const browsers: Array<{ type: BrowserType; appPath: string }> = [
-      { type: BrowserType.CHROME, appPath: '/Applications/Google Chrome.app' },
-      { type: BrowserType.CHROMIUM, appPath: '/Applications/Chromium.app' },
+    // Checked in order; Canary is often installed to ~/Applications when the user
+    // lacks admin rights.
+    const browsers: Array<{ type: BrowserType; appPaths: string[] }> = [
+      { type: BrowserType.CHROME, appPaths: ['/Applications/Google Chrome.app'] },
+      { type: BrowserType.CHROMIUM, appPaths: ['/Applications/Chromium.app'] },
+      {
+        type: BrowserType.CANARY,
+        appPaths: [
+          '/Applications/Google Chrome Canary.app',
+          path.join(os.homedir(), 'Applications', 'Google Chrome Canary.app'),
+        ],
+      },
     ];
 
     for (const browser of browsers) {
-      if (fs.existsSync(browser.appPath)) {
+      if (browser.appPaths.some((appPath) => fs.existsSync(appPath))) {
         detectedBrowsers.push(browser.type);
       }
     }
@@ -236,6 +326,7 @@ export function detectInstalledBrowsers(): BrowserType[] {
     const browsers: Array<{ type: BrowserType; commands: string[] }> = [
       { type: BrowserType.CHROME, commands: ['google-chrome', 'google-chrome-stable'] },
       { type: BrowserType.CHROMIUM, commands: ['chromium', 'chromium-browser'] },
+      { type: BrowserType.CANARY, commands: ['google-chrome-unstable'] },
     ];
 
     for (const browser of browsers) {

@@ -13,6 +13,8 @@ import path from 'path';
 import { execFileSync } from 'child_process';
 import { EXTENSION_ID, HOST_NAME, COMMAND_NAME } from './constant';
 import {
+  ALL_BROWSER_TYPES,
+  BROWSER_CHOICES_HINT,
   BrowserType,
   detectInstalledBrowsers,
   getBrowserConfig,
@@ -411,11 +413,11 @@ function resolveNodeCandidate(distDir: string): NodeResolutionResult {
 function resolveTargetBrowsers(browserArg: string | undefined): BrowserType[] | undefined {
   if (!browserArg) return undefined;
   const normalized = browserArg.toLowerCase();
-  if (normalized === 'all') return [BrowserType.CHROME, BrowserType.CHROMIUM];
+  if (normalized === 'all') return [...ALL_BROWSER_TYPES];
   if (normalized === 'detect' || normalized === 'auto') return undefined;
   const parsed = parseBrowserType(normalized);
   if (!parsed) {
-    throw new Error(`Invalid browser: ${browserArg}. Use 'chrome', 'chromium', or 'all'`);
+    throw new Error(`Invalid browser: ${browserArg}. Use ${BROWSER_CHOICES_HINT}`);
   }
   return [parsed];
 }
@@ -424,7 +426,7 @@ function resolveBrowsersToCheck(requested: BrowserType[] | undefined): BrowserTy
   if (requested && requested.length > 0) return requested;
   const detected = detectInstalledBrowsers();
   if (detected.length > 0) return detected;
-  return [BrowserType.CHROME, BrowserType.CHROMIUM];
+  return [...ALL_BROWSER_TYPES];
 }
 
 // ============================================================================

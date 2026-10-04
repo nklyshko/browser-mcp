@@ -4,7 +4,12 @@ import os from 'os';
 import { execSync } from 'child_process';
 import { promisify } from 'util';
 import { COMMAND_NAME, DESCRIPTION, EXTENSION_ID, HOST_NAME } from './constant';
-import { BrowserType, getBrowserConfig, detectInstalledBrowsers } from './browser-config';
+import {
+  ALL_BROWSER_TYPES,
+  BrowserType,
+  getBrowserConfig,
+  detectInstalledBrowsers,
+} from './browser-config';
 
 export const access = promisify(fs.access);
 export const mkdir = promisify(fs.mkdir);
@@ -309,8 +314,9 @@ export async function tryRegisterUserLevelHost(targetBrowsers?: BrowserType[]): 
     // 2. Decide which browsers to register
     const browsersToRegister = targetBrowsers || detectInstalledBrowsers();
     if (browsersToRegister.length === 0) {
-      // Nothing detected: fall back to Chrome and Chromium
-      browsersToRegister.push(BrowserType.CHROME, BrowserType.CHROMIUM);
+      // Nothing detected: register every supported browser so a later install
+      // of any of them still finds the host.
+      browsersToRegister.push(...ALL_BROWSER_TYPES);
       console.log(
         colorText('No browsers detected, registering for Chrome and Chromium by default', 'yellow'),
       );

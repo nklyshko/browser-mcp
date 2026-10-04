@@ -13,6 +13,8 @@ import path from 'path';
 import { execFileSync, spawnSync } from 'child_process';
 import { COMMAND_NAME } from './constant';
 import {
+  ALL_BROWSER_TYPES,
+  BROWSER_CHOICES_HINT,
   BrowserType,
   detectInstalledBrowsers,
   getBrowserConfig,
@@ -182,19 +184,19 @@ function parsePositiveInt(raw: unknown, fallback: number): number {
 function resolveBrowsers(browserArg: string | undefined): BrowserType[] {
   if (!browserArg) {
     const detected = detectInstalledBrowsers();
-    return detected.length > 0 ? detected : [BrowserType.CHROME, BrowserType.CHROMIUM];
+    return detected.length > 0 ? detected : [...ALL_BROWSER_TYPES];
   }
 
   const normalized = browserArg.toLowerCase();
-  if (normalized === 'all') return [BrowserType.CHROME, BrowserType.CHROMIUM];
+  if (normalized === 'all') return [...ALL_BROWSER_TYPES];
   if (normalized === 'detect' || normalized === 'auto') {
     const detected = detectInstalledBrowsers();
-    return detected.length > 0 ? detected : [BrowserType.CHROME, BrowserType.CHROMIUM];
+    return detected.length > 0 ? detected : [...ALL_BROWSER_TYPES];
   }
 
   const parsed = parseBrowserType(normalized);
   if (!parsed) {
-    throw new Error(`Invalid browser: ${browserArg}. Use 'chrome', 'chromium', or 'all'`);
+    throw new Error(`Invalid browser: ${browserArg}. Use ${BROWSER_CHOICES_HINT}`);
   }
   return [parsed];
 }
