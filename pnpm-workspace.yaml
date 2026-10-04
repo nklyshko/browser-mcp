@@ -16,4 +16,8 @@ minimumReleaseAgeExclude:
   - '@ethanwilkins/typescript-native@7.0.3'
 overrides:
   hono: ^4.13.7
+  # The lockfile's 6.11.6 exists only on public npm, not in the Artifactory mirror,
+  # so installs fail the release-age check. onnx-proto wants ^6.8.8 and 6.11.5 is
+  # the newest the mirror carries. Drop this once the mirror syncs 6.11.6.
+  protobufjs: 6.11.5
   rollup-plugin-dts: ^6.5.1
