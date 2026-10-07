@@ -732,10 +732,8 @@ onUnmounted(() => {
     <aside class="sidebar">
       <div class="window-controls" aria-hidden="true"><i></i><i></i><i></i></div>
       <div class="sidebar-brand">
-        <span class="brand-mark"><AssetIcon name="cat" :size="48" /></span>
-        <div
-          ><strong>猫娘 Chrome MCP Server</strong><small>CHROME MCP SERVER FOR ANYTHING</small></div
-        >
+        <span class="brand-mark"><AssetIcon name="browser" :size="48" /></span>
+        <div><strong>Chrome MCP</strong><small>CHROME MCP SERVER FOR ANYTHING</small></div>
       </div>
       <nav class="sidebar-nav" aria-label="主导航">
         <a
@@ -795,9 +793,6 @@ onUnmounted(() => {
     </aside>
 
     <section class="workspace" id="overview">
-      <div class="hero-character-layer" aria-hidden="true">
-        <img src="/assets/illustrations/dashboard-catgirl-foreground-v2.webp" alt="" />
-      </div>
       <header class="topbar">
         <div
           ><span class="topbar-kicker">LOCAL AUTOMATION RUNTIME</span

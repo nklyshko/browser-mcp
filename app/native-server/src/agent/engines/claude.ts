@@ -7,7 +7,6 @@ import type { AgentMessage, RealtimeEvent } from '../types';
 import { detectCcr, validateCcrConfig } from '../ccr-detector';
 import { getProject } from '../project-service';
 import { getChromeMcpUrl } from '../../constant';
-import { CATGIRL_PERSONA_INSTRUCTIONS } from '@ethanwilkins/chrome-mcp-shared-2026';
 
 // Images are provided to Claude Code via local file paths referenced in the prompt text.
 // Claude Code CLI reads images from local paths, so we write base64 images to temp files and reference them.
@@ -572,44 +571,30 @@ export class ClaudeEngine implements AgentEngine {
 
       // Resolve system prompt from session config
       const resolvedSystemPrompt = (() => {
-        const withCatgirlPersona = (text?: string): string =>
-          [CATGIRL_PERSONA_INSTRUCTIONS, text].filter(Boolean).join('\n\n');
-
         if (typeof systemPromptConfig === 'string') {
-          const trimmed = systemPromptConfig.trim();
-          return withCatgirlPersona(trimmed);
+          return systemPromptConfig.trim();
         }
         if (
           !systemPromptConfig ||
           typeof systemPromptConfig !== 'object' ||
           Array.isArray(systemPromptConfig)
         ) {
-          return {
-            type: 'preset' as const,
-            preset: 'claude_code' as const,
-            append: CATGIRL_PERSONA_INSTRUCTIONS,
-          };
+          return { type: 'preset' as const, preset: 'claude_code' as const };
         }
         const record = systemPromptConfig as Record<string, unknown>;
         const type = record.type;
         if (type === 'custom' && typeof record.text === 'string') {
-          const trimmed = record.text.trim();
-          return withCatgirlPersona(trimmed);
+          return record.text.trim();
         }
         if (type === 'preset' && record.preset === 'claude_code') {
-          // Keep the global assistant persona when a session adds its own instructions.
           const rawAppend = typeof record.append === 'string' ? record.append.trim() : '';
           return {
             type: 'preset' as const,
             preset: 'claude_code' as const,
-            append: withCatgirlPersona(rawAppend),
+            ...(rawAppend ? { append: rawAppend } : {}),
           };
         }
-        return {
-          type: 'preset' as const,
-          preset: 'claude_code' as const,
-          append: CATGIRL_PERSONA_INSTRUCTIONS,
-        };
+        return { type: 'preset' as const, preset: 'claude_code' as const };
       })();
 
       // Create internal AbortController that mirrors the external signal

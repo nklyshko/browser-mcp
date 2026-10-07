@@ -10,4 +10,4 @@ All desktop client images and icons belong under this directory so Vite and Taur
 
 Add raster icons to `icons/` and register their names in `AssetIcon.vue`. Keep icons and illustrations out of source-code drawings and inline SVG.
 
-The overview uses `backgrounds/desktop-blossom-room-v2.webp` as its full-window and banner background, `illustrations/dashboard-catgirl-foreground-v2.webp` as the transparent foreground character, and the cropped files in `illustrations/dashboard-motifs/` for card and empty-state decoration.
+The overview uses `backgrounds/desktop-blossom-room-v2.webp` as its full-window and banner background, and the cropped files in `illustrations/dashboard-motifs/` for card and empty-state decoration.

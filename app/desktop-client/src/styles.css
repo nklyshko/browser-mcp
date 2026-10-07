@@ -1680,24 +1680,6 @@ body::before {
   isolation: isolate;
 }
 
-.hero-character-layer {
-  position: absolute;
-  z-index: 5;
-  top: -38px;
-  right: clamp(180px, 13.7vw, 238px);
-  width: clamp(420px, 36vw, 620px);
-  aspect-ratio: 620 / 342;
-  overflow: hidden;
-  pointer-events: none;
-}
-
-.hero-character-layer img {
-  display: block;
-  width: 100%;
-  height: auto;
-  max-width: none;
-}
-
 .topbar {
   position: relative;
   z-index: 6;
@@ -2411,12 +2393,6 @@ h1 {
     padding-left: 24px;
   }
 
-  .hero-character-layer {
-    right: 10px;
-    width: 280px;
-    aspect-ratio: 620 / 342;
-  }
-
   h1 {
     font-size: 38px;
   }
@@ -2431,9 +2407,6 @@ h1 {
 }
 
 @media (max-width: 1000px) {
-  .hero-character-layer {
-    display: none;
-  }
 }
 
 @media (max-height: 850px) and (min-width: 1001px) {

@@ -1,5 +1,4 @@
 import { randomUUID } from 'node:crypto';
-import { CATGIRL_PERSONA_INSTRUCTIONS } from '@ethanwilkins/chrome-mcp-shared-2026';
 import type { AgentMessage } from '../types';
 import type { AgentEngine, EngineExecutionContext, EngineInitOptions } from './types';
 import { getDeepSeekSettings } from '../settings-service';
@@ -55,10 +54,7 @@ export class DeepSeekEngine implements AgentEngine {
       body: JSON.stringify({
         model: options.model?.trim() || 'deepseek-v4-flash',
         stream: true,
-        messages: [
-          { role: 'system', content: CATGIRL_PERSONA_INSTRUCTIONS },
-          { role: 'user', content: instruction },
-        ],
+        messages: [{ role: 'user', content: instruction }],
       }),
       signal: options.signal,
     });

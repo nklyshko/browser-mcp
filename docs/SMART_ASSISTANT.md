@@ -6,7 +6,7 @@
 2. Open **Smart Assistant** in the extension side panel, then create or select a project and session.
 3. Choose Claude, Codex, or DeepSeek in the project menu; select a model in session settings.
 
-The assistant uses a warm, professional catgirl persona while keeping task and tool execution reliable.
+The assistant keeps task and tool execution reliable.
 
 ## Configure DeepSeek
 
