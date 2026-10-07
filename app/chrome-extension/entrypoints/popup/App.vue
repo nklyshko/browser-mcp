@@ -18,7 +18,7 @@
           <div class="header-brand">
             <img class="header-brand-icon" src="/assets/brand/popup-mascot.png" alt="" />
             <div class="header-brand-copy">
-              <h1 class="header-title">猫娘 Chrome MCP Server</h1>
+              <h1 class="header-title">Chrome MCP</h1>
               <p class="header-caption">CHROME MCP SERVER FOR ANYTHING</p>
             </div>
           </div>

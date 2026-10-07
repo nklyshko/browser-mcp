@@ -11,8 +11,8 @@ export type Locale = 'zh' | 'en';
 export const LOCALE_STORAGE_KEY = 'welcome-page-locale';
 
 export const PAGE_TITLE: Record<Locale, string> = {
-  zh: '猫娘 Chrome MCP Server',
-  en: 'Catgirl Chrome MCP Server',
+  zh: 'Chrome MCP',
+  en: 'Chrome MCP',
 };
 
 const COPY = {
