@@ -3075,15 +3075,13 @@ onUnmounted(() => {
 .popup-container--unlocked {
   background:
     linear-gradient(rgba(255, 255, 255, 0.43), rgba(255, 255, 255, 0.43)),
-    linear-gradient(120deg, rgba(255, 255, 255, 0.34), rgba(248, 246, 251, 0.14)),
-    url('../../assets/catgirl-chat-background.webp') center / cover;
+    linear-gradient(120deg, rgba(255, 255, 255, 0.34), rgba(248, 246, 251, 0.14)), #ffffff;
 }
 
 .popup-container--unlocked.popup-container--premium {
   background:
     linear-gradient(rgba(255, 255, 255, 0.43), rgba(255, 255, 255, 0.43)),
-    linear-gradient(120deg, rgba(255, 255, 255, 0.28), rgba(248, 246, 251, 0.12)),
-    url('/backgrounds/catgirl-premium-portrait.webp') center top / cover;
+    linear-gradient(120deg, rgba(255, 255, 255, 0.28), rgba(248, 246, 251, 0.12)), #ffffff;
 }
 
 .popup-container:not(.popup-container--unlocked) {
@@ -4010,9 +4008,7 @@ onUnmounted(() => {
 .popup-container--unlocked .error-log-dialog,
 .popup-container--unlocked .proxy-dialog,
 .popup-container--unlocked .cookie-dialog {
-  background:
-    linear-gradient(120deg, rgba(255, 255, 255, 0.42), rgba(246, 243, 250, 0.2)),
-    url('/backgrounds/catgirl-premium-portrait.webp') center top / cover;
+  background: linear-gradient(120deg, rgba(255, 255, 255, 0.42), rgba(246, 243, 250, 0.2)), #ffffff;
 }
 
 .quick-tools-unlock-trigger {
@@ -5030,12 +5026,11 @@ onUnmounted(() => {
   background: #d97706;
 }
 
-/* Catgirl glass theme for the complete, scrollable popup home page. */
+/* Glass theme for the complete, scrollable popup home page. */
 .popup-container.popup-container--home {
   color: #182c51;
   background:
-    linear-gradient(180deg, rgba(251, 247, 255, 0.04), rgba(255, 248, 242, 0.08)),
-    url('/assets/backgrounds/popup-catgirl.webp') center 34% / cover !important;
+    linear-gradient(180deg, rgba(251, 247, 255, 0.04), rgba(255, 248, 242, 0.08)), #ffffff !important;
   --popup-ink: #182c51;
   --popup-muted: #596d91;
   --popup-violet: #7c3aed;
@@ -5926,8 +5921,7 @@ onUnmounted(() => {
   --ac-shadow-card: 0 8px 22px rgba(47, 38, 76, 0.13);
   border: 1px solid rgba(255, 255, 255, 0.72);
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.16), rgba(255, 248, 253, 0.25)),
-    url('/assets/backgrounds/popup-subpage-catgirl.webp') center 34% / cover !important;
+    linear-gradient(180deg, rgba(255, 255, 255, 0.16), rgba(255, 248, 253, 0.25)), #ffffff !important;
   box-shadow:
     0 20px 48px rgba(54, 42, 82, 0.2),
     inset 0 0 0 1px rgba(255, 255, 255, 0.16);
@@ -6042,8 +6036,7 @@ onUnmounted(() => {
   border: 1px solid rgba(255, 255, 255, 0.78);
   border-radius: 20px;
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.68), rgba(255, 250, 255, 0.76)),
-    url('/assets/backgrounds/popup-subpage-catgirl.webp') center 34% / cover;
+    linear-gradient(180deg, rgba(255, 255, 255, 0.68), rgba(255, 250, 255, 0.76)), #ffffff;
   box-shadow:
     0 20px 48px rgba(43, 32, 68, 0.28),
     inset 0 1px 0 rgba(255, 255, 255, 0.82);

@@ -274,8 +274,7 @@ defineExpose({ zoomIn, zoomOut, fitAll });
 
 .canvas--unlocked {
   background:
-    linear-gradient(120deg, rgba(255, 255, 255, 0.72), rgba(244, 238, 248, 0.58)),
-    url('/backgrounds/catgirl-premium-portrait.webp') center top / cover;
+    linear-gradient(120deg, rgba(255, 255, 255, 0.72), rgba(244, 238, 248, 0.58)), #ffffff;
 }
 
 :deep(.workflow-node) {

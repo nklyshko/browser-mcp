@@ -196,7 +196,7 @@ async function main() {
   const nativeDir = path.join(root, 'app', 'native-server');
   const nativeDist = path.join(nativeDir, 'dist');
   const extensionDist = path.join(root, 'app', 'chrome-extension', '.output', 'chrome-mv3');
-  const iconSource = path.join(root, 'app', 'chrome-extension', 'public', 'icon', 'catgirl.ico');
+  const iconSource = path.join(root, 'app', 'chrome-extension', 'public', 'icon', 'chrome-mcp.ico');
   const desktopUiSource = path.join(root, 'scripts', 'desktop-ui.ps1');
   const sourceNodeModules = path.join(nativeDir, 'node_modules');
   const stageNativeDir = path.join(payloadDir, 'app', 'native-server');
@@ -204,7 +204,7 @@ async function main() {
 
   if (!existsSync(nativeDist)) throw new Error('Native server dist is missing.');
   if (!existsSync(extensionDist)) throw new Error('Chrome extension build output is missing.');
-  if (!existsSync(iconSource)) throw new Error('Catgirl icon asset is missing.');
+  if (!existsSync(iconSource)) throw new Error('Windows icon asset is missing.');
   if (!existsSync(sourceNodeModules)) throw new Error('Native server dependencies are missing.');
 
   await fs.copyFile(process.execPath, path.join(payloadDir, 'node.exe'));

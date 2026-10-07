@@ -197,7 +197,6 @@ const themes = computed<{ id: AgentThemeId; label: string }[]>(() => {
     'blueprint-architect': '蓝图',
     'zen-journal': '禅意',
     'neo-pop': '潮流',
-    catgirl: '猫娘',
     'dark-console': '深色终端',
     'swiss-grid': '瑞士网格',
   };
