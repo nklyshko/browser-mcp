@@ -1,3 +1,4 @@
+import { getMessage } from '@/utils/i18n';
 /**
  * Content index manager
  * Responsible for automatically extracting, chunking and indexing tab content
@@ -583,7 +584,8 @@ export class ContentIndexer {
           title: response.title || '',
         };
       } else {
-        const error = response?.error || response?.selectorError || '页面没有可提取的文本';
+        const error =
+          response?.error || response?.selectorError || getMessage('ciNoExtractableText');
         console.error(`ContentIndexer: Failed to extract content from tab ${tabId}:`, error);
         return null;
       }

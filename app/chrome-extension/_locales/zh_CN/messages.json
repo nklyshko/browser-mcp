@@ -4632,5 +4632,22 @@
   },
   "pxNoTabToRotate": {
     "message": "当前没有可切换代理的网页标签"
+  },
+  "weToggleEditMode": {
+    "message": "切换网页编辑模式"
+  },
+  "rrFlowNeedsExecutableNode": {
+    "message": "工作流至少需要一个可执行节点"
+  },
+  "rrUnsupportedNodes": {
+    "message": "V3 不支持节点：$P1$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "ciNoExtractableText": {
+    "message": "页面没有可提取的文本"
   }
 }

@@ -4632,5 +4632,22 @@
   },
   "pxNoTabToRotate": {
     "message": "There is no page tab to rotate the proxy for"
+  },
+  "weToggleEditMode": {
+    "message": "Toggle web edit mode"
+  },
+  "rrFlowNeedsExecutableNode": {
+    "message": "A workflow needs at least one executable node"
+  },
+  "rrUnsupportedNodes": {
+    "message": "V3 does not support these nodes: $P1$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "ciNoExtractableText": {
+    "message": "The page has no extractable text"
   }
 }

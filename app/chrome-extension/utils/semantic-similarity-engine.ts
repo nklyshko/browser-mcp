@@ -1220,7 +1220,9 @@ export class SemanticSimilarityEngine {
     if (!this.isInitialized) throw new Error('Engine not initialized after warmup attempt.');
     console.log('SemanticSimilarityEngine: Warming up model...');
 
-    // 更有代表性的预热文本，包含不同长度和语言
+    // Deliberately mixed-script and mixed-length: the embedding model is
+    // multilingual, so warming it on CJK as well as Latin text exercises the
+    // multibyte tokenizer path the index will actually hit.
     const warmupTexts = [
       // 短文本
       'Hello',
@@ -1859,17 +1861,17 @@ export class SemanticSimilarityEngine {
 
   public validateInput(text1: string, text2: string | 'valid_dummy'): void {
     if (typeof text1 !== 'string' || (text2 !== 'valid_dummy' && typeof text2 !== 'string')) {
-      throw new Error('输入必须是字符串');
+      throw new Error('The input must be a string');
     }
     if (text1.trim().length === 0 || (text2 !== 'valid_dummy' && text2.trim().length === 0)) {
-      throw new Error('输入文本不能为空');
+      throw new Error('The input text must not be empty');
     }
     const roughCharLimit = this.config.maxLength * 5;
     if (
       text1.length > roughCharLimit ||
       (text2 !== 'valid_dummy' && text2.length > roughCharLimit)
     ) {
-      console.warn('输入文本可能过长，将由分词器截断。');
+      console.warn('The input text may be too long and will be truncated by the tokenizer.');
     }
   }
 

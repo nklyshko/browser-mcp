@@ -1,3 +1,4 @@
+import { getMessage } from '@/utils/i18n';
 import type {
   Flow as BuilderFlow,
   NodeBase as BuilderNode,
@@ -20,7 +21,7 @@ const UNSUPPORTED_NODE_KINDS = new Set<string>([]);
 
 function entryNodeId(nodes: BuilderNode[], edges: BuilderFlow['edges']): NodeId {
   const executable = nodes.filter((node) => node.type !== 'trigger');
-  if (!executable.length) throw new Error('工作流至少需要一个可执行节点');
+  if (!executable.length) throw new Error(getMessage('rrFlowNeedsExecutableNode'));
   const targets = new Set((edges || []).map((edge) => edge.to));
   return (executable.find((node) => !targets.has(node.id)) || executable[0]).id as NodeId;
 }
@@ -29,7 +30,9 @@ export function builderFlowToV3(flow: BuilderFlow): FlowConversionResult<FlowV3>
   const nodes = flow.nodes || [];
   const unsupported = nodes.filter((node) => UNSUPPORTED_NODE_KINDS.has(node.type));
   if (unsupported.length)
-    throw new Error(`V3 不支持节点：${unsupported.map((node) => node.type).join(', ')}`);
+    throw new Error(
+      getMessage('rrUnsupportedNodes', [unsupported.map((node) => node.type).join(', ')]),
+    );
   const now = new Date().toISOString();
   return {
     flow: {

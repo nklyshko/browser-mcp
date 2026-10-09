@@ -1,3 +1,4 @@
+import { getMessage } from '@/utils/i18n';
 import { BACKGROUND_MESSAGE_TYPES } from '@/common/message-types';
 import {
   WEB_EDITOR_V3_ACTIONS,
@@ -663,7 +664,7 @@ async function ensureContextMenu(): Promise<void> {
     } catch {}
     await chrome.contextMenus.create({
       id: CONTEXT_MENU_ID,
-      title: '切换网页编辑模式',
+      title: getMessage('weToggleEditMode'),
       contexts: ['all'],
     });
   } catch (error) {
@@ -1461,8 +1462,7 @@ export function initWebEditorListeners(): void {
           if (!projectId) {
             return sendResponse({
               success: false,
-              error:
-                'No Agent project selected. Open Side Panel → 智能助手 and select/create a project first.',
+              error: `No Agent project selected. Open Side Panel -> ${getMessage('navAgentChat')} and select/create a project first.`,
             });
           }
 
