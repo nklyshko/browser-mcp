@@ -4244,5 +4244,393 @@
   },
   "rrSensitive": {
     "message": "sensitive"
+  },
+  "optProxyTitle": {
+    "message": "Residential proxy"
+  },
+  "optProxyDescription": {
+    "message": "The reverse entry point <code>pr.oxylabs.io:7777</code> takes <code>cc-XX</code> in the username; per-country entry points use that country’s host and port, with no <code>cc</code> in the username. The extension keeps one exit per site, defaulting to about 5 minutes when <code>sesstime</code> is unset — add <code>sesstime-60</code> or longer if you need more stickiness."
+  },
+  "optProxyEnable": {
+    "message": "Enable the proxy"
+  },
+  "optProxyEndpointType": {
+    "message": "Endpoint type"
+  },
+  "optProxyEndpointReverse": {
+    "message": "Reverse entry point (7777)"
+  },
+  "optProxyEndpointCountry": {
+    "message": "Per-country entry point"
+  },
+  "optProxyRegion": {
+    "message": "Access region"
+  },
+  "optProxyRegionGlobal": {
+    "message": "Global (pr.oxylabs.io:7777)"
+  },
+  "optProxyRegionBeijing": {
+    "message": "Beijing (cnt9t1is.com:8000)"
+  },
+  "optProxyRegionHongKong": {
+    "message": "Hong Kong (a81298871.com:8000)"
+  },
+  "optProxyRegionCustom": {
+    "message": "Custom address"
+  },
+  "optProxyProtocol": {
+    "message": "Output format / protocol"
+  },
+  "optProxyProtocolHttp": {
+    "message": "Endpoint:port / HTTP"
+  },
+  "optProxyProtocolHttps": {
+    "message": "HTTPS (required for the Beijing and Hong Kong entry points)"
+  },
+  "optProxyProtocolSocks5": {
+    "message": "SOCKS5 (Oxylabs does not support it on Chrome)"
+  },
+  "optProxyHost": {
+    "message": "Proxy address or full connection string"
+  },
+  "optProxyPort": {
+    "message": "Port"
+  },
+  "optProxyUsername": {
+    "message": "Username"
+  },
+  "optProxyPassword": {
+    "message": "Password"
+  },
+  "optProxyCountry": {
+    "message": "Country / region"
+  },
+  "optProxyCountryOptional": {
+    "message": "Country / region (optional)"
+  },
+  "optProxyCountryUnset": {
+    "message": "Unspecified (keep the username as-is)"
+  },
+  "optProxyCountryRandom": {
+    "message": "Random (strip cc)"
+  },
+  "optProxySessionId": {
+    "message": "Session ID (optional)"
+  },
+  "optProxyRotateOnError": {
+    "message": "Rotate the IP automatically on page errors (at most once per 5 minutes per site, no hourly cap)"
+  },
+  "optProxyDomainScope": {
+    "message": "Only proxy these sites (leave blank for all sites)"
+  },
+  "optProxySave": {
+    "message": "Save proxy settings"
+  },
+  "optProxyEnabled": {
+    "message": "Proxy enabled"
+  },
+  "optProxyDisabled": {
+    "message": "Proxy disabled"
+  },
+  "ctxMenuRoot": {
+    "message": "Page shortcuts"
+  },
+  "ctxCopyPageText": {
+    "message": "Copy the page text"
+  },
+  "ctxClosePopups": {
+    "message": "Smart-close cookie and ad dialogs"
+  },
+  "ctxRestoreScroll": {
+    "message": "Restore page scrolling"
+  },
+  "ctxDisableAnimations": {
+    "message": "Disable page animations"
+  },
+  "ctxRestoreAnimations": {
+    "message": "Restore page animations"
+  },
+  "ctxExpandContent": {
+    "message": "Expand all collapsed content"
+  },
+  "ctxFocusFirstInput": {
+    "message": "Focus the first input"
+  },
+  "ctxFillTestData": {
+    "message": "Fill blank fields with test data"
+  },
+  "ctxShowBorders": {
+    "message": "Show element borders"
+  },
+  "ctxHideBorders": {
+    "message": "Hide element borders"
+  },
+  "ctxPickColor": {
+    "message": "Pick a colour from the page"
+  },
+  "ctxHideImages": {
+    "message": "Hide page images"
+  },
+  "ctxShowImages": {
+    "message": "Show page images"
+  },
+  "ctxFullPageScreenshot": {
+    "message": "Capture a full-page screenshot"
+  },
+  "ctxNoTextToCopy": {
+    "message": "The page has no text to copy."
+  },
+  "ctxCopyPageTextFailed": {
+    "message": "Failed to copy the page text."
+  },
+  "ctxScreenshotFailed": {
+    "message": "Full-page screenshot failed"
+  },
+  "ctxScreenshotFile": {
+    "message": "screenshot file"
+  },
+  "ctxScreenshotDownloaded": {
+    "message": "Full-page screenshot downloaded: $P1$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "ctxActionFailed": {
+    "message": "$P1$ failed",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "ctxPageActionFailed": {
+    "message": "The page shortcut failed."
+  },
+  "ctxTextCopied": {
+    "message": "Page text copied ($P1$ characters)",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "paNoColorRead": {
+    "message": "Could not read a valid colour"
+  },
+  "paColorCopied": {
+    "message": "Copied the colour $P1$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "paColorCopyFailed": {
+    "message": "Failed to copy the colour"
+  },
+  "paPickerOn": {
+    "message": "Colour picker on - click an element to sample it, Esc to cancel"
+  },
+  "paPopupsHandled": {
+    "message": "Handled $P1$ dialog(s)",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "paNoPopups": {
+    "message": "No dialog could be safely handled"
+  },
+  "paScrollRestored": {
+    "message": "Page scrolling restored"
+  },
+  "paAnimationsDisabled": {
+    "message": "Page animations disabled"
+  },
+  "paAnimationsRestored": {
+    "message": "Page animations restored"
+  },
+  "paExpanded": {
+    "message": "Expanded $P1$ collapsed section(s)",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "paNothingToExpand": {
+    "message": "Found nothing to expand"
+  },
+  "paInputFocused": {
+    "message": "Focused the first input"
+  },
+  "paNoInputFound": {
+    "message": "No usable input found"
+  },
+  "paFieldsFilled": {
+    "message": "Filled $P1$ empty field(s)",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "paNoEmptyFields": {
+    "message": "Found no empty field to fill"
+  },
+  "paBordersShown": {
+    "message": "Element borders shown"
+  },
+  "paBordersHidden": {
+    "message": "Element borders hidden"
+  },
+  "paImagesHidden": {
+    "message": "Page images hidden"
+  },
+  "paImagesShown": {
+    "message": "Page images shown"
+  },
+  "paUnknownAction": {
+    "message": "Unknown page action"
+  },
+  "emMarkElement": {
+    "message": "Mark element"
+  },
+  "emNoBatchElements": {
+    "message": "No batch elements to verify"
+  },
+  "emLocatedButNoCoords": {
+    "message": "Located the element but could not get its coordinates; select it again and re-verify"
+  },
+  "rrPageToolFailed": {
+    "message": "The page tool failed"
+  },
+  "rrPageToolInvalidData": {
+    "message": "The page tool returned invalid data"
+  },
+  "rrTabIdMustBeNonNegative": {
+    "message": "The tab ID must be a non-negative integer"
+  },
+  "rrMaxDepthMustBeNonNegative": {
+    "message": "The max depth must be a non-negative integer"
+  },
+  "rrAlreadyRecording": {
+    "message": "A recording is already in progress"
+  },
+  "rrSwitchToHttpPage": {
+    "message": "Switch to a regular http/https page before recording"
+  },
+  "rrNoActiveRecording": {
+    "message": "There is no recording in progress"
+  },
+  "rrNotRecording": {
+    "message": "Not currently recording"
+  },
+  "rrNotPaused": {
+    "message": "Not currently paused"
+  },
+  "rrFlowName": {
+    "message": "Page recording $P1$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "rrFlowDescription": {
+    "message": "Recorded from $P1$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "rrFlowTag": {
+    "message": "page recording"
+  },
+  "pxBadConnectionString": {
+    "message": "The proxy connection string is malformed"
+  },
+  "pxHostMustBeHostOrIp": {
+    "message": "The proxy address must be a hostname or IP, without a scheme or port"
+  },
+  "pxPortOutOfRange": {
+    "message": "The proxy port must be between 1 and 65535"
+  },
+  "pxCredentialsRequired": {
+    "message": "Enabling the proxy requires a username and password"
+  },
+  "pxBadSessionId": {
+    "message": "The session ID may only contain letters, digits, underscores and hyphens"
+  },
+  "pxBadDomainScope": {
+    "message": "The site scope accepts domains only, such as example.com or *.example.com"
+  },
+  "pxBadCountryCode": {
+    "message": "The country code must be two letters, such as us or ca"
+  },
+  "pxNoCountryEntryPoint": {
+    "message": "This country or region has no dedicated Oxylabs entry point; use the reverse entry point instead"
+  },
+  "pxSocks5Unsupported": {
+    "message": "Oxylabs SOCKS5 is not supported on Chrome; choose HTTP or HTTPS"
+  },
+  "pxEnableAndSaveFirst": {
+    "message": "Enable and save the proxy first"
+  },
+  "pxRotateRateLimited": {
+    "message": "This site has already rotated 3 times in the last minute; try again shortly"
+  },
+  "pxTestFailedHttp": {
+    "message": "Proxy test failed (HTTP $P1$)",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "pxTestNoExitIp": {
+    "message": "The proxy test did not return an exit IP"
+  },
+  "pxConnectFailed": {
+    "message": "Proxy connection failed: $P1$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "pxAuthMismatch": {
+    "message": "Proxy auth did not match: Chrome received an auth challenge for $P1$, which is not the configured proxy address",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "pxTunnelFailed": {
+    "message": "Could not establish the proxy tunnel: the auth challenge reached $P1$, so check the proxy account, password and port",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "pxUnreachable": {
+    "message": "Proxy connection failed: Chrome could not reach $P1$, so check the proxy address, port and network",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "pxTestTimeout": {
+    "message": "The proxy test timed out after 30 seconds; check the proxy account, password and network connection"
+  },
+  "pxNoTabToRotate": {
+    "message": "There is no page tab to rotate the proxy for"
   }
 }

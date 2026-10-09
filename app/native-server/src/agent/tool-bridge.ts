@@ -32,8 +32,9 @@ export interface AgentToolBridgeOptions {
  * AgentToolBridge maps CLI tool events (Codex, etc.) to MCP tool calls
  * against the local chrome MCP server via the official MCP SDK client.
  *
- * 中文说明：该桥接层负责将 CLI 上报的工具调用统一转为标准 MCP CallTool 请求，
- * 复用统一的 /mcp-new HTTP client，并自动回退到 /mcp 兼容端点。
+ * This bridge normalises the tool calls the CLI reports into standard MCP
+ * CallTool requests, reusing the shared /mcp-new HTTP client and falling back to
+ * the /mcp compatibility endpoint automatically.
  */
 export class AgentToolBridge {
   private readonly client: UnifiedMcpClient;

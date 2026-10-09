@@ -1310,12 +1310,18 @@ const recentScriptsMessage = ref('');
 const rrOnlyBound = ref(false);
 const rrSearch = ref('');
 const currentTabUrl = ref<string>('');
+/** Both forms, so flows recorded before the i18n switch still match. */
+const RECORDED_DESCRIPTION_PREFIXES = [getMessage('rrFlowDescription', ['']).trim(), '录制自'];
 const recentRecordedFlows = computed(() =>
   rrFlows.value
     .filter(
-      // These two literals are persisted data, not UI: page-recorder.ts writes them
-      // into every recorded flow. Translating them would hide flows already on disk.
-      (flow) => flow.meta?.tags?.includes('页面录制') || flow.description?.startsWith('录制自 '),
+      // page-recorder.ts stamps these onto every recorded flow, so they are
+      // persisted data. The pre-translation Chinese forms stay in the match list
+      // or flows already on disk would drop out of this view.
+      (flow) =>
+        flow.meta?.tags?.some(
+          (tag: string) => tag === getMessage('rrFlowTag') || tag === '页面录制',
+        ) || RECORDED_DESCRIPTION_PREFIXES.some((prefix) => flow.description?.startsWith(prefix)),
     )
     .sort(
       (a, b) =>

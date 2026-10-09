@@ -93,7 +93,7 @@ function waitForPortAvailable(port: number, timeoutMs = 8_000): Promise<void> {
       if (settled) return;
       if (Date.now() >= deadline) {
         settled = true;
-        reject(new Error(`等待端口 ${port} 释放超时。`));
+        reject(new Error(`Timed out waiting for port ${port} to be released.`));
         return;
       }
       setTimeout(attempt, 100);

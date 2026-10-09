@@ -567,22 +567,24 @@ export class BrowserProfileManager {
   async clearErrorLogs(profileId?: string): Promise<string[]> {
     const profiles = await this.load();
     const targets = profileId ? profiles.filter((profile) => profile.id === profileId) : profiles;
-    if (profileId && targets.length === 0) return [`终端不存在：${profileId}`];
+    if (profileId && targets.length === 0) return [`No such terminal: ${profileId}`];
 
     const errorsByProfile = await Promise.all(
       targets.map(async (profile): Promise<string[]> => {
         const active = this.running.get(profile.id);
         if (!active?.mcpReady || !active.mcpPort) {
-          return profileId ? [`终端未运行或扩展未连接：${profile.name}`] : [];
+          return profileId
+            ? [`Terminal not running or extension not connected: ${profile.name}`]
+            : [];
         }
         try {
           active.connection ||= new ProfileMcpConnection(active.mcpPort);
           const result = await active.connection.callTool('chrome_error_logs', { action: 'clear' });
-          if (result.isError) throw new Error('插件返回了清除失败结果');
+          if (result.isError) throw new Error('The extension reported that clearing failed');
           return [];
         } catch (error) {
           return [
-            `${profile.name} 错误日志清除失败：${error instanceof Error ? error.message : String(error)}`,
+            `${profile.name}: failed to clear the error log: ${error instanceof Error ? error.message : String(error)}`,
           ];
         }
       }),

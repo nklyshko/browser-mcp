@@ -1,3 +1,4 @@
+import { getMessage } from '@/utils/i18n';
 import { BACKGROUND_MESSAGE_TYPES } from '@/common/message-types';
 import type {
   UpsertMarkerRequest,
@@ -172,7 +173,7 @@ async function ensureContextMenu() {
     } catch {}
     await chrome.contextMenus.create({
       id: CONTEXT_MENU_ID,
-      title: '标注元素',
+      title: getMessage('emMarkElement'),
       contexts: ['all'],
     });
   } catch (e) {
@@ -368,7 +369,7 @@ export function initElementMarkerListeners() {
             const listElements =
               req.listMode && Array.isArray(ensured.elements) ? ensured.elements : [];
             if (req.listMode && listElements.length === 0) {
-              return sendResponse({ success: false, error: '未找到可验证的批量元素' });
+              return sendResponse({ success: false, error: getMessage('emNoBatchElements') });
             }
 
             const base = {
@@ -409,7 +410,7 @@ export function initElementMarkerListeners() {
             if (!coords && !req.listMode) {
               return sendResponse({
                 success: false,
-                error: '定位成功但无法获取元素坐标，请重新选择后验证',
+                error: getMessage('emLocatedButNoCoords'),
               });
             }
 

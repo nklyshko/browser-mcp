@@ -1,3 +1,4 @@
+import { getMessage } from '@/utils/i18n';
 import { CONTEXT_ACTION_MESSAGE_TYPES } from '@/common/message-types';
 import { handlePageAction } from '@/utils/page-actions';
 
@@ -8,7 +9,7 @@ async function copyTextToClipboard(
     typeof text === 'string' && text
       ? text
       : document.body?.innerText || document.documentElement?.innerText || '';
-  if (!value) return { success: false, error: '网页没有可复制的文本内容。' };
+  if (!value) return { success: false, error: getMessage('ctxNoTextToCopy') };
 
   try {
     await navigator.clipboard.writeText(value);
@@ -24,7 +25,7 @@ async function copyTextToClipboard(
     textarea.remove();
     return copied
       ? { success: true, length: value.length }
-      : { success: false, error: '浏览器拒绝访问剪贴板。' };
+      : { success: false, error: getMessage('emClipboardDenied') };
   }
 }
 
@@ -70,7 +71,7 @@ export default defineContentScript({
     chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
       if (message?.action === CONTEXT_ACTION_MESSAGE_TYPES.COPY_TEXT_TO_CLIPBOARD) {
         void copyTextToClipboard(message.text).then((result) => {
-          if (result.success) showToast(`网页文本已复制（${result.length || 0} 字）`);
+          if (result.success) showToast(getMessage('ctxTextCopied', [String(result.length || 0)]));
           else if (result.error) showToast(result.error, true);
           sendResponse(result);
         });

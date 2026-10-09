@@ -11,44 +11,41 @@
     </header>
 
     <section v-if="hiddenInterfaceUnlocked" class="proxy">
-      <h2>住宅代理</h2>
-      <p class="description"
-        >反向入口 <code>pr.oxylabs.io:7777</code> 在用户名中使用
-        <code>cc-XX</code>；具体国家入口使用对应国家主机和端口，用户名不带
-        <code>cc</code>。插件按站点保持同一出口，未指定 <code>sesstime</code> 时默认约 5 分钟；
-        需要更长粘性时再加 <code>sesstime-60</code> 或更长时长。</p
-      >
+      <h2>{{ getMessage('optProxyTitle') }}</h2>
+      <!-- v-html because the copy embeds <code> spans. The string comes from
+           _locales, never from user input or page content. -->
+      <p class="description" v-html="getMessage('optProxyDescription')"></p>
       <div class="grid">
         <label class="toggle">
-          启用代理
+          {{ getMessage('optProxyEnable') }}
           <input type="checkbox" v-model="proxy.enabled" />
         </label>
         <label>
-          端点类型
+          {{ getMessage('optProxyEndpointType') }}
           <select v-model="proxy.endpointType" :disabled="!proxy.enabled">
-            <option value="reverse">反向连接入口（7777）</option>
-            <option value="country">具体国家/地区入口</option>
+            <option value="reverse">{{ getMessage('optProxyEndpointReverse') }}</option>
+            <option value="country">{{ getMessage('optProxyEndpointCountry') }}</option>
           </select>
         </label>
         <label v-if="proxy.endpointType === 'reverse'">
-          接入地区
+          {{ getMessage('optProxyRegion') }}
           <select v-model="proxy.accessRegion" :disabled="!proxy.enabled">
-            <option value="global">全球（pr.oxylabs.io:7777）</option>
-            <option value="beijing">北京（cnt9t1is.com:8000）</option>
-            <option value="hongkong">香港（a81298871.com:8000）</option>
-            <option value="custom">自定义地址</option>
+            <option value="global">{{ getMessage('optProxyRegionGlobal') }}</option>
+            <option value="beijing">{{ getMessage('optProxyRegionBeijing') }}</option>
+            <option value="hongkong">{{ getMessage('optProxyRegionHongKong') }}</option>
+            <option value="custom">{{ getMessage('optProxyRegionCustom') }}</option>
           </select>
         </label>
         <label>
-          输出格式 / 连接协议
+          {{ getMessage('optProxyProtocol') }}
           <select v-model="proxy.protocol" :disabled="!proxy.enabled">
-            <option value="http">端点：端口 / HTTP</option>
-            <option value="https">HTTPS（北京/香港入口必选）</option>
-            <option value="socks5" disabled>SOCKS5（Oxylabs 不支持 Chrome）</option>
+            <option value="http">{{ getMessage('optProxyProtocolHttp') }}</option>
+            <option value="https">{{ getMessage('optProxyProtocolHttps') }}</option>
+            <option value="socks5" disabled>{{ getMessage('optProxyProtocolSocks5') }}</option>
           </select>
         </label>
         <label>
-          代理地址或完整连接串
+          {{ getMessage('optProxyHost') }}
           <input
             v-model="proxy.host"
             placeholder="customer-USER:PASSWORD@pr.oxylabs.io:7777"
@@ -56,7 +53,7 @@
           />
         </label>
         <label>
-          端口
+          {{ getMessage('optProxyPort') }}
           <input
             v-model.number="proxy.port"
             type="number"
@@ -66,7 +63,7 @@
           />
         </label>
         <label>
-          用户名
+          {{ getMessage('optProxyUsername') }}
           <input
             v-model="proxy.username"
             placeholder="customer-USERNAME-cc-us-sesstime-5"
@@ -74,10 +71,18 @@
           />
         </label>
         <label>
-          国家/地区{{ proxy.endpointType === 'country' ? '' : '（可选）' }}
+          {{
+            proxy.endpointType === 'country'
+              ? getMessage('optProxyCountry')
+              : getMessage('optProxyCountryOptional')
+          }}
           <select v-model="proxy.countryCode" :disabled="!proxy.enabled">
-            <option v-if="proxy.endpointType === 'reverse'" value="">不指定（保留用户名）</option>
-            <option v-if="proxy.endpointType === 'reverse'" value="random">随机（移除 cc）</option>
+            <option v-if="proxy.endpointType === 'reverse'" value="">{{
+              getMessage('optProxyCountryUnset')
+            }}</option>
+            <option v-if="proxy.endpointType === 'reverse'" value="random">{{
+              getMessage('optProxyCountryRandom')
+            }}</option>
             <option v-for="country in PROXY_COUNTRIES" :key="country.code" :value="country.code">
               {{ country.name
               }}{{
@@ -89,7 +94,7 @@
           </select>
         </label>
         <label>
-          密码
+          {{ getMessage('optProxyPassword') }}
           <input
             v-model="proxy.password"
             type="password"
@@ -98,16 +103,16 @@
           />
         </label>
         <label>
-          会话 ID（可选）
+          {{ getMessage('optProxySessionId') }}
           <input v-model="proxy.sessionId" placeholder="0366443321" :disabled="!proxy.enabled" />
         </label>
         <label class="toggle">
-          页面异常自动轮换 IP（同站点最短 5 分钟，不设每小时次数上限）
+          {{ getMessage('optProxyRotateOnError') }}
           <input type="checkbox" v-model="proxy.rotateOnError" :disabled="!proxy.enabled" />
         </label>
       </div>
       <label>
-        仅对这些网站走代理（留空表示全部网站）
+        {{ getMessage('optProxyDomainScope') }}
         <textarea
           v-model="proxyDomains"
           rows="2"
@@ -116,7 +121,7 @@
         />
       </label>
       <div class="row">
-        <button :disabled="proxySaving" @click="saveProxy">保存代理设置</button>
+        <button :disabled="proxySaving" @click="saveProxy">{{ getMessage('optProxySave') }}</button>
         <span class="hint" v-if="proxyResult">{{ proxyResult }}</span>
       </div>
     </section>
@@ -253,6 +258,7 @@
 </template>
 
 <script setup lang="ts">
+import { getMessage } from '@/utils/i18n';
 import { reactive, ref, onMounted } from 'vue';
 import { TOOL_NAMES } from '@ethanwilkins/chrome-mcp-shared-2026';
 import { PROXY_COUNTRIES, STORAGE_KEYS } from '@/common/constants';
@@ -343,12 +349,14 @@ async function saveProxy() {
           .filter(Boolean),
       },
     });
-    if (!result?.success) throw new Error(result?.error || '保存失败');
+    if (!result?.success) throw new Error(result?.error || getMessage('emSaveFailed'));
     Object.assign(proxy, result.config);
     proxyDomains.value = (result.config.domains || []).join('\n');
-    proxyResult.value = proxy.enabled ? '代理已启用' : '代理已停用';
+    proxyResult.value = proxy.enabled
+      ? getMessage('optProxyEnabled')
+      : getMessage('optProxyDisabled');
   } catch (error: any) {
-    proxyResult.value = `错误：${error?.message || String(error)}`;
+    proxyResult.value = getMessage('emErrorPrefix', [error?.message || String(error)]);
   } finally {
     proxySaving.value = false;
   }

@@ -842,7 +842,7 @@ export const handleToolCall = async (
         };
       }
     }
-    // 发送请求到Chrome扩展并等待响应
+    // Send the request to the Chrome extension and wait for the response
     const queuedAt = Date.now();
     const response = await serialByTab(
       name,

@@ -121,7 +121,7 @@ async function ensureLocalHttpServer(url: string): Promise<void> {
   if (!(await waitForHttpServer(localConfig.pingUrl, DEFAULT_AUTOSTART_TIMEOUT_MS))) {
     stopEmbeddedHttpServer();
     throw new Error(
-      `无法启动本地 MCP HTTP 服务。请检查端口 ${localConfig.port}，或设置 CHROME_MCP_AUTOSTART_SERVER=0 后手动启动服务。`,
+      `Could not start the local MCP HTTP service. Check port ${localConfig.port}, or set CHROME_MCP_AUTOSTART_SERVER=0 and start the service by hand.`,
     );
   }
 }
@@ -154,7 +154,7 @@ export const ensureMcpClient = async (options: UnifiedRequestOptions = {}) => {
     try {
       const config = loadConfig();
       if (!config || typeof config.url !== 'string' || !config.url.trim()) {
-        throw new Error('MCP_SERVER_URL 或 stdio-config.json 中的 url 无效');
+        throw new Error('MCP_SERVER_URL, or the url in stdio-config.json, is invalid');
       }
       await ensureLocalHttpServer(config.url);
       const apiKey = process.env.CHROME_MCP_API_KEY?.trim();

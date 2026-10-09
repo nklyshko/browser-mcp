@@ -4244,5 +4244,393 @@
   },
   "rrSensitive": {
     "message": "敏感"
+  },
+  "optProxyTitle": {
+    "message": "住宅代理"
+  },
+  "optProxyDescription": {
+    "message": "反向入口 <code>pr.oxylabs.io:7777</code> 在用户名中使用 <code>cc-XX</code>；具体国家入口使用对应国家主机和端口，用户名不带 <code>cc</code>。插件按站点保持同一出口，未指定 <code>sesstime</code> 时默认约 5 分钟；需要更长粘性时再加 <code>sesstime-60</code> 或更长时长。"
+  },
+  "optProxyEnable": {
+    "message": "启用代理"
+  },
+  "optProxyEndpointType": {
+    "message": "端点类型"
+  },
+  "optProxyEndpointReverse": {
+    "message": "反向连接入口（7777）"
+  },
+  "optProxyEndpointCountry": {
+    "message": "具体国家/地区入口"
+  },
+  "optProxyRegion": {
+    "message": "接入地区"
+  },
+  "optProxyRegionGlobal": {
+    "message": "全球（pr.oxylabs.io:7777）"
+  },
+  "optProxyRegionBeijing": {
+    "message": "北京（cnt9t1is.com:8000）"
+  },
+  "optProxyRegionHongKong": {
+    "message": "香港（a81298871.com:8000）"
+  },
+  "optProxyRegionCustom": {
+    "message": "自定义地址"
+  },
+  "optProxyProtocol": {
+    "message": "输出格式 / 连接协议"
+  },
+  "optProxyProtocolHttp": {
+    "message": "端点：端口 / HTTP"
+  },
+  "optProxyProtocolHttps": {
+    "message": "HTTPS（北京/香港入口必选）"
+  },
+  "optProxyProtocolSocks5": {
+    "message": "SOCKS5（Oxylabs 不支持 Chrome）"
+  },
+  "optProxyHost": {
+    "message": "代理地址或完整连接串"
+  },
+  "optProxyPort": {
+    "message": "端口"
+  },
+  "optProxyUsername": {
+    "message": "用户名"
+  },
+  "optProxyPassword": {
+    "message": "密码"
+  },
+  "optProxyCountry": {
+    "message": "国家/地区"
+  },
+  "optProxyCountryOptional": {
+    "message": "国家/地区（可选）"
+  },
+  "optProxyCountryUnset": {
+    "message": "不指定（保留用户名）"
+  },
+  "optProxyCountryRandom": {
+    "message": "随机（移除 cc）"
+  },
+  "optProxySessionId": {
+    "message": "会话 ID（可选）"
+  },
+  "optProxyRotateOnError": {
+    "message": "页面异常自动轮换 IP（同站点最短 5 分钟，不设每小时次数上限）"
+  },
+  "optProxyDomainScope": {
+    "message": "仅对这些网站走代理（留空表示全部网站）"
+  },
+  "optProxySave": {
+    "message": "保存代理设置"
+  },
+  "optProxyEnabled": {
+    "message": "代理已启用"
+  },
+  "optProxyDisabled": {
+    "message": "代理已停用"
+  },
+  "ctxMenuRoot": {
+    "message": "页面快捷操作"
+  },
+  "ctxCopyPageText": {
+    "message": "一键获取网页文本内容"
+  },
+  "ctxClosePopups": {
+    "message": "智能关闭 Cookie / 广告弹窗"
+  },
+  "ctxRestoreScroll": {
+    "message": "恢复页面滚动"
+  },
+  "ctxDisableAnimations": {
+    "message": "禁用页面动画"
+  },
+  "ctxRestoreAnimations": {
+    "message": "恢复页面动画"
+  },
+  "ctxExpandContent": {
+    "message": "展开所有折叠内容"
+  },
+  "ctxFocusFirstInput": {
+    "message": "聚焦第一个输入框"
+  },
+  "ctxFillTestData": {
+    "message": "填充空白测试数据"
+  },
+  "ctxShowBorders": {
+    "message": "显示元素边界"
+  },
+  "ctxHideBorders": {
+    "message": "隐藏元素边界"
+  },
+  "ctxPickColor": {
+    "message": "拾取页面颜色"
+  },
+  "ctxHideImages": {
+    "message": "隐藏页面图片"
+  },
+  "ctxShowImages": {
+    "message": "显示页面图片"
+  },
+  "ctxFullPageScreenshot": {
+    "message": "生成网页长截图"
+  },
+  "ctxNoTextToCopy": {
+    "message": "网页没有可复制的文本内容。"
+  },
+  "ctxCopyPageTextFailed": {
+    "message": "复制网页文本失败。"
+  },
+  "ctxScreenshotFailed": {
+    "message": "长截图失败"
+  },
+  "ctxScreenshotFile": {
+    "message": "截图文件"
+  },
+  "ctxScreenshotDownloaded": {
+    "message": "网页长截图已下载：$P1$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "ctxActionFailed": {
+    "message": "$P1$失败",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "ctxPageActionFailed": {
+    "message": "页面快捷操作失败。"
+  },
+  "ctxTextCopied": {
+    "message": "网页文本已复制（$P1$ 字）",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "paNoColorRead": {
+    "message": "未读取到有效颜色"
+  },
+  "paColorCopied": {
+    "message": "已复制颜色 $P1$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "paColorCopyFailed": {
+    "message": "颜色复制失败"
+  },
+  "paPickerOn": {
+    "message": "取色模式已开启，点击页面元素取色；按 Esc 取消"
+  },
+  "paPopupsHandled": {
+    "message": "已处理 $P1$ 个弹窗",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "paNoPopups": {
+    "message": "未找到可安全处理的弹窗"
+  },
+  "paScrollRestored": {
+    "message": "页面滚动已恢复"
+  },
+  "paAnimationsDisabled": {
+    "message": "页面动画已禁用"
+  },
+  "paAnimationsRestored": {
+    "message": "页面动画已恢复"
+  },
+  "paExpanded": {
+    "message": "已展开 $P1$ 个折叠内容",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "paNothingToExpand": {
+    "message": "没有发现可展开内容"
+  },
+  "paInputFocused": {
+    "message": "已聚焦第一个输入框"
+  },
+  "paNoInputFound": {
+    "message": "未找到可用输入框"
+  },
+  "paFieldsFilled": {
+    "message": "已填充 $P1$ 个空字段",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "paNoEmptyFields": {
+    "message": "没有找到可填充的空字段"
+  },
+  "paBordersShown": {
+    "message": "元素边界已显示"
+  },
+  "paBordersHidden": {
+    "message": "元素边界已隐藏"
+  },
+  "paImagesHidden": {
+    "message": "页面图片已隐藏"
+  },
+  "paImagesShown": {
+    "message": "页面图片已显示"
+  },
+  "paUnknownAction": {
+    "message": "未知页面操作"
+  },
+  "emMarkElement": {
+    "message": "标注元素"
+  },
+  "emNoBatchElements": {
+    "message": "未找到可验证的批量元素"
+  },
+  "emLocatedButNoCoords": {
+    "message": "定位成功但无法获取元素坐标，请重新选择后验证"
+  },
+  "rrPageToolFailed": {
+    "message": "页面工具执行失败"
+  },
+  "rrPageToolInvalidData": {
+    "message": "页面工具返回了无效数据"
+  },
+  "rrTabIdMustBeNonNegative": {
+    "message": "标签页 ID 必须为非负整数"
+  },
+  "rrMaxDepthMustBeNonNegative": {
+    "message": "最大深度必须为非负整数"
+  },
+  "rrAlreadyRecording": {
+    "message": "已有进行中的录制"
+  },
+  "rrSwitchToHttpPage": {
+    "message": "请切换到 http/https 普通网页后再开始录制"
+  },
+  "rrNoActiveRecording": {
+    "message": "当前没有录制"
+  },
+  "rrNotRecording": {
+    "message": "当前未在录制"
+  },
+  "rrNotPaused": {
+    "message": "当前未暂停"
+  },
+  "rrFlowName": {
+    "message": "页面录制 $P1$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "rrFlowDescription": {
+    "message": "录制自 $P1$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "rrFlowTag": {
+    "message": "页面录制"
+  },
+  "pxBadConnectionString": {
+    "message": "代理连接串格式不正确"
+  },
+  "pxHostMustBeHostOrIp": {
+    "message": "代理地址必须是域名或 IP，不含协议和端口"
+  },
+  "pxPortOutOfRange": {
+    "message": "代理端口必须在 1 到 65535 之间"
+  },
+  "pxCredentialsRequired": {
+    "message": "启用代理需要用户名和密码"
+  },
+  "pxBadSessionId": {
+    "message": "会话 ID 只能包含字母、数字、下划线和连字符"
+  },
+  "pxBadDomainScope": {
+    "message": "网站范围只能填写域名，如 example.com 或 *.example.com"
+  },
+  "pxBadCountryCode": {
+    "message": "国家代码必须是两个字母，如 us 或 ca"
+  },
+  "pxNoCountryEntryPoint": {
+    "message": "当前国家/地区没有配置 Oxylabs 专用入口，请改用反向连接入口"
+  },
+  "pxSocks5Unsupported": {
+    "message": "Oxylabs SOCKS5 当前不支持 Chrome，请选择 HTTP 或 HTTPS"
+  },
+  "pxEnableAndSaveFirst": {
+    "message": "请先启用并保存代理"
+  },
+  "pxRotateRateLimited": {
+    "message": "该站点 1 分钟内已轮换 3 次，请稍后再试"
+  },
+  "pxTestFailedHttp": {
+    "message": "代理测试失败（HTTP $P1$）",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "pxTestNoExitIp": {
+    "message": "代理测试未返回出口 IP"
+  },
+  "pxConnectFailed": {
+    "message": "代理连接失败：$P1$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "pxAuthMismatch": {
+    "message": "代理认证未命中：Chrome 收到 $P1$ 的认证请求，但当前代理地址不匹配",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "pxTunnelFailed": {
+    "message": "代理隧道建立失败：认证请求已命中 $P1$，请检查代理账号、密码和端口",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "pxUnreachable": {
+    "message": "代理连接失败：Chrome 无法连接 $P1$，请检查代理地址、端口和网络",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "pxTestTimeout": {
+    "message": "代理测试超时（30 秒）：请检查代理账号、密码和网络连接"
+  },
+  "pxNoTabToRotate": {
+    "message": "当前没有可切换代理的网页标签"
   }
 }

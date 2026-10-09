@@ -1,3 +1,4 @@
+import { getMessage } from '@/utils/i18n';
 import { CONTEXT_ACTION_MESSAGE_TYPES } from '@/common/message-types';
 import { screenshotTool } from '../tools/browser/screenshot';
 
@@ -6,17 +7,26 @@ const LEGACY_BATCH_CLICK_MENU_ID = 'context_action_batch_click_similar_buttons';
 const PAGE_ACTIONS_MENU_ID = 'context_action_page_utilities';
 
 const PAGE_ACTION_MENUS = [
-  { id: CONTEXT_ACTION_MESSAGE_TYPES.COPY_TEXT_TO_CLIPBOARD, title: '一键获取网页文本内容' },
-  { id: CONTEXT_ACTION_MESSAGE_TYPES.SMART_CLOSE_POPUPS, title: '智能关闭 Cookie / 广告弹窗' },
-  { id: CONTEXT_ACTION_MESSAGE_TYPES.RESTORE_PAGE_SCROLL, title: '恢复页面滚动' },
-  { id: CONTEXT_ACTION_MESSAGE_TYPES.TOGGLE_PAGE_ANIMATIONS, title: '禁用页面动画' },
-  { id: CONTEXT_ACTION_MESSAGE_TYPES.EXPAND_COLLAPSED_CONTENT, title: '展开所有折叠内容' },
-  { id: CONTEXT_ACTION_MESSAGE_TYPES.FOCUS_FIRST_INPUT, title: '聚焦第一个输入框' },
-  { id: CONTEXT_ACTION_MESSAGE_TYPES.FILL_EMPTY_TEST_DATA, title: '填充空白测试数据' },
-  { id: CONTEXT_ACTION_MESSAGE_TYPES.TOGGLE_ELEMENT_BORDERS, title: '显示元素边界' },
-  { id: CONTEXT_ACTION_MESSAGE_TYPES.START_COLOR_PICKER, title: '拾取页面颜色' },
-  { id: CONTEXT_ACTION_MESSAGE_TYPES.TOGGLE_PAGE_IMAGES, title: '隐藏页面图片' },
-  { id: CONTEXT_ACTION_MESSAGE_TYPES.CAPTURE_FULL_PAGE, title: '生成网页长截图' },
+  { id: CONTEXT_ACTION_MESSAGE_TYPES.COPY_TEXT_TO_CLIPBOARD, title: getMessage('ctxCopyPageText') },
+  { id: CONTEXT_ACTION_MESSAGE_TYPES.SMART_CLOSE_POPUPS, title: getMessage('ctxClosePopups') },
+  { id: CONTEXT_ACTION_MESSAGE_TYPES.RESTORE_PAGE_SCROLL, title: getMessage('ctxRestoreScroll') },
+  {
+    id: CONTEXT_ACTION_MESSAGE_TYPES.TOGGLE_PAGE_ANIMATIONS,
+    title: getMessage('ctxDisableAnimations'),
+  },
+  {
+    id: CONTEXT_ACTION_MESSAGE_TYPES.EXPAND_COLLAPSED_CONTENT,
+    title: getMessage('ctxExpandContent'),
+  },
+  { id: CONTEXT_ACTION_MESSAGE_TYPES.FOCUS_FIRST_INPUT, title: getMessage('ctxFocusFirstInput') },
+  { id: CONTEXT_ACTION_MESSAGE_TYPES.FILL_EMPTY_TEST_DATA, title: getMessage('ctxFillTestData') },
+  { id: CONTEXT_ACTION_MESSAGE_TYPES.TOGGLE_ELEMENT_BORDERS, title: getMessage('ctxShowBorders') },
+  { id: CONTEXT_ACTION_MESSAGE_TYPES.START_COLOR_PICKER, title: getMessage('ctxPickColor') },
+  { id: CONTEXT_ACTION_MESSAGE_TYPES.TOGGLE_PAGE_IMAGES, title: getMessage('ctxHideImages') },
+  {
+    id: CONTEXT_ACTION_MESSAGE_TYPES.CAPTURE_FULL_PAGE,
+    title: getMessage('ctxFullPageScreenshot'),
+  },
 ] as const;
 
 async function ensureContextMenus(): Promise<void> {
@@ -30,7 +40,7 @@ async function ensureContextMenus(): Promise<void> {
 
   await chrome.contextMenus.create({
     id: PAGE_ACTIONS_MENU_ID,
-    title: '页面快捷操作',
+    title: getMessage('ctxMenuRoot'),
     contexts: ['all'],
   });
   for (const item of PAGE_ACTION_MENUS) {
@@ -56,7 +66,7 @@ async function handleCopyPageText(tabId: number): Promise<void> {
       target: { tabId, frameIds: [0] },
       func: async () => {
         const text = document.body?.innerText || document.documentElement?.innerText || '';
-        if (!text) return { success: false, error: '网页没有可复制的文本内容。' };
+        if (!text) return { success: false, error: getMessage('ctxNoTextToCopy') };
         try {
           await navigator.clipboard.writeText(text);
           return { success: true, length: text.length };
@@ -71,13 +81,13 @@ async function handleCopyPageText(tabId: number): Promise<void> {
           textarea.remove();
           return success
             ? { success: true, length: text.length }
-            : { success: false, error: '浏览器拒绝访问剪贴板。' };
+            : { success: false, error: getMessage('emClipboardDenied') };
         }
       },
     });
     response = result?.result;
   }
-  if (!response?.success) throw new Error(response?.error || '复制网页文本失败。');
+  if (!response?.success) throw new Error(response?.error || getMessage('ctxCopyPageTextFailed'));
 }
 
 async function sendToFrame(tabId: number, frameId: number, message: unknown): Promise<any> {
@@ -110,21 +120,21 @@ function extractToolPayload(result: any): any {
 
 async function handleFullScreenshot(tabId: number): Promise<void> {
   const result = await screenshotTool.execute({
-    name: '网页长截图',
+    name: getMessage('ctxFullPageScreenshot'),
     tabId,
     fullPage: true,
     savePng: true,
   });
   if (result?.isError) {
     const errorText = (result.content as any[])?.find((item) => item?.type === 'text')?.text;
-    throw new Error(errorText || '长截图失败');
+    throw new Error(errorText || getMessage('ctxScreenshotFailed'));
   }
   const payload = extractToolPayload(result);
-  const filename = payload.filename || payload.fullPath || '截图文件';
+  const filename = payload.filename || payload.fullPath || getMessage('ctxScreenshotFile');
   try {
     await sendToFrame(tabId, 0, {
       action: CONTEXT_ACTION_MESSAGE_TYPES.SHOW_TOAST,
-      text: `网页长截图已下载：${filename}`,
+      text: getMessage('ctxScreenshotDownloaded', [filename]),
     });
   } catch {}
 }
@@ -154,21 +164,23 @@ export function initContextActionListeners(): void {
         const frameId = typeof info.frameId === 'number' ? info.frameId : 0;
         const response = await sendToFrame(tabId, frameId, { action: pageAction.id });
         if (!response?.success) {
-          throw new Error(response?.error || `${pageAction.title}失败`);
+          throw new Error(response?.error || getMessage('ctxActionFailed', [pageAction.title]));
         }
         if (pageAction.id === CONTEXT_ACTION_MESSAGE_TYPES.TOGGLE_PAGE_ANIMATIONS) {
           await chrome.contextMenus.update(pageAction.id, {
-            title: response.enabled ? '恢复页面动画' : '禁用页面动画',
+            title: response.enabled
+              ? getMessage('ctxRestoreAnimations')
+              : getMessage('ctxDisableAnimations'),
           });
         }
         if (pageAction.id === CONTEXT_ACTION_MESSAGE_TYPES.TOGGLE_ELEMENT_BORDERS) {
           await chrome.contextMenus.update(pageAction.id, {
-            title: response.enabled ? '隐藏元素边界' : '显示元素边界',
+            title: response.enabled ? getMessage('ctxHideBorders') : getMessage('ctxShowBorders'),
           });
         }
         if (pageAction.id === CONTEXT_ACTION_MESSAGE_TYPES.TOGGLE_PAGE_IMAGES) {
           await chrome.contextMenus.update(pageAction.id, {
-            title: response.enabled ? '显示页面图片' : '隐藏页面图片',
+            title: response.enabled ? getMessage('ctxShowImages') : getMessage('ctxHideImages'),
           });
         }
         return;
@@ -178,7 +190,7 @@ export function initContextActionListeners(): void {
       try {
         await sendToFrame(tabId, 0, {
           action: CONTEXT_ACTION_MESSAGE_TYPES.SHOW_TOAST,
-          text: error instanceof Error ? error.message : '页面快捷操作失败。',
+          text: error instanceof Error ? error.message : getMessage('ctxPageActionFailed'),
           isError: true,
         });
       } catch {

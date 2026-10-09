@@ -1,3 +1,4 @@
+import { getMessage } from '@/utils/i18n';
 import { PROXY_COUNTRIES, STORAGE_KEYS } from '@/common/constants';
 
 export type ProxyConfig = {
@@ -73,11 +74,11 @@ const DEFAULT_SESSION_TIME_MINUTES = 5;
  */
 function logProxyError(context: string, error?: unknown): void {
   if (error === undefined) {
-    console.error(`[住宅代理] ${context}`);
+    console.error(`[residential proxy] ${context}`);
     return;
   }
   const detail = error instanceof Error ? error : new Error(String(error));
-  console.error(`[住宅代理] ${context}`, detail);
+  console.error(`[residential proxy] ${context}`, detail);
 }
 
 function applyCountryCode(username: string, countryCode: string): string {
@@ -130,7 +131,7 @@ export function normalizeProxyConfig(value: Partial<ProxyConfig>): ProxyConfig {
             ? 'socks5'
             : 'http';
     } catch {
-      throw new Error('代理连接串格式不正确');
+      throw new Error(getMessage('pxBadConnectionString'));
     }
   }
   const sessionId = String(value.sessionId ?? '').trim();
@@ -203,25 +204,23 @@ export function normalizeProxyConfig(value: Partial<ProxyConfig>): ProxyConfig {
   }
 
   if (!next.enabled) return next;
-  if (!next.host || /[/@:]/.test(next.host))
-    throw new Error('代理地址必须是域名或 IP，不含协议和端口');
+  if (!next.host || /[/@:]/.test(next.host)) throw new Error(getMessage('pxHostMustBeHostOrIp'));
   if (!Number.isInteger(next.port) || next.port < 1 || next.port > 65535)
-    throw new Error('代理端口必须在 1 到 65535 之间');
-  if (!next.username || !next.password) throw new Error('启用代理需要用户名和密码');
+    throw new Error(getMessage('pxPortOutOfRange'));
+  if (!next.username || !next.password) throw new Error(getMessage('pxCredentialsRequired'));
   if (sessionId && !/^[A-Za-z0-9_-]{1,128}$/.test(sessionId)) {
-    throw new Error('会话 ID 只能包含字母、数字、下划线和连字符');
+    throw new Error(getMessage('pxBadSessionId'));
   }
   if (domains.some((domain) => !/^(?:\*\.)?[a-z0-9.-]+$/.test(domain))) {
-    throw new Error('网站范围只能填写域名，如 example.com 或 *.example.com');
+    throw new Error(getMessage('pxBadDomainScope'));
   }
   if (countryCode && countryCode !== 'random' && !/^[a-z]{2}$/.test(countryCode)) {
-    throw new Error('国家代码必须是两个字母，如 us 或 ca');
+    throw new Error(getMessage('pxBadCountryCode'));
   }
   if (endpointType === 'country' && !PROXY_COUNTRIES.some((entry) => entry.code === countryCode)) {
-    throw new Error('当前国家/地区没有配置 Oxylabs 专用入口，请改用反向连接入口');
+    throw new Error(getMessage('pxNoCountryEntryPoint'));
   }
-  if (next.protocol === 'socks5')
-    throw new Error('Oxylabs SOCKS5 当前不支持 Chrome，请选择 HTTP 或 HTTPS');
+  if (next.protocol === 'socks5') throw new Error(getMessage('pxSocks5Unsupported'));
   return next;
 }
 
@@ -503,7 +502,7 @@ async function detectPageErrorAndRotate(tabId: number): Promise<void> {
     if (!isProxyScopedUrl(tab.url ?? '')) return;
     if (await pageContainsKnownError(tabId)) await rotateAndReload(tabId);
   } catch (error) {
-    if (!isClosedTabError(error)) console.debug('页面异常检测跳过:', error);
+    if (!isClosedTabError(error)) console.debug('Skipped page error detection:', error);
   }
 }
 
@@ -514,9 +513,10 @@ export async function rotateProxyForTab(
   if (!Number.isInteger(tabId) || tabId < 0)
     throw new Error('tabId must be a non-negative integer');
   const result = await rotateAndReload(tabId, undefined, true);
-  if (!result.rotated && result.skipped === 'proxy_disabled') throw new Error('请先启用并保存代理');
+  if (!result.rotated && result.skipped === 'proxy_disabled')
+    throw new Error(getMessage('pxEnableAndSaveFirst'));
   if (!result.rotated && result.skipped === 'rate_limited')
-    throw new Error('该站点 1 分钟内已轮换 3 次，请稍后再试');
+    throw new Error(getMessage('pxRotateRateLimited'));
   return { ...result, reason };
 }
 
@@ -554,7 +554,7 @@ export async function getProxyDiagnostics(
       elapsedMs: Date.now() - startedAt,
       error: String(error instanceof Error ? error.message : error),
     };
-    logProxyError('代理诊断测试失败', error);
+    logProxyError('Proxy diagnostics test failed', error);
   }
   if ((diagnostics.connection as { ok: boolean }).ok)
     (diagnostics.connection as { elapsedMs: number }).elapsedMs = Date.now() - startedAt;
@@ -563,7 +563,7 @@ export async function getProxyDiagnostics(
 }
 
 async function testProxyConnection(sessionId?: string): Promise<ProxyLocation> {
-  if (!config.enabled) throw new Error('请先启用并保存代理');
+  if (!config.enabled) throw new Error(getMessage('pxEnableAndSaveFirst'));
   const previousProbeSessionId = proxyProbeSessionId;
   lastProxyNetworkError = undefined;
   proxyProbeSessionId = sessionId;
@@ -572,7 +572,7 @@ async function testProxyConnection(sessionId?: string): Promise<ProxyLocation> {
       cache: 'no-store',
       signal: AbortSignal.timeout(30_000),
     });
-    if (!response.ok) throw new Error(`代理测试失败（HTTP ${response.status}）`);
+    if (!response.ok) throw new Error(getMessage('pxTestFailedHttp', [String(response.status)]));
     const result = (await response.json()) as {
       ip?: unknown;
       country?: unknown;
@@ -581,7 +581,7 @@ async function testProxyConnection(sessionId?: string): Promise<ProxyLocation> {
       province?: unknown;
       city?: unknown;
     };
-    if (typeof result.ip !== 'string') throw new Error('代理测试未返回出口 IP');
+    if (typeof result.ip !== 'string') throw new Error(getMessage('pxTestNoExitIp'));
     const region = [result.region, result.state, result.province].find(
       (value): value is string => typeof value === 'string' && Boolean(value.trim()),
     );
@@ -620,21 +620,17 @@ async function testProxyConnection(sessionId?: string): Promise<ProxyLocation> {
     const networkError = lastProxyNetworkError as
       { url: string; type: string; error: string; at: number } | undefined;
     if (networkError?.url.includes('ip.oxylabs.io')) {
-      throw new Error(`代理连接失败：${networkError.error}`);
+      throw new Error(getMessage('pxConnectFailed', [networkError.error]));
     }
     if (lastProxyAuth && !lastProxyAuth.matched) {
       throw new Error(
-        `代理认证未命中：Chrome 收到 ${lastProxyAuth.host}:${lastProxyAuth.port} 的认证请求，但当前代理地址不匹配`,
+        getMessage('pxAuthMismatch', [`${lastProxyAuth.host}:${lastProxyAuth.port}`]),
       );
     }
     if (lastProxyAuth?.matched) {
-      throw new Error(
-        `代理隧道建立失败：认证请求已命中 ${config.host}:${config.port}，请检查代理账号、密码和端口`,
-      );
+      throw new Error(getMessage('pxTunnelFailed', [`${config.host}:${config.port}`]));
     }
-    throw new Error(
-      `代理连接失败：Chrome 无法连接 ${config.host}:${config.port}，请检查代理地址、端口和网络`,
-    );
+    throw new Error(getMessage('pxUnreachable', [`${config.host}:${config.port}`]));
   } finally {
     proxyProbeSessionId = previousProbeSessionId;
   }
@@ -652,12 +648,10 @@ async function runProxyTest(sessionId?: string): Promise<ProxyTestResult> {
     return saved;
   } catch (error) {
     const detail = String(error instanceof Error ? error.message : error);
-    logProxyError('代理测试失败', error);
+    logProxyError('Proxy test failed', error);
     const saved: ProxyTestResult = {
       success: false,
-      error: /timed out/i.test(detail)
-        ? '代理测试超时（30 秒）：请检查代理账号、密码和网络连接'
-        : detail,
+      error: /timed out/i.test(detail) ? getMessage('pxTestTimeout') : detail,
       checkedAt: Date.now(),
     };
     await chrome.storage.local.set({ [STORAGE_KEYS.PROXY_TEST_RESULT]: saved });
@@ -723,7 +717,7 @@ export function initProxyManager(): void {
     })
     .catch((error) => {
       // Keep the browser's existing proxy settings untouched when saved config is invalid.
-      logProxyError('加载代理配置失败', error);
+      logProxyError('Failed to load the proxy configuration', error);
       config = DEFAULT_CONFIG;
     });
 
@@ -740,7 +734,7 @@ export function initProxyManager(): void {
         };
         if (config.enabled && !matched)
           logProxyError(
-            `代理认证地址不匹配：${details.challenger.host}:${details.challenger.port}`,
+            `Proxy auth host mismatch: ${details.challenger.host}:${details.challenger.port}`,
           );
       }
       if (matched) {
@@ -766,9 +760,9 @@ export function initProxyManager(): void {
     (details) => {
       if (details.type === 'main_frame' && shouldRotatePage(details.statusCode)) {
         if (config.enabled && isProxyScopedUrl(details.url))
-          logProxyError(`代理页面响应异常：HTTP ${details.statusCode}`);
+          logProxyError(`Unexpected proxied page response: HTTP ${details.statusCode}`);
         void rotateAndReload(details.tabId, undefined, false, details.url).catch((error) =>
-          logProxyError('自动轮换代理失败', error),
+          logProxyError('Automatic proxy rotation failed', error),
         );
       }
     },
@@ -783,12 +777,12 @@ export function initProxyManager(): void {
           error: details.error,
           at: Date.now(),
         };
-        logProxyError(`代理请求失败：${details.error}`, new Error(details.url));
+        logProxyError(`Proxy request failed: ${details.error}`, new Error(details.url));
       }
       if (details.type === 'main_frame') {
         if (shouldRotateNetworkError(details.error))
           void rotateAndReload(details.tabId, details.error, false, details.url).catch((error) =>
-            logProxyError('网络错误后的自动轮换代理失败', error),
+            logProxyError('Automatic proxy rotation after a network error failed', error),
           );
       }
     },
@@ -808,7 +802,7 @@ export function initProxyManager(): void {
       saveProxyConfig(message.config)
         .then((saved) => sendResponse({ success: true, config: saved }))
         .catch((error) => {
-          logProxyError('保存代理配置失败', error);
+          logProxyError('Failed to save the proxy configuration', error);
           sendResponse({ success: false, error: String(error.message ?? error) });
         });
       return true;
@@ -820,12 +814,15 @@ export function initProxyManager(): void {
         : chrome.tabs.query({ active: true, lastFocusedWindow: true }).then(([tab]) => tab);
       tabPromise
         .then((tab) => {
-          if (!tab?.id) throw new Error('当前没有可切换代理的网页标签');
-          return rotateProxyForTab(tab.id, String(message.reason || '用户手动切换 IP'));
+          if (!tab?.id) throw new Error(getMessage('pxNoTabToRotate'));
+          return rotateProxyForTab(
+            tab.id,
+            String(message.reason || 'manual IP switch by the user'),
+          );
         })
         .then((result) => sendResponse({ success: true, result }))
         .catch((error) => {
-          logProxyError('手动轮换代理失败', error);
+          logProxyError('Manual proxy rotation failed', error);
           sendResponse({ success: false, error: String(error.message ?? error) });
         });
       return true;
@@ -842,7 +839,7 @@ export function initProxyManager(): void {
         .then((sessionId) => runProxyTest(sessionId))
         .then(sendResponse)
         .catch((error) => {
-          logProxyError('代理测试消息处理失败', error);
+          logProxyError('Failed to handle the proxy test message', error);
           sendResponse({
             success: false,
             error: String(error instanceof Error ? error.message : error),
