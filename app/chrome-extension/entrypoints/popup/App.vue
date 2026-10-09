@@ -5506,7 +5506,7 @@ onUnmounted(() => {
 }
 
 .popup-container--home .mcp-transport-options {
-  gap: 0;
+  gap: 6px;
   padding-top: 8px;
 }
 
@@ -5521,11 +5521,10 @@ onUnmounted(() => {
   align-items: center;
   gap: 2px 9px;
   min-height: 50px;
-  margin-top: -9px;
   padding: 6px 9px;
   border-color: rgba(207, 211, 230, 0.66);
   border-radius: 16px;
-  background: rgba(255, 255, 255, 0.32);
+  background: rgba(255, 255, 255, 0.5);
   color: var(--popup-ink);
   transition:
     min-height 220ms ease,
@@ -5535,25 +5534,20 @@ onUnmounted(() => {
     box-shadow 180ms ease;
 }
 
-.popup-container--home .mcp-transport-option:first-child {
-  margin-top: 0;
-}
-
 .popup-container--home .mcp-transport-option:hover {
   border-color: rgba(139, 92, 246, 0.42);
-  background: rgba(255, 255, 255, 0.48);
+  background: rgba(255, 255, 255, 0.72);
 }
 
 .popup-container--home .mcp-transport-option--selected {
   border: 1px solid #a855f7;
-  background: linear-gradient(110deg, rgba(252, 247, 255, 0.44), rgba(255, 255, 255, 0.38));
+  background: linear-gradient(110deg, rgba(252, 247, 255, 0.92), rgba(255, 255, 255, 0.78));
   box-shadow:
     inset 4px 0 0 #a855f7,
     0 5px 16px rgba(168, 85, 247, 0.12);
 }
 
 .popup-container--home .mcp-transport-option--expanded {
-  z-index: 2;
   min-height: 86px;
   padding-block: 8px;
 }
