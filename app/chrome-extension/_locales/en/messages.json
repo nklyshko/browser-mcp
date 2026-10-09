@@ -3646,5 +3646,201 @@
   },
   "opTargetLabel_chrome_upload_file": {
     "message": "Upload to"
+  },
+  "emSearchPlaceholder": {
+    "message": "Search marker names or selectors..."
+  },
+  "emAddMarker": {
+    "message": "Add marker"
+  },
+  "emEditMarker": {
+    "message": "Edit marker"
+  },
+  "emNameLabel": {
+    "message": "Name"
+  },
+  "emNamePlaceholder": {
+    "message": "e.g. Sign-in button"
+  },
+  "emSelectorTypeLabel": {
+    "message": "Selector type"
+  },
+  "emMatchTypeLabel": {
+    "message": "Match type"
+  },
+  "emMatchPrefix": {
+    "message": "Path prefix"
+  },
+  "emMatchExact": {
+    "message": "Exact match"
+  },
+  "emMatchHost": {
+    "message": "Domain"
+  },
+  "emSelectorLabel": {
+    "message": "Selector"
+  },
+  "emSelectorPlaceholder": {
+    "message": "CSS selector or XPath"
+  },
+  "emUpdate": {
+    "message": "Update"
+  },
+  "emStatsFiltered": {
+    "message": "Showing $P1$ of $P2$ markers across $P3$ domains",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      },
+      "p2": {
+        "content": "$2"
+      },
+      "p3": {
+        "content": "$3"
+      }
+    }
+  },
+  "emStatsTotal": {
+    "message": "$P1$ markers across $P2$ domains",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      },
+      "p2": {
+        "content": "$2"
+      }
+    }
+  },
+  "emMarkerCount": {
+    "message": "$P1$ markers",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "emVerify": {
+    "message": "Verify"
+  },
+  "emEdit": {
+    "message": "Edit"
+  },
+  "emDelete": {
+    "message": "Delete"
+  },
+  "emNoMatches": {
+    "message": "No markers matched"
+  },
+  "emClearSearch": {
+    "message": "Clear search"
+  },
+  "emNoMarkers": {
+    "message": "No markers yet"
+  },
+  "emLocalFile": {
+    "message": "(local file)"
+  },
+  "emUnknownUrl": {
+    "message": "(unknown URL)"
+  },
+  "emTriggerCreateUnavailable": {
+    "message": "V3 trigger management is not implemented yet, so triggers cannot be created."
+  },
+  "emTriggerEditUnavailable": {
+    "message": "V3 trigger management is not implemented yet, so triggers cannot be edited."
+  },
+  "emFlowEditUnavailable": {
+    "message": "The V3 builder is not implemented yet, so workflows cannot be edited."
+  },
+  "emFlowCreateUnavailable": {
+    "message": "The V3 builder is not implemented yet, so workflows cannot be created."
+  },
+  "emConfirmDeleteFlow": {
+    "message": "Delete this workflow? This cannot be undone."
+  },
+  "emConfirmDeleteMarker": {
+    "message": "Delete the marker \"$P1$\"?",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "navSwitchPageHint": {
+    "message": "Switch page (drag to move, double-click to reset position)"
+  },
+  "navSwitchPage": {
+    "message": "Switch page"
+  },
+  "navAgentChat": {
+    "message": "Agent"
+  },
+  "navAgentChatDesc": {
+    "message": "AI agent chat and tasks"
+  },
+  "navWorkflows": {
+    "message": "Workflows"
+  },
+  "navWorkflowsDesc": {
+    "message": "Record and replay automated flows"
+  },
+  "navMarkers": {
+    "message": "Element markers"
+  },
+  "navMarkersDesc": {
+    "message": "Manage page element markers"
+  },
+  "wfRunOnCurrentPage": {
+    "message": "Run on the current page"
+  },
+  "wfStatusLabel": {
+    "message": "Status"
+  },
+  "wfElapsedLabel": {
+    "message": "Elapsed"
+  },
+  "wfStatusQueued": {
+    "message": "Queued"
+  },
+  "wfStatusRunning": {
+    "message": "Running"
+  },
+  "wfStatusPaused": {
+    "message": "Paused"
+  },
+  "wfStatusSucceeded": {
+    "message": "Succeeded"
+  },
+  "wfStatusFailed": {
+    "message": "Failed"
+  },
+  "wfStatusCanceled": {
+    "message": "Canceled"
+  },
+  "acOpenNormalPageToMark": {
+    "message": "Open a regular web page before marking page content."
+  },
+  "acMarkingStartFailed": {
+    "message": "Could not start page marking."
+  },
+  "acReadPageFailed": {
+    "message": "Could not read the current page: $P1$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "acPageContentUnavailable": {
+    "message": "the page content is unavailable."
+  },
+  "acOpenNormalPageToRead": {
+    "message": "Open the regular web page you want to look at first."
+  },
+  "acPageTextUnreadable": {
+    "message": "Could not read the current page's body text."
+  },
+  "acReadPageError": {
+    "message": "Failed to read the current page."
   }
 }

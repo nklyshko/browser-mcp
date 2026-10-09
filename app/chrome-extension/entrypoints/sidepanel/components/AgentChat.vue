@@ -188,6 +188,7 @@
 </template>
 
 <script lang="ts" setup>
+import { getMessage } from '@/utils/i18n';
 import { ref, computed, onMounted, onUnmounted, watch, provide } from 'vue';
 import type {
   AgentStoredMessage,
@@ -1119,7 +1120,7 @@ function handleBackToSessions(): void {
 async function handlePageMark(): Promise<void> {
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
   if (!tab?.id || !/^https?:/i.test(tab.url || '')) {
-    chat.errorMessage.value = '请先打开一个普通网页，再标记页面内容。';
+    chat.errorMessage.value = getMessage('acOpenNormalPageToMark');
     return;
   }
 
@@ -1128,12 +1129,13 @@ async function handlePageMark(): Promise<void> {
       type: BACKGROUND_MESSAGE_TYPES.WEB_EDITOR_TOGGLE,
     })) as { success?: boolean; active?: boolean; error?: string };
     if (!response?.success) {
-      chat.errorMessage.value = response?.error || '无法启动页面标记。';
+      chat.errorMessage.value = response?.error || getMessage('acMarkingStartFailed');
       return;
     }
     isMarkingPage.value = response.active === true;
   } catch (cause) {
-    chat.errorMessage.value = cause instanceof Error ? cause.message : '无法启动页面标记。';
+    chat.errorMessage.value =
+      cause instanceof Error ? cause.message : getMessage('acMarkingStartFailed');
   }
 }
 
@@ -1145,7 +1147,9 @@ async function handleCurrentPageSelect(): Promise<void> {
 
   const page = await readCurrentPageForContext();
   if (!page.context) {
-    chat.errorMessage.value = `无法读取当前网页：${page.error || '网页内容不可用。'}`;
+    chat.errorMessage.value = getMessage('acReadPageFailed', [
+      page.error || getMessage('acPageContentUnavailable'),
+    ]);
     return;
   }
   selectedCurrentPageContext.value = page.context;
@@ -1285,7 +1289,7 @@ function needsCurrentPageContext(input: string): boolean {
 async function readCurrentPageForContext(): Promise<{ context?: string; error?: string }> {
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
   if (!tab?.id || !/^https?:/i.test(tab.url || '')) {
-    return { error: '请先打开要查看的普通网页。' };
+    return { error: getMessage('acOpenNormalPageToRead') };
   }
 
   try {
@@ -1303,13 +1307,15 @@ async function readCurrentPageForContext(): Promise<{ context?: string; error?: 
     })) as { success?: boolean; textContent?: string; error?: string };
     const text = response?.textContent?.replace(/\s+/g, ' ').trim();
     if (!response?.success || !text) {
-      return { error: response?.error || '未能读取当前网页正文。' };
+      return { error: response?.error || getMessage('acPageTextUnreadable') };
     }
     return {
       context: `[CurrentWebPageContext]\ntitle: ${tab.title || 'Untitled'}\nurl: ${tab.url}\ncontent:\n${text.slice(0, 20_000)}`,
     };
   } catch (cause) {
-    return { error: cause instanceof Error ? cause.message : '读取当前网页失败。' };
+    return {
+      error: cause instanceof Error ? cause.message : getMessage('acReadPageError'),
+    };
   }
 }
 
@@ -1378,7 +1384,9 @@ async function handleSend(): Promise<void> {
   ) {
     const page = await readCurrentPageForContext();
     if (!page.context) {
-      chat.errorMessage.value = `无法读取当前网页：${page.error || '网页内容不可用。'}`;
+      chat.errorMessage.value = getMessage('acReadPageFailed', [
+        page.error || getMessage('acPageContentUnavailable'),
+      ]);
       return;
     }
     instructionWithContext = `${page.context}\n\n${instructionWithContext}`;

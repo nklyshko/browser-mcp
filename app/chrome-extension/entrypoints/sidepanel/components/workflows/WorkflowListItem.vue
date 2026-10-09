@@ -34,8 +34,8 @@
           class="workflow-action workflow-action-primary"
           :style="actionPrimaryStyle"
           @click.stop="$emit('run', flow.id)"
-          title="在当前页面运行"
-          aria-label="在当前页面运行"
+          :title="getMessage('wfRunOnCurrentPage')"
+          :aria-label="getMessage('wfRunOnCurrentPage')"
         >
           <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
             <path d="M8 5v14l11-7z" />
@@ -124,6 +124,7 @@
 </template>
 
 <script lang="ts" setup>
+import { getMessage } from '@/utils/i18n';
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 
 interface FlowLite {

@@ -245,9 +245,9 @@
                       :style="{ color: 'var(--ac-text-muted)' }"
                     >
                       <div class="flex items-center gap-2">
-                        <span>状态: {{ getRunStatusText(run) }}</span>
+                        <span>{{ getMessage('wfStatusLabel') }}: {{ getRunStatusText(run) }}</span>
                         <span v-if="run.finishedAt"
-                          >• 耗时:
+                          >• {{ getMessage('wfElapsedLabel') }}:
                           {{
                             Math.round(
                               (new Date(run.finishedAt).getTime() -
@@ -396,6 +396,7 @@
 </template>
 
 <script lang="ts" setup>
+import { getMessage } from '@/utils/i18n';
 import { ref, computed } from 'vue';
 import WorkflowListItem from './WorkflowListItem.vue';
 
@@ -500,12 +501,12 @@ function getRunStatusColor(run: RunLite): string {
  */
 function getRunStatusText(run: RunLite): string {
   const statusMap: Record<string, string> = {
-    queued: '排队中',
-    running: '运行中',
-    paused: '已暂停',
-    succeeded: '成功',
-    failed: '失败',
-    canceled: '已取消',
+    queued: getMessage('wfStatusQueued'),
+    running: getMessage('wfStatusRunning'),
+    paused: getMessage('wfStatusPaused'),
+    succeeded: getMessage('wfStatusSucceeded'),
+    failed: getMessage('wfStatusFailed'),
+    canceled: getMessage('wfStatusCanceled'),
   };
   return run.status ? statusMap[run.status] || run.status : '';
 }

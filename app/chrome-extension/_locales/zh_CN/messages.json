@@ -3646,5 +3646,201 @@
   },
   "opTargetLabel_chrome_upload_file": {
     "message": "上传到"
+  },
+  "emSearchPlaceholder": {
+    "message": "搜索标注名称、选择器..."
+  },
+  "emAddMarker": {
+    "message": "新增标注"
+  },
+  "emEditMarker": {
+    "message": "编辑标注"
+  },
+  "emNameLabel": {
+    "message": "名称"
+  },
+  "emNamePlaceholder": {
+    "message": "例如: 登录按钮"
+  },
+  "emSelectorTypeLabel": {
+    "message": "选择器类型"
+  },
+  "emMatchTypeLabel": {
+    "message": "匹配类型"
+  },
+  "emMatchPrefix": {
+    "message": "路径前缀"
+  },
+  "emMatchExact": {
+    "message": "精确匹配"
+  },
+  "emMatchHost": {
+    "message": "域名"
+  },
+  "emSelectorLabel": {
+    "message": "选择器"
+  },
+  "emSelectorPlaceholder": {
+    "message": "CSS 选择器或 XPath"
+  },
+  "emUpdate": {
+    "message": "更新"
+  },
+  "emStatsFiltered": {
+    "message": "筛选出 $P1$ 个标注（共 $P2$ 个，$P3$ 个域名）",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      },
+      "p2": {
+        "content": "$2"
+      },
+      "p3": {
+        "content": "$3"
+      }
+    }
+  },
+  "emStatsTotal": {
+    "message": "共 $P1$ 个标注，$P2$ 个域名",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      },
+      "p2": {
+        "content": "$2"
+      }
+    }
+  },
+  "emMarkerCount": {
+    "message": "$P1$ 个标注",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "emVerify": {
+    "message": "验证"
+  },
+  "emEdit": {
+    "message": "编辑"
+  },
+  "emDelete": {
+    "message": "删除"
+  },
+  "emNoMatches": {
+    "message": "未找到匹配的标注"
+  },
+  "emClearSearch": {
+    "message": "清除搜索"
+  },
+  "emNoMarkers": {
+    "message": "暂无标注元素"
+  },
+  "emLocalFile": {
+    "message": "(本地文件)"
+  },
+  "emUnknownUrl": {
+    "message": "(未知URL)"
+  },
+  "emTriggerCreateUnavailable": {
+    "message": "V3 Trigger 管理尚未实现，暂时无法创建触发器"
+  },
+  "emTriggerEditUnavailable": {
+    "message": "V3 Trigger 管理尚未实现，暂时无法编辑触发器"
+  },
+  "emFlowEditUnavailable": {
+    "message": "V3 Builder 尚未实现，暂时无法编辑工作流"
+  },
+  "emFlowCreateUnavailable": {
+    "message": "V3 Builder 尚未实现，暂时无法创建工作流"
+  },
+  "emConfirmDeleteFlow": {
+    "message": "确认删除该工作流？此操作不可恢复"
+  },
+  "emConfirmDeleteMarker": {
+    "message": "确定要删除标注 \"$P1$\" 吗?",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "navSwitchPageHint": {
+    "message": "切换页面（可拖拽移动，双击重置位置）"
+  },
+  "navSwitchPage": {
+    "message": "切换页面"
+  },
+  "navAgentChat": {
+    "message": "智能助手"
+  },
+  "navAgentChatDesc": {
+    "message": "AI Agent 对话与任务"
+  },
+  "navWorkflows": {
+    "message": "工作流管理"
+  },
+  "navWorkflowsDesc": {
+    "message": "录制与回放自动化流程"
+  },
+  "navMarkers": {
+    "message": "元素标注管理"
+  },
+  "navMarkersDesc": {
+    "message": "管理页面元素标注"
+  },
+  "wfRunOnCurrentPage": {
+    "message": "在当前页面运行"
+  },
+  "wfStatusLabel": {
+    "message": "状态"
+  },
+  "wfElapsedLabel": {
+    "message": "耗时"
+  },
+  "wfStatusQueued": {
+    "message": "排队中"
+  },
+  "wfStatusRunning": {
+    "message": "运行中"
+  },
+  "wfStatusPaused": {
+    "message": "已暂停"
+  },
+  "wfStatusSucceeded": {
+    "message": "成功"
+  },
+  "wfStatusFailed": {
+    "message": "失败"
+  },
+  "wfStatusCanceled": {
+    "message": "已取消"
+  },
+  "acOpenNormalPageToMark": {
+    "message": "请先打开一个普通网页，再标记页面内容。"
+  },
+  "acMarkingStartFailed": {
+    "message": "无法启动页面标记。"
+  },
+  "acReadPageFailed": {
+    "message": "无法读取当前网页：$P1$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "acPageContentUnavailable": {
+    "message": "网页内容不可用。"
+  },
+  "acOpenNormalPageToRead": {
+    "message": "请先打开要查看的普通网页。"
+  },
+  "acPageTextUnreadable": {
+    "message": "未能读取当前网页正文。"
+  },
+  "acReadPageError": {
+    "message": "读取当前网页失败。"
   }
 }
