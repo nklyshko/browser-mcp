@@ -39,7 +39,7 @@ const fallbackMessages: Record<string, string> = {
   mcpServerConfigLabel: 'MCP Server Configuration',
   connectionPortLabel: 'Connection Port',
   refreshStatusButton: 'Refresh Status',
-  copyConfigButton: 'Copy Configuration',
+  copyConfigButton: 'Copy',
 
   // Action buttons
   retryButton: 'Retry',
@@ -177,7 +177,7 @@ const fallbackMessages: Record<string, string> = {
   indexDataManagement: 'Index Data Management',
   clearing: 'Clearing...',
   clearAllData: 'Clear All Data',
-  copyConfig: 'Copy Configuration',
+  copyConfig: 'Copy',
   serviceRunning: 'Service Running (Port: {0})',
   connectedServiceNotStarted: 'Connected, Service Not Started',
   serviceNotConnected: 'Service Not Connected',

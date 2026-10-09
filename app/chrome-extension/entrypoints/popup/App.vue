@@ -2558,14 +2558,16 @@ const loadPackageVersions = async () => {
 const copyMcpConfig = async () => {
   try {
     await navigator.clipboard.writeText(mcpConfigJson.value);
-    copyButtonText.value = '✅' + getMessage('configCopiedNotification');
+    // Short labels only: this button sits in a space-between row, so a
+    // sentence-length status would wrap and push the heading out of shape.
+    copyButtonText.value = '✅ ' + getMessage('copiedLabel');
 
     setTimeout(() => {
       copyButtonText.value = getMessage('copyConfigButton');
     }, 2000);
   } catch (error) {
     console.error('Failed to copy the configuration:', error);
-    copyButtonText.value = '❌' + getMessage('networkErrorMessage');
+    copyButtonText.value = '❌ ' + getMessage('copyFailedLabel');
 
     setTimeout(() => {
       copyButtonText.value = getMessage('copyConfigButton');
@@ -3801,6 +3803,9 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   gap: 4px;
+  /* Labels are translated, so they vary in width; keep them on one line and
+     let the neighbouring text shrink instead of wrapping the button. */
+  white-space: nowrap;
 }
 
 .copy-config-button:hover {
@@ -5448,6 +5453,10 @@ onUnmounted(() => {
 .popup-container--home .mcp-config-header {
   align-items: center;
   margin-bottom: 8px;
+}
+
+.popup-container--home .mcp-config-header .copy-config-button {
+  flex-shrink: 0;
 }
 
 .popup-container--home .mcp-config-heading {

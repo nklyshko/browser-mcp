@@ -106,7 +106,7 @@
     "description": "Refresh status button tooltip"
   },
   "copyConfigButton": {
-    "message": "Copy Configuration",
+    "message": "Copy",
     "description": "Copy configuration button text"
   },
   "retryButton": {
