@@ -2495,5 +2495,461 @@
   "builderEnableLabel": {
     "message": "启用",
     "description": "workflow builder"
+  },
+  "specNodeNavigate": {
+    "message": "导航"
+  },
+  "specNodeClick": {
+    "message": "点击"
+  },
+  "specNodeDblclick": {
+    "message": "双击"
+  },
+  "specNodeFill": {
+    "message": "填充"
+  },
+  "specNodeKey": {
+    "message": "键盘"
+  },
+  "specNodeScroll": {
+    "message": "滚动"
+  },
+  "specNodeDrag": {
+    "message": "拖拽"
+  },
+  "specNodeWait": {
+    "message": "等待"
+  },
+  "specNodeAssert": {
+    "message": "断言"
+  },
+  "specNodeExtract": {
+    "message": "提取"
+  },
+  "specNodeScreenshot": {
+    "message": "截图"
+  },
+  "specNodeGetTabUrl": {
+    "message": "获取标签信息"
+  },
+  "specNodeReadPage": {
+    "message": "获取页面元素"
+  },
+  "specNodeGetWebContent": {
+    "message": "获取网页内容"
+  },
+  "specNodeTriggerEvent": {
+    "message": "触发事件"
+  },
+  "specNodeSetAttribute": {
+    "message": "设置属性"
+  },
+  "specNodeLoopElements": {
+    "message": "循环元素"
+  },
+  "specNodeSwitchFrame": {
+    "message": "切换Frame"
+  },
+  "specNodeHandleDownload": {
+    "message": "下载处理"
+  },
+  "specNodeScript": {
+    "message": "脚本"
+  },
+  "specNodeOpenTab": {
+    "message": "打开标签"
+  },
+  "specNodeExecuteFlow": {
+    "message": "执行子流程"
+  },
+  "specNodeSwitchTab": {
+    "message": "切换标签"
+  },
+  "specNodeCloseTab": {
+    "message": "关闭标签"
+  },
+  "specNodeIf": {
+    "message": "条件"
+  },
+  "specNodeForeach": {
+    "message": "循环"
+  },
+  "specNodeWhile": {
+    "message": "循环"
+  },
+  "specNodeDelay": {
+    "message": "延迟"
+  },
+  "specNodeTrigger": {
+    "message": "触发器"
+  },
+  "specFieldUrlHelp": {
+    "message": "目标地址，支持变量模板 {var}"
+  },
+  "specUrlRequired": {
+    "message": "URL 必填"
+  },
+  "specFieldTarget": {
+    "message": "目标"
+  },
+  "specFieldTargetHelp": {
+    "message": "选择或输入元素选择器"
+  },
+  "specFieldBefore": {
+    "message": "执行前"
+  },
+  "specFieldAfter": {
+    "message": "执行后"
+  },
+  "specFieldScrollIntoView": {
+    "message": "滚动到可见"
+  },
+  "specFieldWaitForSelector": {
+    "message": "等待选择器"
+  },
+  "specFieldWaitForNavigation": {
+    "message": "等待导航完成"
+  },
+  "specFieldWaitForNetworkIdle": {
+    "message": "等待网络空闲"
+  },
+  "specFieldValue": {
+    "message": "输入值"
+  },
+  "specFieldValueHelp": {
+    "message": "支持 {var} 模板"
+  },
+  "specFieldKeys": {
+    "message": "按键序列"
+  },
+  "specFieldKeysHelp": {
+    "message": "如 Backspace Enter 或 cmd+a"
+  },
+  "specFieldFocusTargetOptional": {
+    "message": "焦点目标(可选)"
+  },
+  "specFieldMode": {
+    "message": "模式"
+  },
+  "specModeElement": {
+    "message": "元素"
+  },
+  "specModeOffset": {
+    "message": "页面偏移（推荐）"
+  },
+  "specModeContainer": {
+    "message": "容器"
+  },
+  "specFieldTargetElementOrContainer": {
+    "message": "目标(当元素/容器)"
+  },
+  "specFieldOffset": {
+    "message": "偏移"
+  },
+  "specFieldStart": {
+    "message": "起点"
+  },
+  "specFieldEnd": {
+    "message": "终点"
+  },
+  "specFieldPath": {
+    "message": "路径坐标"
+  },
+  "specFieldPoint": {
+    "message": "点"
+  },
+  "specFieldConditionJson": {
+    "message": "条件(JSON)"
+  },
+  "specFieldWaitConditionHelp": {
+    "message": "如 {\"sleep\":1000} 或 {\"text\":\"Hello\",\"appear\":true}"
+  },
+  "specFieldAssertJson": {
+    "message": "断言(JSON)"
+  },
+  "specFieldAssertHelp": {
+    "message": "如 {\"exists\":\"#id\"} / {\"visible\":\".btn\"}"
+  },
+  "specFieldFailStrategy": {
+    "message": "失败策略"
+  },
+  "specFailStop": {
+    "message": "停止"
+  },
+  "specFailWarn": {
+    "message": "警告"
+  },
+  "specFailRetry": {
+    "message": "重试"
+  },
+  "specFieldMethod": {
+    "message": "方法"
+  },
+  "specMethodGetRecommended": {
+    "message": "GET（推荐）"
+  },
+  "specFieldHeadersJson": {
+    "message": "请求头(JSON)"
+  },
+  "specFieldBodyJson": {
+    "message": "请求体(JSON)"
+  },
+  "specFieldFormDataJson": {
+    "message": "表单(JSON)"
+  },
+  "specFieldSaveAsVar": {
+    "message": "保存为变量"
+  },
+  "specFieldAssignJson": {
+    "message": "映射(JSON)"
+  },
+  "specFieldExtractMode": {
+    "message": "提取方式"
+  },
+  "specExtractSelectorRecommended": {
+    "message": "选择器（推荐）"
+  },
+  "specExtractCustomJs": {
+    "message": "自定义 JS"
+  },
+  "specFieldSelector": {
+    "message": "选择器"
+  },
+  "specFieldAttr": {
+    "message": "属性"
+  },
+  "specAttrTextRecommended": {
+    "message": "文本（推荐）"
+  },
+  "specAttrTextContent": {
+    "message": "文本(textContent)"
+  },
+  "specAttrCustomName": {
+    "message": "自定义属性名"
+  },
+  "specFieldCustomJs": {
+    "message": "自定义JS"
+  },
+  "specFieldCustomJsHelp": {
+    "message": "在页面中执行并返回值"
+  },
+  "specFieldSaveVar": {
+    "message": "保存变量"
+  },
+  "specFieldTargetSelector": {
+    "message": "目标选择器"
+  },
+  "specFieldFullPage": {
+    "message": "整页截图"
+  },
+  "specFieldTabIdCurrent": {
+    "message": "标签页 ID（0 为当前页）"
+  },
+  "specSaveVarRequired": {
+    "message": "需填写保存变量名"
+  },
+  "specFieldFilter": {
+    "message": "筛选"
+  },
+  "specFilterInteractive": {
+    "message": "可交互元素"
+  },
+  "specFieldDepthMax": {
+    "message": "最大深度（留空不限）"
+  },
+  "specFieldGetHtml": {
+    "message": "获取 HTML"
+  },
+  "specFieldGetText": {
+    "message": "获取文本"
+  },
+  "specFieldScopeSelectorOptional": {
+    "message": "范围选择器（可选）"
+  },
+  "specFieldEventType": {
+    "message": "事件类型"
+  },
+  "specFieldBubbles": {
+    "message": "冒泡"
+  },
+  "specFieldCancelable": {
+    "message": "可取消"
+  },
+  "specFieldAttrName": {
+    "message": "属性名"
+  },
+  "specFieldAttrValue": {
+    "message": "属性值"
+  },
+  "specFieldRemoveAttr": {
+    "message": "移除属性"
+  },
+  "specFieldListVarName": {
+    "message": "列表变量名"
+  },
+  "specFieldItemVarName": {
+    "message": "项变量名"
+  },
+  "specFieldSubflowId": {
+    "message": "子流程ID"
+  },
+  "specFieldFrameLocator": {
+    "message": "frame定位"
+  },
+  "specFieldIndex": {
+    "message": "索引"
+  },
+  "specFieldUrlContains": {
+    "message": "URL包含"
+  },
+  "specFieldFilenameContains": {
+    "message": "文件名包含"
+  },
+  "specFieldWaitForComplete": {
+    "message": "等待完成"
+  },
+  "specFieldTimeoutMs": {
+    "message": "超时(ms)"
+  },
+  "specFieldWorld": {
+    "message": "执行上下文"
+  },
+  "specFieldCode": {
+    "message": "脚本代码"
+  },
+  "specFieldWhen": {
+    "message": "执行时机"
+  },
+  "specFieldNewWindow": {
+    "message": "新窗口"
+  },
+  "specFieldFlowId": {
+    "message": "流程ID"
+  },
+  "specFieldInline": {
+    "message": "内联执行"
+  },
+  "specFieldArgsJson": {
+    "message": "参数(JSON)"
+  },
+  "specFieldTitleContains": {
+    "message": "标题包含"
+  },
+  "specFieldConditionExprJson": {
+    "message": "条件表达式(JSON)"
+  },
+  "specFieldIfHelp": {
+    "message": "如 {\"expression\":\"vars.a>0\"} 等"
+  },
+  "specFieldBranches": {
+    "message": "分支"
+  },
+  "specFieldName": {
+    "message": "名称"
+  },
+  "specFieldExpression": {
+    "message": "表达式"
+  },
+  "specFieldEnableElse": {
+    "message": "启用 else"
+  },
+  "specFieldListVar": {
+    "message": "列表变量"
+  },
+  "specFieldItemVar": {
+    "message": "项变量"
+  },
+  "specFieldConcurrency": {
+    "message": "并发数"
+  },
+  "specFieldConcurrencyHelp": {
+    "message": "并发执行子流程（浅拷贝变量，不自动合并）"
+  },
+  "specFieldMaxIterations": {
+    "message": "最大次数"
+  },
+  "specFieldDelay": {
+    "message": "延迟"
+  },
+  "specFieldEnabled": {
+    "message": "启用"
+  },
+  "specFieldDescription": {
+    "message": "描述"
+  },
+  "specFieldModes": {
+    "message": "模式"
+  },
+  "specModeManual": {
+    "message": "手动"
+  },
+  "specModeUrl": {
+    "message": "URL 触发"
+  },
+  "specModeContextMenu": {
+    "message": "右键菜单"
+  },
+  "specModeCommand": {
+    "message": "快捷键"
+  },
+  "specModeDom": {
+    "message": "DOM 事件"
+  },
+  "specModeSchedule": {
+    "message": "定时"
+  },
+  "specFieldUrlRules": {
+    "message": "URL 规则"
+  },
+  "specFieldRuleList": {
+    "message": "规则列表"
+  },
+  "specFieldRule": {
+    "message": "规则"
+  },
+  "specFieldKind": {
+    "message": "类型"
+  },
+  "specKindDomain": {
+    "message": "域名"
+  },
+  "specKindPath": {
+    "message": "路径"
+  },
+  "specFieldTitle": {
+    "message": "标题"
+  },
+  "specFieldCommandKey": {
+    "message": "快捷键"
+  },
+  "specFieldAppear": {
+    "message": "出现"
+  },
+  "specFieldOnce": {
+    "message": "一次"
+  },
+  "specFieldDebounceMs": {
+    "message": "防抖(ms)"
+  },
+  "specFieldSchedules": {
+    "message": "定时"
+  },
+  "specFieldSchedule": {
+    "message": "计划"
+  },
+  "specFieldType": {
+    "message": "类型"
+  },
+  "specScheduleOnce": {
+    "message": "一次"
+  },
+  "specScheduleInterval": {
+    "message": "间隔"
+  },
+  "specScheduleDaily": {
+    "message": "每日"
+  },
+  "specFieldWhenIso": {
+    "message": "时间(ISO/cron)"
   }
 }

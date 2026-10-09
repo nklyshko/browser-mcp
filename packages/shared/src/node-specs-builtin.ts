@@ -1,13 +1,21 @@
 // node-specs-builtin.ts — builtin NodeSpecs shared for UI + runtime
+//
+// Every user-facing string here is an i18n key, not a literal: this package is
+// also loaded by the native server, which has no chrome.i18n. The builder UI is
+// the only consumer, so it passes chrome.i18n's getMessage in as `t` and the
+// package itself stays free of any browser dependency.
 import type { NodeSpec } from './node-spec';
 import { registerNodeSpec } from './node-spec-registry';
 import { STEP_TYPES } from './step-types';
 
-export function registerBuiltinSpecs() {
+/** Resolves a message key. The builder passes chrome.i18n's getMessage. */
+export type SpecTranslator = (key: string) => string;
+
+export function registerBuiltinSpecs(t: SpecTranslator) {
   const nav: NodeSpec = {
     type: STEP_TYPES.NAVIGATE,
     version: 1,
-    display: { label: '导航', iconClass: 'icon-navigate', category: 'Actions' },
+    display: { label: t('specNodeNavigate'), iconClass: 'icon-navigate', category: 'Actions' },
     ports: { inputs: 1, outputs: [{ label: 'default' }] },
     schema: [
       {
@@ -16,14 +24,14 @@ export function registerBuiltinSpecs() {
         type: 'string',
         required: true,
         placeholder: 'https://example.com',
-        help: '目标地址，支持变量模板 {var}',
+        help: t('specFieldUrlHelp'),
         default: '',
       },
     ],
     defaults: { url: '' },
     validate: (cfg) => {
       const errs: string[] = [];
-      if (!cfg || !cfg.url || String(cfg.url).trim() === '') errs.push('URL 必填');
+      if (!cfg || !cfg.url || String(cfg.url).trim() === '') errs.push(t('specUrlRequired'));
       return errs;
     },
   };
@@ -33,32 +41,52 @@ export function registerBuiltinSpecs() {
   registerNodeSpec({
     type: STEP_TYPES.CLICK,
     version: 1,
-    display: { label: '点击', iconClass: 'icon-click', category: 'Actions' },
+    display: { label: t('specNodeClick'), iconClass: 'icon-click', category: 'Actions' },
     ports: { inputs: 1, outputs: [{ label: 'default' }] },
     schema: [
       {
         key: 'target',
-        label: '目标',
+        label: t('specFieldTarget'),
         type: 'json',
         widget: 'targetlocator',
-        help: '选择或输入元素选择器',
+        help: t('specFieldTargetHelp'),
       },
       {
         key: 'before',
-        label: '执行前',
+        label: t('specFieldBefore'),
         type: 'object',
         fields: [
-          { key: 'scrollIntoView', label: '滚动到可见', type: 'boolean', default: true },
-          { key: 'waitForSelector', label: '等待选择器', type: 'boolean', default: true },
+          {
+            key: 'scrollIntoView',
+            label: t('specFieldScrollIntoView'),
+            type: 'boolean',
+            default: true,
+          },
+          {
+            key: 'waitForSelector',
+            label: t('specFieldWaitForSelector'),
+            type: 'boolean',
+            default: true,
+          },
         ],
       },
       {
         key: 'after',
-        label: '执行后',
+        label: t('specFieldAfter'),
         type: 'object',
         fields: [
-          { key: 'waitForNavigation', label: '等待导航完成', type: 'boolean', default: false },
-          { key: 'waitForNetworkIdle', label: '等待网络空闲', type: 'boolean', default: false },
+          {
+            key: 'waitForNavigation',
+            label: t('specFieldWaitForNavigation'),
+            type: 'boolean',
+            default: false,
+          },
+          {
+            key: 'waitForNetworkIdle',
+            label: t('specFieldWaitForNetworkIdle'),
+            type: 'boolean',
+            default: false,
+          },
         ],
       },
     ],
@@ -70,26 +98,46 @@ export function registerBuiltinSpecs() {
   registerNodeSpec({
     type: STEP_TYPES.DBLCLICK,
     version: 1,
-    display: { label: '双击', iconClass: 'icon-click', category: 'Actions' },
+    display: { label: t('specNodeDblclick'), iconClass: 'icon-click', category: 'Actions' },
     ports: { inputs: 1, outputs: [{ label: 'default' }] },
     schema: [
-      { key: 'target', label: '目标', type: 'json', widget: 'targetlocator' },
+      { key: 'target', label: t('specFieldTarget'), type: 'json', widget: 'targetlocator' },
       {
         key: 'before',
-        label: '执行前',
+        label: t('specFieldBefore'),
         type: 'object',
         fields: [
-          { key: 'scrollIntoView', label: '滚动到可见', type: 'boolean', default: true },
-          { key: 'waitForSelector', label: '等待选择器', type: 'boolean', default: true },
+          {
+            key: 'scrollIntoView',
+            label: t('specFieldScrollIntoView'),
+            type: 'boolean',
+            default: true,
+          },
+          {
+            key: 'waitForSelector',
+            label: t('specFieldWaitForSelector'),
+            type: 'boolean',
+            default: true,
+          },
         ],
       },
       {
         key: 'after',
-        label: '执行后',
+        label: t('specFieldAfter'),
         type: 'object',
         fields: [
-          { key: 'waitForNavigation', label: '等待导航完成', type: 'boolean', default: false },
-          { key: 'waitForNetworkIdle', label: '等待网络空闲', type: 'boolean', default: false },
+          {
+            key: 'waitForNavigation',
+            label: t('specFieldWaitForNavigation'),
+            type: 'boolean',
+            default: false,
+          },
+          {
+            key: 'waitForNetworkIdle',
+            label: t('specFieldWaitForNetworkIdle'),
+            type: 'boolean',
+            default: false,
+          },
         ],
       },
     ],
@@ -103,11 +151,17 @@ export function registerBuiltinSpecs() {
   registerNodeSpec({
     type: STEP_TYPES.FILL,
     version: 1,
-    display: { label: '填充', iconClass: 'icon-fill', category: 'Actions' },
+    display: { label: t('specNodeFill'), iconClass: 'icon-fill', category: 'Actions' },
     ports: { inputs: 1, outputs: [{ label: 'default' }] },
     schema: [
-      { key: 'target', label: '目标', type: 'json', widget: 'targetlocator' },
-      { key: 'value', label: '输入值', type: 'string', required: true, help: '支持 {var} 模板' },
+      { key: 'target', label: t('specFieldTarget'), type: 'json', widget: 'targetlocator' },
+      {
+        key: 'value',
+        label: t('specFieldValue'),
+        type: 'string',
+        required: true,
+        help: t('specFieldValueHelp'),
+      },
     ],
     defaults: { value: '' },
   });
@@ -116,18 +170,23 @@ export function registerBuiltinSpecs() {
   registerNodeSpec({
     type: STEP_TYPES.KEY,
     version: 1,
-    display: { label: '键盘', iconClass: 'icon-key', category: 'Actions' },
+    display: { label: t('specNodeKey'), iconClass: 'icon-key', category: 'Actions' },
     ports: { inputs: 1, outputs: [{ label: 'default' }] },
     schema: [
       {
         key: 'keys',
-        label: '按键序列',
+        label: t('specFieldKeys'),
         type: 'string',
         widget: 'keysequence',
         required: true,
-        help: '如 Backspace Enter 或 cmd+a',
+        help: t('specFieldKeysHelp'),
       },
-      { key: 'target', label: '焦点目标(可选)', type: 'json', widget: 'targetlocator' },
+      {
+        key: 'target',
+        label: t('specFieldFocusTargetOptional'),
+        type: 'json',
+        widget: 'targetlocator',
+      },
     ],
     defaults: { keys: '' },
   });
@@ -136,24 +195,29 @@ export function registerBuiltinSpecs() {
   registerNodeSpec({
     type: STEP_TYPES.SCROLL,
     version: 1,
-    display: { label: '滚动', iconClass: 'icon-scroll', category: 'Actions' },
+    display: { label: t('specNodeScroll'), iconClass: 'icon-scroll', category: 'Actions' },
     ports: { inputs: 1, outputs: [{ label: 'default' }] },
     schema: [
       {
         key: 'mode',
-        label: '模式',
+        label: t('specFieldMode'),
         type: 'select',
         options: [
-          { label: '元素', value: 'element' },
-          { label: '页面偏移（推荐）', value: 'offset' },
-          { label: '容器', value: 'container' },
+          { label: t('specModeElement'), value: 'element' },
+          { label: t('specModeOffset'), value: 'offset' },
+          { label: t('specModeContainer'), value: 'container' },
         ] as any,
         default: 'offset',
       },
-      { key: 'target', label: '目标(当元素/容器)', type: 'json', widget: 'targetlocator' },
+      {
+        key: 'target',
+        label: t('specFieldTargetElementOrContainer'),
+        type: 'json',
+        widget: 'targetlocator',
+      },
       {
         key: 'offset',
-        label: '偏移',
+        label: t('specFieldOffset'),
         type: 'object',
         fields: [
           { key: 'x', label: 'X', type: 'number' },
@@ -168,18 +232,18 @@ export function registerBuiltinSpecs() {
   registerNodeSpec({
     type: STEP_TYPES.DRAG,
     version: 1,
-    display: { label: '拖拽', iconClass: 'icon-drag', category: 'Actions' },
+    display: { label: t('specNodeDrag'), iconClass: 'icon-drag', category: 'Actions' },
     ports: { inputs: 1, outputs: [{ label: 'default' }] },
     schema: [
-      { key: 'start', label: '起点', type: 'json', widget: 'targetlocator' },
-      { key: 'end', label: '终点', type: 'json', widget: 'targetlocator' },
+      { key: 'start', label: t('specFieldStart'), type: 'json', widget: 'targetlocator' },
+      { key: 'end', label: t('specFieldEnd'), type: 'json', widget: 'targetlocator' },
       {
         key: 'path',
-        label: '路径坐标',
+        label: t('specFieldPath'),
         type: 'array',
         item: {
           key: 'p',
-          label: '点',
+          label: t('specFieldPoint'),
           type: 'object',
           fields: [
             { key: 'x', label: 'X', type: 'number' },
@@ -195,14 +259,14 @@ export function registerBuiltinSpecs() {
   registerNodeSpec({
     type: STEP_TYPES.WAIT,
     version: 1,
-    display: { label: '等待', iconClass: 'icon-wait', category: 'Actions' },
+    display: { label: t('specNodeWait'), iconClass: 'icon-wait', category: 'Actions' },
     ports: { inputs: 1, outputs: [{ label: 'default' }] },
     schema: [
       {
         key: 'condition',
-        label: '条件(JSON)',
+        label: t('specFieldConditionJson'),
         type: 'json',
-        help: '如 {"sleep":1000} 或 {"text":"Hello","appear":true}',
+        help: t('specFieldWaitConditionHelp'),
       },
     ],
     defaults: { condition: { sleep: 500 } },
@@ -212,23 +276,23 @@ export function registerBuiltinSpecs() {
   registerNodeSpec({
     type: STEP_TYPES.ASSERT,
     version: 1,
-    display: { label: '断言', iconClass: 'icon-assert', category: 'Actions' },
+    display: { label: t('specNodeAssert'), iconClass: 'icon-assert', category: 'Actions' },
     ports: { inputs: 1, outputs: [{ label: 'default' }, { label: 'onError' }] },
     schema: [
       {
         key: 'assert',
-        label: '断言(JSON)',
+        label: t('specFieldAssertJson'),
         type: 'json',
-        help: '如 {"exists":"#id"} / {"visible":".btn"}',
+        help: t('specFieldAssertHelp'),
       },
       {
         key: 'failStrategy',
-        label: '失败策略',
+        label: t('specFieldFailStrategy'),
         type: 'select',
         options: [
-          { label: '停止', value: 'stop' },
-          { label: '警告', value: 'warn' },
-          { label: '重试', value: 'retry' },
+          { label: t('specFailStop'), value: 'stop' },
+          { label: t('specFailWarn'), value: 'warn' },
+          { label: t('specFailRetry'), value: 'retry' },
         ] as any,
         default: 'stop',
       },
@@ -245,20 +309,20 @@ export function registerBuiltinSpecs() {
     schema: [
       {
         key: 'method',
-        label: '方法',
+        label: t('specFieldMethod'),
         type: 'select',
         options: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'].map((m) => ({
-          label: m === 'GET' ? 'GET（推荐）' : m,
+          label: m === 'GET' ? t('specMethodGetRecommended') : m,
           value: m,
         })) as any,
         default: 'GET',
       },
       { key: 'url', label: 'URL', type: 'string', required: true },
-      { key: 'headers', label: '请求头(JSON)', type: 'json' },
-      { key: 'body', label: '请求体(JSON)', type: 'json' },
-      { key: 'formData', label: '表单(JSON)', type: 'json' },
-      { key: 'saveAs', label: '保存为变量', type: 'string' },
-      { key: 'assign', label: '映射(JSON)', type: 'json' },
+      { key: 'headers', label: t('specFieldHeadersJson'), type: 'json' },
+      { key: 'body', label: t('specFieldBodyJson'), type: 'json' },
+      { key: 'formData', label: t('specFieldFormDataJson'), type: 'json' },
+      { key: 'saveAs', label: t('specFieldSaveAsVar'), type: 'string' },
+      { key: 'assign', label: t('specFieldAssignJson'), type: 'json' },
     ],
     defaults: { method: 'GET', headers: {}, saveAs: 'response' },
   });
@@ -267,32 +331,37 @@ export function registerBuiltinSpecs() {
   registerNodeSpec({
     type: STEP_TYPES.EXTRACT,
     version: 1,
-    display: { label: '提取', iconClass: 'icon-extract', category: 'Tools' },
+    display: { label: t('specNodeExtract'), iconClass: 'icon-extract', category: 'Tools' },
     ports: { inputs: 1, outputs: [{ label: 'default' }] },
     schema: [
       {
         key: 'mode',
-        label: '提取方式',
+        label: t('specFieldExtractMode'),
         type: 'select',
         options: [
-          { label: '选择器（推荐）', value: 'selector' },
-          { label: '自定义 JS', value: 'js' },
+          { label: t('specExtractSelectorRecommended'), value: 'selector' },
+          { label: t('specExtractCustomJs'), value: 'js' },
         ] as any,
         default: 'selector',
       },
-      { key: 'selector', label: '选择器', type: 'string', widget: 'selector' },
+      { key: 'selector', label: t('specFieldSelector'), type: 'string', widget: 'selector' },
       {
         key: 'attr',
-        label: '属性',
+        label: t('specFieldAttr'),
         type: 'select',
         options: [
-          { label: '文本（推荐）', value: 'text' },
-          { label: '文本(textContent)', value: 'textContent' },
-          { label: '自定义属性名', value: 'attr' },
+          { label: t('specAttrTextRecommended'), value: 'text' },
+          { label: t('specAttrTextContent'), value: 'textContent' },
+          { label: t('specAttrCustomName'), value: 'attr' },
         ] as any,
       },
-      { key: 'js', label: '自定义JS', type: 'string', help: '在页面中执行并返回值' },
-      { key: 'saveAs', label: '保存变量', type: 'string', required: true },
+      {
+        key: 'js',
+        label: t('specFieldCustomJs'),
+        type: 'string',
+        help: t('specFieldCustomJsHelp'),
+      },
+      { key: 'saveAs', label: t('specFieldSaveVar'), type: 'string', required: true },
     ],
     defaults: { mode: 'selector', attr: 'text', saveAs: 'result' },
   });
@@ -301,12 +370,12 @@ export function registerBuiltinSpecs() {
   registerNodeSpec({
     type: STEP_TYPES.SCREENSHOT,
     version: 1,
-    display: { label: '截图', iconClass: 'icon-screenshot', category: 'Tools' },
+    display: { label: t('specNodeScreenshot'), iconClass: 'icon-screenshot', category: 'Tools' },
     ports: { inputs: 1, outputs: [{ label: 'default' }] },
     schema: [
-      { key: 'selector', label: '目标选择器', type: 'string' },
-      { key: 'fullPage', label: '整页截图', type: 'boolean', default: false },
-      { key: 'saveAs', label: '保存变量', type: 'string' },
+      { key: 'selector', label: t('specFieldTargetSelector'), type: 'string' },
+      { key: 'fullPage', label: t('specFieldFullPage'), type: 'boolean', default: false },
+      { key: 'saveAs', label: t('specFieldSaveVar'), type: 'string' },
     ],
     defaults: { fullPage: false, saveAs: 'screenshot' },
   });
@@ -314,62 +383,67 @@ export function registerBuiltinSpecs() {
   registerNodeSpec({
     type: STEP_TYPES.GET_TAB_URL,
     version: 1,
-    display: { label: '获取标签信息', iconClass: 'icon-http', category: 'Tools' },
+    display: { label: t('specNodeGetTabUrl'), iconClass: 'icon-http', category: 'Tools' },
     ports: { inputs: 1, outputs: [{ label: 'default' }] },
     schema: [
-      { key: 'tabId', label: '标签页 ID（0 为当前页）', type: 'number', default: 0 },
-      { key: 'saveAs', label: '保存变量', type: 'string', required: true },
+      { key: 'tabId', label: t('specFieldTabIdCurrent'), type: 'number', default: 0 },
+      { key: 'saveAs', label: t('specFieldSaveVar'), type: 'string', required: true },
     ],
     defaults: { tabId: 0, saveAs: 'tabInfo' },
-    validate: (cfg) => (!String(cfg?.saveAs || '').trim() ? ['需填写保存变量名'] : []),
+    validate: (cfg) => (!String(cfg?.saveAs || '').trim() ? [t('specSaveVarRequired')] : []),
   });
 
   registerNodeSpec({
     type: STEP_TYPES.READ_PAGE,
     version: 1,
-    display: { label: '获取页面元素', iconClass: 'icon-extract', category: 'Tools' },
+    display: { label: t('specNodeReadPage'), iconClass: 'icon-extract', category: 'Tools' },
     ports: { inputs: 1, outputs: [{ label: 'default' }] },
     schema: [
       {
         key: 'filter',
-        label: '筛选',
+        label: t('specFieldFilter'),
         type: 'select',
-        options: [{ label: '可交互元素', value: 'interactive' }] as any,
+        options: [{ label: t('specFilterInteractive'), value: 'interactive' }] as any,
         default: 'interactive',
       },
-      { key: 'depth', label: '最大深度（留空不限）', type: 'number', min: 0 },
-      { key: 'saveAs', label: '保存变量', type: 'string', required: true },
+      { key: 'depth', label: t('specFieldDepthMax'), type: 'number', min: 0 },
+      { key: 'saveAs', label: t('specFieldSaveVar'), type: 'string', required: true },
     ],
     defaults: { filter: 'interactive', saveAs: 'page' },
-    validate: (cfg) => (!String(cfg?.saveAs || '').trim() ? ['需填写保存变量名'] : []),
+    validate: (cfg) => (!String(cfg?.saveAs || '').trim() ? [t('specSaveVarRequired')] : []),
   });
 
   registerNodeSpec({
     type: STEP_TYPES.GET_WEB_CONTENT,
     version: 1,
-    display: { label: '获取网页内容', iconClass: 'icon-script', category: 'Tools' },
+    display: { label: t('specNodeGetWebContent'), iconClass: 'icon-script', category: 'Tools' },
     ports: { inputs: 1, outputs: [{ label: 'default' }] },
     schema: [
-      { key: 'htmlContent', label: '获取 HTML', type: 'boolean', default: false },
-      { key: 'textContent', label: '获取文本', type: 'boolean', default: true },
-      { key: 'selector', label: '范围选择器（可选）', type: 'string', widget: 'selector' },
-      { key: 'saveAs', label: '保存变量', type: 'string', required: true },
+      { key: 'htmlContent', label: t('specFieldGetHtml'), type: 'boolean', default: false },
+      { key: 'textContent', label: t('specFieldGetText'), type: 'boolean', default: true },
+      {
+        key: 'selector',
+        label: t('specFieldScopeSelectorOptional'),
+        type: 'string',
+        widget: 'selector',
+      },
+      { key: 'saveAs', label: t('specFieldSaveVar'), type: 'string', required: true },
     ],
     defaults: { htmlContent: false, textContent: true, selector: '', saveAs: 'content' },
-    validate: (cfg) => (!String(cfg?.saveAs || '').trim() ? ['需填写保存变量名'] : []),
+    validate: (cfg) => (!String(cfg?.saveAs || '').trim() ? [t('specSaveVarRequired')] : []),
   });
 
   // TriggerEvent
   registerNodeSpec({
     type: STEP_TYPES.TRIGGER_EVENT,
     version: 1,
-    display: { label: '触发事件', iconClass: 'icon-trigger', category: 'Tools' },
+    display: { label: t('specNodeTriggerEvent'), iconClass: 'icon-trigger', category: 'Tools' },
     ports: { inputs: 1, outputs: [{ label: 'default' }] },
     schema: [
-      { key: 'target', label: '目标', type: 'json', widget: 'targetlocator' },
-      { key: 'event', label: '事件类型', type: 'string', required: true },
-      { key: 'bubbles', label: '冒泡', type: 'boolean', default: true },
-      { key: 'cancelable', label: '可取消', type: 'boolean', default: false },
+      { key: 'target', label: t('specFieldTarget'), type: 'json', widget: 'targetlocator' },
+      { key: 'event', label: t('specFieldEventType'), type: 'string', required: true },
+      { key: 'bubbles', label: t('specFieldBubbles'), type: 'boolean', default: true },
+      { key: 'cancelable', label: t('specFieldCancelable'), type: 'boolean', default: false },
     ],
     defaults: { event: 'click', bubbles: true, cancelable: false },
   });
@@ -378,13 +452,13 @@ export function registerBuiltinSpecs() {
   registerNodeSpec({
     type: STEP_TYPES.SET_ATTRIBUTE,
     version: 1,
-    display: { label: '设置属性', iconClass: 'icon-attr', category: 'Tools' },
+    display: { label: t('specNodeSetAttribute'), iconClass: 'icon-attr', category: 'Tools' },
     ports: { inputs: 1, outputs: [{ label: 'default' }] },
     schema: [
-      { key: 'target', label: '目标', type: 'json', widget: 'targetlocator' },
-      { key: 'name', label: '属性名', type: 'string', required: true },
-      { key: 'value', label: '属性值', type: 'string' },
-      { key: 'remove', label: '移除属性', type: 'boolean', default: false },
+      { key: 'target', label: t('specFieldTarget'), type: 'json', widget: 'targetlocator' },
+      { key: 'name', label: t('specFieldAttrName'), type: 'string', required: true },
+      { key: 'value', label: t('specFieldAttrValue'), type: 'string' },
+      { key: 'remove', label: t('specFieldRemoveAttr'), type: 'boolean', default: false },
     ],
     defaults: { remove: false },
   });
@@ -393,13 +467,18 @@ export function registerBuiltinSpecs() {
   registerNodeSpec({
     type: STEP_TYPES.LOOP_ELEMENTS,
     version: 1,
-    display: { label: '循环元素', iconClass: 'icon-loop', category: 'Tools' },
+    display: { label: t('specNodeLoopElements'), iconClass: 'icon-loop', category: 'Tools' },
     ports: { inputs: 1, outputs: [{ label: 'default' }] },
     schema: [
-      { key: 'selector', label: '选择器', type: 'string', required: true },
-      { key: 'saveAs', label: '列表变量名', type: 'string', default: 'elements' },
-      { key: 'itemVar', label: '项变量名', type: 'string', default: 'item' },
-      { key: 'subflowId', label: '子流程ID', type: 'string', required: true },
+      { key: 'selector', label: t('specFieldSelector'), type: 'string', required: true },
+      {
+        key: 'saveAs',
+        label: t('specFieldListVarName'),
+        type: 'string',
+        default: 'elements',
+      },
+      { key: 'itemVar', label: t('specFieldItemVarName'), type: 'string', default: 'item' },
+      { key: 'subflowId', label: t('specFieldSubflowId'), type: 'string', required: true },
     ],
     defaults: { saveAs: 'elements', itemVar: 'item' },
   });
@@ -408,16 +487,16 @@ export function registerBuiltinSpecs() {
   registerNodeSpec({
     type: STEP_TYPES.SWITCH_FRAME,
     version: 1,
-    display: { label: '切换Frame', iconClass: 'icon-frame', category: 'Tools' },
+    display: { label: t('specNodeSwitchFrame'), iconClass: 'icon-frame', category: 'Tools' },
     ports: { inputs: 1, outputs: [{ label: 'default' }] },
     schema: [
       {
         key: 'frame',
-        label: 'frame定位',
+        label: t('specFieldFrameLocator'),
         type: 'object',
         fields: [
-          { key: 'index', label: '索引', type: 'number' },
-          { key: 'urlContains', label: 'URL包含', type: 'string' },
+          { key: 'index', label: t('specFieldIndex'), type: 'number' },
+          { key: 'urlContains', label: t('specFieldUrlContains'), type: 'string' },
         ],
       },
     ],
@@ -428,13 +507,18 @@ export function registerBuiltinSpecs() {
   registerNodeSpec({
     type: STEP_TYPES.HANDLE_DOWNLOAD,
     version: 1,
-    display: { label: '下载处理', iconClass: 'icon-download', category: 'Tools' },
+    display: { label: t('specNodeHandleDownload'), iconClass: 'icon-download', category: 'Tools' },
     ports: { inputs: 1, outputs: [{ label: 'default' }] },
     schema: [
-      { key: 'filenameContains', label: '文件名包含', type: 'string' },
-      { key: 'waitForComplete', label: '等待完成', type: 'boolean', default: true },
-      { key: 'timeoutMs', label: '超时(ms)', type: 'number', default: 60000 },
-      { key: 'saveAs', label: '保存变量', type: 'string' },
+      { key: 'filenameContains', label: t('specFieldFilenameContains'), type: 'string' },
+      {
+        key: 'waitForComplete',
+        label: t('specFieldWaitForComplete'),
+        type: 'boolean',
+        default: true,
+      },
+      { key: 'timeoutMs', label: t('specFieldTimeoutMs'), type: 'number', default: 60000 },
+      { key: 'saveAs', label: t('specFieldSaveVar'), type: 'string' },
     ],
     defaults: { waitForComplete: true, timeoutMs: 60000, saveAs: 'download' },
   });
@@ -443,12 +527,12 @@ export function registerBuiltinSpecs() {
   registerNodeSpec({
     type: STEP_TYPES.SCRIPT,
     version: 1,
-    display: { label: '脚本', iconClass: 'icon-script', category: 'Tools' },
+    display: { label: t('specNodeScript'), iconClass: 'icon-script', category: 'Tools' },
     ports: { inputs: 1, outputs: [{ label: 'default' }] },
     schema: [
       {
         key: 'world',
-        label: '执行上下文',
+        label: t('specFieldWorld'),
         type: 'select',
         options: [
           { label: 'ISOLATED', value: 'ISOLATED' },
@@ -456,10 +540,16 @@ export function registerBuiltinSpecs() {
         ] as any,
         default: 'ISOLATED',
       },
-      { key: 'code', label: '脚本代码', type: 'string', widget: 'code', required: true },
+      {
+        key: 'code',
+        label: t('specFieldCode'),
+        type: 'string',
+        widget: 'code',
+        required: true,
+      },
       {
         key: 'when',
-        label: '执行时机',
+        label: t('specFieldWhen'),
         type: 'select',
         options: [
           { label: 'before', value: 'before' },
@@ -467,8 +557,8 @@ export function registerBuiltinSpecs() {
         ] as any,
         default: 'after',
       },
-      { key: 'assign', label: '映射(JSON)', type: 'json' },
-      { key: 'saveAs', label: '保存变量', type: 'string' },
+      { key: 'assign', label: t('specFieldAssignJson'), type: 'json' },
+      { key: 'saveAs', label: t('specFieldSaveVar'), type: 'string' },
     ],
     defaults: { world: 'ISOLATED', when: 'after' },
   });
@@ -477,42 +567,42 @@ export function registerBuiltinSpecs() {
   registerNodeSpec({
     type: STEP_TYPES.OPEN_TAB,
     version: 1,
-    display: { label: '打开标签', iconClass: 'icon-openTab', category: 'Tabs' },
+    display: { label: t('specNodeOpenTab'), iconClass: 'icon-openTab', category: 'Tabs' },
     ports: { inputs: 1, outputs: [{ label: 'default' }] },
     schema: [
       { key: 'url', label: 'URL', type: 'string' },
-      { key: 'newWindow', label: '新窗口', type: 'boolean', default: false },
+      { key: 'newWindow', label: t('specFieldNewWindow'), type: 'boolean', default: false },
     ],
     defaults: { newWindow: false },
   });
   registerNodeSpec({
     type: 'executeFlow' as any,
     version: 1,
-    display: { label: '执行子流程', iconClass: 'icon-exec', category: 'Flow' },
+    display: { label: t('specNodeExecuteFlow'), iconClass: 'icon-exec', category: 'Flow' },
     ports: { inputs: 1, outputs: [{ label: 'default' }] },
     schema: [
-      { key: 'flowId', label: '流程ID', type: 'string', required: true },
-      { key: 'inline', label: '内联执行', type: 'boolean', default: false },
-      { key: 'args', label: '参数(JSON)', type: 'json' },
+      { key: 'flowId', label: t('specFieldFlowId'), type: 'string', required: true },
+      { key: 'inline', label: t('specFieldInline'), type: 'boolean', default: false },
+      { key: 'args', label: t('specFieldArgsJson'), type: 'json' },
     ],
     defaults: { inline: false },
   });
   registerNodeSpec({
     type: STEP_TYPES.SWITCH_TAB,
     version: 1,
-    display: { label: '切换标签', iconClass: 'icon-switchTab', category: 'Tabs' },
+    display: { label: t('specNodeSwitchTab'), iconClass: 'icon-switchTab', category: 'Tabs' },
     ports: { inputs: 1, outputs: [{ label: 'default' }] },
     schema: [
       { key: 'tabId', label: 'TabId', type: 'number' },
-      { key: 'urlContains', label: 'URL包含', type: 'string' },
-      { key: 'titleContains', label: '标题包含', type: 'string' },
+      { key: 'urlContains', label: t('specFieldUrlContains'), type: 'string' },
+      { key: 'titleContains', label: t('specFieldTitleContains'), type: 'string' },
     ],
     defaults: {},
   });
   registerNodeSpec({
     type: STEP_TYPES.CLOSE_TAB,
     version: 1,
-    display: { label: '关闭标签', iconClass: 'icon-closeTab', category: 'Tabs' },
+    display: { label: t('specNodeCloseTab'), iconClass: 'icon-closeTab', category: 'Tabs' },
     ports: { inputs: 1, outputs: [{ label: 'default' }] },
     schema: [
       {
@@ -530,18 +620,18 @@ export function registerBuiltinSpecs() {
   registerNodeSpec({
     type: STEP_TYPES.IF,
     version: 1,
-    display: { label: '条件', iconClass: 'icon-if', category: 'Logic' },
+    display: { label: t('specNodeIf'), iconClass: 'icon-if', category: 'Logic' },
     ports: { inputs: 1, outputs: 'any' },
     schema: [
       {
         key: 'condition',
-        label: '条件表达式(JSON)',
+        label: t('specFieldConditionExprJson'),
         type: 'json',
-        help: '如 {"expression":"vars.a>0"} 等',
+        help: t('specFieldIfHelp'),
       },
       {
         key: 'branches',
-        label: '分支',
+        label: t('specFieldBranches'),
         type: 'array',
         item: {
           key: 'b',
@@ -549,30 +639,30 @@ export function registerBuiltinSpecs() {
           type: 'object',
           fields: [
             { key: 'id', label: 'ID', type: 'string' },
-            { key: 'name', label: '名称', type: 'string' },
-            { key: 'expr', label: '表达式', type: 'string' },
+            { key: 'name', label: t('specFieldName'), type: 'string' },
+            { key: 'expr', label: t('specFieldExpression'), type: 'string' },
           ],
         } as any,
       },
-      { key: 'else', label: '启用 else', type: 'boolean', default: true },
+      { key: 'else', label: t('specFieldEnableElse'), type: 'boolean', default: true },
     ],
     defaults: { else: true },
   });
   registerNodeSpec({
     type: STEP_TYPES.FOREACH,
     version: 1,
-    display: { label: '循环', iconClass: 'icon-foreach', category: 'Logic' },
+    display: { label: t('specNodeForeach'), iconClass: 'icon-foreach', category: 'Logic' },
     ports: { inputs: 1, outputs: [{ label: 'default' }] },
     schema: [
-      { key: 'listVar', label: '列表变量', type: 'string', required: true },
-      { key: 'itemVar', label: '项变量', type: 'string', default: 'item' },
-      { key: 'subflowId', label: '子流程ID', type: 'string', required: true },
+      { key: 'listVar', label: t('specFieldListVar'), type: 'string', required: true },
+      { key: 'itemVar', label: t('specFieldItemVar'), type: 'string', default: 'item' },
+      { key: 'subflowId', label: t('specFieldSubflowId'), type: 'string', required: true },
       {
         key: 'concurrency',
-        label: '并发数',
+        label: t('specFieldConcurrency'),
         type: 'number',
         default: 1,
-        help: '并发执行子流程（浅拷贝变量，不自动合并）',
+        help: t('specFieldConcurrencyHelp'),
       },
     ],
     defaults: { itemVar: 'item', concurrency: 1 },
@@ -580,12 +670,12 @@ export function registerBuiltinSpecs() {
   registerNodeSpec({
     type: STEP_TYPES.WHILE,
     version: 1,
-    display: { label: '循环', iconClass: 'icon-while', category: 'Logic' },
+    display: { label: t('specNodeWhile'), iconClass: 'icon-while', category: 'Logic' },
     ports: { inputs: 1, outputs: [{ label: 'default' }] },
     schema: [
-      { key: 'condition', label: '条件(JSON)', type: 'json' },
-      { key: 'subflowId', label: '子流程ID', type: 'string', required: true },
-      { key: 'maxIterations', label: '最大次数', type: 'number', default: 100 },
+      { key: 'condition', label: t('specFieldConditionJson'), type: 'json' },
+      { key: 'subflowId', label: t('specFieldSubflowId'), type: 'string', required: true },
+      { key: 'maxIterations', label: t('specFieldMaxIterations'), type: 'number', default: 100 },
     ],
     defaults: { maxIterations: 100 },
   });
@@ -594,12 +684,12 @@ export function registerBuiltinSpecs() {
   registerNodeSpec({
     type: STEP_TYPES.DELAY,
     version: 1,
-    display: { label: '延迟', iconClass: 'icon-delay', category: 'Actions' },
+    display: { label: t('specNodeDelay'), iconClass: 'icon-delay', category: 'Actions' },
     ports: { inputs: 1, outputs: [{ label: 'default' }] },
     schema: [
       {
         key: 'sleep',
-        label: '延迟',
+        label: t('specFieldDelay'),
         type: 'number',
         widget: 'duration',
         required: true,
@@ -613,50 +703,50 @@ export function registerBuiltinSpecs() {
   registerNodeSpec({
     type: STEP_TYPES.TRIGGER,
     version: 1,
-    display: { label: '触发器', iconClass: 'icon-trigger', category: 'Flow' },
+    display: { label: t('specNodeTrigger'), iconClass: 'icon-trigger', category: 'Flow' },
     ports: { inputs: 0, outputs: [{ label: 'default' }] },
     schema: [
-      { key: 'enabled', label: '启用', type: 'boolean', default: true },
-      { key: 'description', label: '描述', type: 'string' },
+      { key: 'enabled', label: t('specFieldEnabled'), type: 'boolean', default: true },
+      { key: 'description', label: t('specFieldDescription'), type: 'string' },
       {
         key: 'modes',
-        label: '模式',
+        label: t('specFieldModes'),
         type: 'object',
         fields: [
-          { key: 'manual', label: '手动', type: 'boolean', default: true },
-          { key: 'url', label: 'URL 触发', type: 'boolean', default: false },
-          { key: 'contextMenu', label: '右键菜单', type: 'boolean', default: false },
-          { key: 'command', label: '快捷键', type: 'boolean', default: false },
-          { key: 'dom', label: 'DOM 事件', type: 'boolean', default: false },
-          { key: 'schedule', label: '定时', type: 'boolean', default: false },
+          { key: 'manual', label: t('specModeManual'), type: 'boolean', default: true },
+          { key: 'url', label: t('specModeUrl'), type: 'boolean', default: false },
+          { key: 'contextMenu', label: t('specModeContextMenu'), type: 'boolean', default: false },
+          { key: 'command', label: t('specModeCommand'), type: 'boolean', default: false },
+          { key: 'dom', label: t('specModeDom'), type: 'boolean', default: false },
+          { key: 'schedule', label: t('specModeSchedule'), type: 'boolean', default: false },
         ],
       },
       {
         key: 'url',
-        label: 'URL 规则',
+        label: t('specFieldUrlRules'),
         type: 'object',
         fields: [
           {
             key: 'rules',
-            label: '规则列表',
+            label: t('specFieldRuleList'),
             type: 'array',
             item: {
               key: 'rule',
-              label: '规则',
+              label: t('specFieldRule'),
               type: 'object',
               fields: [
                 {
                   key: 'kind',
-                  label: '类型',
+                  label: t('specFieldKind'),
                   type: 'select',
                   options: [
                     { label: 'URL', value: 'url' },
-                    { label: '域名', value: 'domain' },
-                    { label: '路径', value: 'path' },
+                    { label: t('specKindDomain'), value: 'domain' },
+                    { label: t('specKindPath'), value: 'path' },
                   ] as any,
                   default: 'url',
                 },
-                { key: 'value', label: '值', type: 'string' },
+                { key: 'value', label: t('specFieldValue'), type: 'string' },
               ],
             } as any,
           },
@@ -664,56 +754,61 @@ export function registerBuiltinSpecs() {
       },
       {
         key: 'contextMenu',
-        label: '右键菜单',
+        label: t('specModeContextMenu'),
         type: 'object',
         fields: [
-          { key: 'title', label: '标题', type: 'string', default: '运行工作流' },
-          { key: 'enabled', label: '启用', type: 'boolean', default: false },
+          {
+            key: 'title',
+            label: t('specFieldTitle'),
+            type: 'string',
+            default: t('builderRunWorkflowMenuTitle'),
+          },
+          { key: 'enabled', label: t('specFieldEnabled'), type: 'boolean', default: false },
         ],
       },
       {
         key: 'command',
-        label: '快捷键',
+        label: t('specModeCommand'),
         type: 'object',
         fields: [
-          { key: 'commandKey', label: '快捷键', type: 'string' },
-          { key: 'enabled', label: '启用', type: 'boolean', default: false },
+          { key: 'commandKey', label: t('specFieldCommandKey'), type: 'string' },
+          { key: 'enabled', label: t('specFieldEnabled'), type: 'boolean', default: false },
         ],
       },
       {
         key: 'dom',
-        label: 'DOM 事件',
+        label: t('specModeDom'),
         type: 'object',
         fields: [
-          { key: 'selector', label: '选择器', type: 'string' },
-          { key: 'appear', label: '出现', type: 'boolean', default: true },
-          { key: 'once', label: '一次', type: 'boolean', default: true },
-          { key: 'debounceMs', label: '防抖(ms)', type: 'number', default: 800 },
-          { key: 'enabled', label: '启用', type: 'boolean', default: false },
+          { key: 'selector', label: t('specFieldSelector'), type: 'string' },
+          { key: 'appear', label: t('specFieldAppear'), type: 'boolean', default: true },
+          { key: 'once', label: t('specFieldOnce'), type: 'boolean', default: true },
+          { key: 'debounceMs', label: t('specFieldDebounceMs'), type: 'number', default: 800 },
+          { key: 'enabled', label: t('specFieldEnabled'), type: 'boolean', default: false },
         ],
       },
       {
         key: 'schedules',
-        label: '定时',
+        label: t('specFieldSchedules'),
         type: 'array',
         item: {
           key: 'sched',
-          label: '计划',
+          label: t('specFieldSchedule'),
           type: 'object',
           fields: [
             { key: 'id', label: 'ID', type: 'string' },
             {
               key: 'type',
-              label: '类型',
+              label: t('specFieldType'),
               type: 'select',
               options: [
-                { label: '一次', value: 'once' },
-                { label: '间隔', value: 'interval' },
-                { label: '每日', value: 'daily' },
+                { label: t('specScheduleOnce'), value: 'once' },
+                { label: t('specScheduleInterval'), value: 'interval' },
+                { label: t('specScheduleDaily'), value: 'daily' },
               ] as any,
             },
-            { key: 'when', label: '时间(ISO/cron)', type: 'string' },
-            { key: 'enabled', label: '启用', type: 'boolean', default: true },
+            { key: 'when', label: t('specFieldWhenIso'), type: 'string' },
+            { key: 'enabled', label: t('specFieldEnabled'), type: 'boolean', default: true },
           ],
         } as any,
       },

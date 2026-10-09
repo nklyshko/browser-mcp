@@ -2495,5 +2495,461 @@
   "builderEnableLabel": {
     "message": "Enable",
     "description": "workflow builder"
+  },
+  "specNodeNavigate": {
+    "message": "Navigate"
+  },
+  "specNodeClick": {
+    "message": "Click"
+  },
+  "specNodeDblclick": {
+    "message": "Double click"
+  },
+  "specNodeFill": {
+    "message": "Fill"
+  },
+  "specNodeKey": {
+    "message": "Keyboard"
+  },
+  "specNodeScroll": {
+    "message": "Scroll"
+  },
+  "specNodeDrag": {
+    "message": "Drag"
+  },
+  "specNodeWait": {
+    "message": "Wait"
+  },
+  "specNodeAssert": {
+    "message": "Assert"
+  },
+  "specNodeExtract": {
+    "message": "Extract"
+  },
+  "specNodeScreenshot": {
+    "message": "Screenshot"
+  },
+  "specNodeGetTabUrl": {
+    "message": "Get tab info"
+  },
+  "specNodeReadPage": {
+    "message": "Get page elements"
+  },
+  "specNodeGetWebContent": {
+    "message": "Get page content"
+  },
+  "specNodeTriggerEvent": {
+    "message": "Trigger event"
+  },
+  "specNodeSetAttribute": {
+    "message": "Set attribute"
+  },
+  "specNodeLoopElements": {
+    "message": "Loop over elements"
+  },
+  "specNodeSwitchFrame": {
+    "message": "Switch frame"
+  },
+  "specNodeHandleDownload": {
+    "message": "Handle download"
+  },
+  "specNodeScript": {
+    "message": "Script"
+  },
+  "specNodeOpenTab": {
+    "message": "Open tab"
+  },
+  "specNodeExecuteFlow": {
+    "message": "Run subflow"
+  },
+  "specNodeSwitchTab": {
+    "message": "Switch tab"
+  },
+  "specNodeCloseTab": {
+    "message": "Close tab"
+  },
+  "specNodeIf": {
+    "message": "Condition"
+  },
+  "specNodeForeach": {
+    "message": "Loop"
+  },
+  "specNodeWhile": {
+    "message": "While loop"
+  },
+  "specNodeDelay": {
+    "message": "Delay"
+  },
+  "specNodeTrigger": {
+    "message": "Trigger"
+  },
+  "specFieldUrlHelp": {
+    "message": "Target URL; supports the {var} template"
+  },
+  "specUrlRequired": {
+    "message": "URL is required"
+  },
+  "specFieldTarget": {
+    "message": "Target"
+  },
+  "specFieldTargetHelp": {
+    "message": "Pick or type an element selector"
+  },
+  "specFieldBefore": {
+    "message": "Before"
+  },
+  "specFieldAfter": {
+    "message": "After"
+  },
+  "specFieldScrollIntoView": {
+    "message": "Scroll into view"
+  },
+  "specFieldWaitForSelector": {
+    "message": "Wait for selector"
+  },
+  "specFieldWaitForNavigation": {
+    "message": "Wait for navigation"
+  },
+  "specFieldWaitForNetworkIdle": {
+    "message": "Wait for network idle"
+  },
+  "specFieldValue": {
+    "message": "Value"
+  },
+  "specFieldValueHelp": {
+    "message": "Supports the {var} template"
+  },
+  "specFieldKeys": {
+    "message": "Key sequence"
+  },
+  "specFieldKeysHelp": {
+    "message": "e.g. Backspace Enter or cmd+a"
+  },
+  "specFieldFocusTargetOptional": {
+    "message": "Focus target (optional)"
+  },
+  "specFieldMode": {
+    "message": "Mode"
+  },
+  "specModeElement": {
+    "message": "Element"
+  },
+  "specModeOffset": {
+    "message": "Page offset (recommended)"
+  },
+  "specModeContainer": {
+    "message": "Container"
+  },
+  "specFieldTargetElementOrContainer": {
+    "message": "Target (for element / container)"
+  },
+  "specFieldOffset": {
+    "message": "Offset"
+  },
+  "specFieldStart": {
+    "message": "Start point"
+  },
+  "specFieldEnd": {
+    "message": "End point"
+  },
+  "specFieldPath": {
+    "message": "Path coordinates"
+  },
+  "specFieldPoint": {
+    "message": "Point"
+  },
+  "specFieldConditionJson": {
+    "message": "Condition (JSON)"
+  },
+  "specFieldWaitConditionHelp": {
+    "message": "e.g. {\"sleep\":1000} or {\"text\":\"Hello\",\"appear\":true}"
+  },
+  "specFieldAssertJson": {
+    "message": "Assertion (JSON)"
+  },
+  "specFieldAssertHelp": {
+    "message": "e.g. {\"exists\":\"#id\"} / {\"visible\":\".btn\"}"
+  },
+  "specFieldFailStrategy": {
+    "message": "Failure strategy"
+  },
+  "specFailStop": {
+    "message": "Stop"
+  },
+  "specFailWarn": {
+    "message": "Warn"
+  },
+  "specFailRetry": {
+    "message": "Retry"
+  },
+  "specFieldMethod": {
+    "message": "Method"
+  },
+  "specMethodGetRecommended": {
+    "message": "GET (recommended)"
+  },
+  "specFieldHeadersJson": {
+    "message": "Headers (JSON)"
+  },
+  "specFieldBodyJson": {
+    "message": "Body (JSON)"
+  },
+  "specFieldFormDataJson": {
+    "message": "Form data (JSON)"
+  },
+  "specFieldSaveAsVar": {
+    "message": "Save as variable"
+  },
+  "specFieldAssignJson": {
+    "message": "Mapping (JSON)"
+  },
+  "specFieldExtractMode": {
+    "message": "Extract via"
+  },
+  "specExtractSelectorRecommended": {
+    "message": "Selector (recommended)"
+  },
+  "specExtractCustomJs": {
+    "message": "Custom JS"
+  },
+  "specFieldSelector": {
+    "message": "Selector"
+  },
+  "specFieldAttr": {
+    "message": "Attribute"
+  },
+  "specAttrTextRecommended": {
+    "message": "Text (recommended)"
+  },
+  "specAttrTextContent": {
+    "message": "Text (textContent)"
+  },
+  "specAttrCustomName": {
+    "message": "Custom attribute name"
+  },
+  "specFieldCustomJs": {
+    "message": "Custom JS"
+  },
+  "specFieldCustomJsHelp": {
+    "message": "Runs in the page and returns a value"
+  },
+  "specFieldSaveVar": {
+    "message": "Save variable"
+  },
+  "specFieldTargetSelector": {
+    "message": "Target selector"
+  },
+  "specFieldFullPage": {
+    "message": "Full-page screenshot"
+  },
+  "specFieldTabIdCurrent": {
+    "message": "Tab ID (0 for the current tab)"
+  },
+  "specSaveVarRequired": {
+    "message": "A save variable name is required"
+  },
+  "specFieldFilter": {
+    "message": "Filter"
+  },
+  "specFilterInteractive": {
+    "message": "Interactive elements"
+  },
+  "specFieldDepthMax": {
+    "message": "Max depth (blank for unlimited)"
+  },
+  "specFieldGetHtml": {
+    "message": "Get HTML"
+  },
+  "specFieldGetText": {
+    "message": "Get text"
+  },
+  "specFieldScopeSelectorOptional": {
+    "message": "Scope selector (optional)"
+  },
+  "specFieldEventType": {
+    "message": "Event type"
+  },
+  "specFieldBubbles": {
+    "message": "Bubbles"
+  },
+  "specFieldCancelable": {
+    "message": "Cancelable"
+  },
+  "specFieldAttrName": {
+    "message": "Attribute name"
+  },
+  "specFieldAttrValue": {
+    "message": "Attribute value"
+  },
+  "specFieldRemoveAttr": {
+    "message": "Remove attribute"
+  },
+  "specFieldListVarName": {
+    "message": "List variable name"
+  },
+  "specFieldItemVarName": {
+    "message": "Item variable name"
+  },
+  "specFieldSubflowId": {
+    "message": "Subflow ID"
+  },
+  "specFieldFrameLocator": {
+    "message": "Frame locator"
+  },
+  "specFieldIndex": {
+    "message": "Index"
+  },
+  "specFieldUrlContains": {
+    "message": "URL contains"
+  },
+  "specFieldFilenameContains": {
+    "message": "Filename contains"
+  },
+  "specFieldWaitForComplete": {
+    "message": "Wait for completion"
+  },
+  "specFieldTimeoutMs": {
+    "message": "Timeout (ms)"
+  },
+  "specFieldWorld": {
+    "message": "Execution context"
+  },
+  "specFieldCode": {
+    "message": "Script code"
+  },
+  "specFieldWhen": {
+    "message": "Run at"
+  },
+  "specFieldNewWindow": {
+    "message": "New window"
+  },
+  "specFieldFlowId": {
+    "message": "Flow ID"
+  },
+  "specFieldInline": {
+    "message": "Run inline"
+  },
+  "specFieldArgsJson": {
+    "message": "Arguments (JSON)"
+  },
+  "specFieldTitleContains": {
+    "message": "Title contains"
+  },
+  "specFieldConditionExprJson": {
+    "message": "Condition expression (JSON)"
+  },
+  "specFieldIfHelp": {
+    "message": "e.g. {\"expression\":\"vars.a>0\"}"
+  },
+  "specFieldBranches": {
+    "message": "Branches"
+  },
+  "specFieldName": {
+    "message": "Name"
+  },
+  "specFieldExpression": {
+    "message": "Expression"
+  },
+  "specFieldEnableElse": {
+    "message": "Enable else"
+  },
+  "specFieldListVar": {
+    "message": "List variable"
+  },
+  "specFieldItemVar": {
+    "message": "Item variable"
+  },
+  "specFieldConcurrency": {
+    "message": "Concurrency"
+  },
+  "specFieldConcurrencyHelp": {
+    "message": "Runs subflows concurrently (variables are shallow-copied and not merged back)"
+  },
+  "specFieldMaxIterations": {
+    "message": "Max iterations"
+  },
+  "specFieldDelay": {
+    "message": "Delay"
+  },
+  "specFieldEnabled": {
+    "message": "Enable"
+  },
+  "specFieldDescription": {
+    "message": "Description"
+  },
+  "specFieldModes": {
+    "message": "Modes"
+  },
+  "specModeManual": {
+    "message": "Manual"
+  },
+  "specModeUrl": {
+    "message": "URL trigger"
+  },
+  "specModeContextMenu": {
+    "message": "Context menu"
+  },
+  "specModeCommand": {
+    "message": "Keyboard shortcut"
+  },
+  "specModeDom": {
+    "message": "DOM event"
+  },
+  "specModeSchedule": {
+    "message": "Schedule"
+  },
+  "specFieldUrlRules": {
+    "message": "URL rules"
+  },
+  "specFieldRuleList": {
+    "message": "Rule list"
+  },
+  "specFieldRule": {
+    "message": "Rule"
+  },
+  "specFieldKind": {
+    "message": "Kind"
+  },
+  "specKindDomain": {
+    "message": "Domain"
+  },
+  "specKindPath": {
+    "message": "Path"
+  },
+  "specFieldTitle": {
+    "message": "Title"
+  },
+  "specFieldCommandKey": {
+    "message": "Shortcut"
+  },
+  "specFieldAppear": {
+    "message": "On appear"
+  },
+  "specFieldOnce": {
+    "message": "Once"
+  },
+  "specFieldDebounceMs": {
+    "message": "Debounce (ms)"
+  },
+  "specFieldSchedules": {
+    "message": "Schedules"
+  },
+  "specFieldSchedule": {
+    "message": "Schedule"
+  },
+  "specFieldType": {
+    "message": "Type"
+  },
+  "specScheduleOnce": {
+    "message": "Once"
+  },
+  "specScheduleInterval": {
+    "message": "Interval"
+  },
+  "specScheduleDaily": {
+    "message": "Daily"
+  },
+  "specFieldWhenIso": {
+    "message": "Time (ISO / cron)"
   }
 }

@@ -2,6 +2,7 @@
 // Comments in English to explain intent.
 
 import { markRaw, type Component } from 'vue';
+import { getMessage } from '@/utils/i18n';
 import type { NodeBase, NodeType } from '@/entrypoints/background/record-replay-v3/builder-types';
 import { NODE_TYPES } from '@/common/node-types';
 import { defaultConfigFor as fallbackDefaultConfig } from '@/entrypoints/popup/components/builder/model/transforms';
@@ -27,8 +28,9 @@ import PropNavigate from '@/entrypoints/popup/components/builder/components/prop
 import PropertyFromSpec from '@/entrypoints/popup/components/builder/components/properties/PropertyFromSpec.vue';
 import { registerBuiltinSpecs } from '@/entrypoints/popup/components/builder/model/node-specs-builtin';
 
-// Register builtin NodeSpecs at module init
-registerBuiltinSpecs();
+// Register builtin NodeSpecs at module init. The specs hold i18n keys rather
+// than literals so the shared package stays free of chrome.* — resolve them here.
+registerBuiltinSpecs(getMessage);
 import PropWait from '@/entrypoints/popup/components/builder/components/properties/PropertyWait.vue';
 import PropAssert from '@/entrypoints/popup/components/builder/components/properties/PropertyAssert.vue';
 import PropDelay from '@/entrypoints/popup/components/builder/components/properties/PropertyDelay.vue';
