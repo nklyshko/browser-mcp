@@ -1,9 +1,18 @@
-
 // recorder.js - content script for recording user interactions into steps
 
 (function () {
   if (window.__RR_RECORDER_INSTALLED__) return;
   window.__RR_RECORDER_INSTALLED__ = true;
+
+  // Local i18n shim: copied verbatim into the build rather than bundled, so it
+  // cannot import @/utils/i18n, but chrome.i18n works in the ISOLATED world.
+  const getMessage = (key, substitutions) => {
+    try {
+      return chrome.i18n.getMessage(key, substitutions) || key;
+    } catch {
+      return key;
+    }
+  };
 
   // ================================================================
   // 1) CONFIG + STATELESS HELPERS (namespaced)
@@ -202,16 +211,16 @@
       });
       root.innerHTML = `
         <div id="__rr_rec_panel" style="background: rgba(220,38,38,0.95); color: #fff; padding:8px 10px; border-radius:8px; display:flex; align-items:center; gap:8px; box-shadow:0 4px 16px rgba(0,0,0,0.2);">
-          <span id="__rr_badge" style="font-weight:600;">录制中</span>
+          <span id="__rr_badge" style="font-weight:600;">${getMessage('rrRecording')}</span>
           <label style="display:inline-flex; align-items:center; gap:4px; font-size:12px;">
-            <input id="__rr_hide_values" type="checkbox" style="vertical-align:middle;" />隐藏输入值
+            <input id="__rr_hide_values" type="checkbox" style="vertical-align:middle;" />${getMessage('rrHideValues')}
           </label>
           <label style="display:inline-flex; align-items:center; gap:4px; font-size:12px;">
-            <input id="__rr_enable_highlight" type="checkbox" style="vertical-align:middle;" />高亮
+            <input id="__rr_enable_highlight" type="checkbox" style="vertical-align:middle;" />${getMessage('rrHighlight')}
           </label>
-          <button id="__rr_toggle_timeline" style="background:transparent; color:#fff; border:1px solid rgba(255,255,255,0.5); border-radius:6px; padding:2px 6px; cursor:pointer; font-size:12px;">折叠</button>
-          <button id="__rr_pause" style="background:#fff; color:#111; border:none; border-radius:6px; padding:4px 8px; cursor:pointer;">暂停</button>
-          <button id="__rr_stop" style="background:#111; color:#fff; border:none; border-radius:6px; padding:4px 8px; cursor:pointer;">停止</button>
+          <button id="__rr_toggle_timeline" style="background:transparent; color:#fff; border:1px solid rgba(255,255,255,0.5); border-radius:6px; padding:2px 6px; cursor:pointer; font-size:12px;">${getMessage('rrCollapse')}</button>
+          <button id="__rr_pause" style="background:#fff; color:#111; border:none; border-radius:6px; padding:4px 8px; cursor:pointer;">${getMessage('rrPause')}</button>
+          <button id="__rr_stop" style="background:#111; color:#fff; border:none; border-radius:6px; padding:4px 8px; cursor:pointer;">${getMessage('rrStop')}</button>
         </div>`;
       document.documentElement.appendChild(root);
       // Build timeline container just below the panel
@@ -232,7 +241,7 @@
         lineHeight: '1.4',
       });
       const header = document.createElement('div');
-      header.textContent = '已录制步骤';
+      header.textContent = getMessage('rrRecordedSteps');
       header.style.opacity = '0.8';
       header.style.marginBottom = '4px';
       const list = document.createElement('ol');
@@ -265,7 +274,9 @@
           this._collapsed = !this._collapsed;
           if (this._timelineBox)
             this._timelineBox.style.display = this._collapsed ? 'none' : 'block';
-          btnToggle.textContent = this._collapsed ? '展开' : '折叠';
+          btnToggle.textContent = this._collapsed
+            ? getMessage('rrExpand')
+            : getMessage('rrCollapse');
         });
       }
       btnPause.addEventListener('click', () => {
@@ -301,8 +312,14 @@
     updateStatus() {
       const badge = document.getElementById('__rr_badge');
       const pauseBtn = document.getElementById('__rr_pause');
-      if (badge) badge.textContent = this.recorder.isPaused ? '已暂停' : '录制中';
-      if (pauseBtn) pauseBtn.textContent = this.recorder.isPaused ? '继续' : '暂停';
+      if (badge)
+        badge.textContent = this.recorder.isPaused
+          ? getMessage('rrPaused')
+          : getMessage('rrRecording');
+      if (pauseBtn)
+        pauseBtn.textContent = this.recorder.isPaused
+          ? getMessage('rrResume')
+          : getMessage('rrPause');
     }
 
     // Reset the timeline list content
@@ -421,30 +438,32 @@
     // Create a short, human-readable text for a recorded step
     _formatStepText(step, _idx) {
       try {
-        if (!step || typeof step !== 'object') return '未知步骤';
+        if (!step || typeof step !== 'object') return getMessage('rrUnknownStep');
         const t = step.type;
         const sel = step.target && step.target.selector ? step.target.selector : '';
         if (t === 'click' || t === 'dblclick') {
-          return `${t === 'dblclick' ? '双击' : '点击'}: ${sel || '(document)'}`;
+          return `${t === 'dblclick' ? getMessage('emActDoubleClick') : getMessage('emActLeftClick')}: ${sel || '(document)'}`;
         }
         if (t === 'fill') {
           const val = step.value;
           const shown = typeof val === 'string' && val.length > 0 ? val : String(val);
-          return `输入: ${sel} = ${shown}`;
+          return `${getMessage('rrStepFill')}: ${sel} = ${shown}`;
         }
         if (t === 'scroll') {
-          const mode = step.mode === 'container' ? '容器' : '页面';
+          const mode =
+            step.mode === 'container' ? getMessage('specModeContainer') : getMessage('rrScopePage');
           const off = step.offset || {};
-          return `滚动(${mode}): y=${off.y ?? 0}, x=${off.x ?? 0}`;
+          return `${getMessage('emActScroll')}(${mode}): y=${off.y ?? 0}, x=${off.x ?? 0}`;
         }
-        if (t === 'openTab') return `打开标签页: ${step.url || ''}`;
-        if (t === 'switchTab') return `切换标签页: 包含 ${step.urlContains || ''}`;
+        if (t === 'openTab') return `${getMessage('specNodeOpenTab')}: ${step.url || ''}`;
+        if (t === 'switchTab')
+          return `${getMessage('specNodeSwitchTab')}: ${getMessage('rrContains')} ${step.urlContains || ''}`;
         if (t === 'switchFrame')
-          return `切换Frame: 包含 ${step.frame && step.frame.urlContains ? step.frame.urlContains : ''}`;
-        if (t === 'waitFor') return `等待: ${sel || step.until || ''}`;
+          return `${getMessage('specNodeSwitchFrame')}: ${getMessage('rrContains')} ${step.frame && step.frame.urlContains ? step.frame.urlContains : ''}`;
+        if (t === 'waitFor') return `${getMessage('specNodeWait')}: ${sel || step.until || ''}`;
         return `${t}`;
       } catch (_) {
-        return '步骤';
+        return getMessage('rrStep');
       }
     }
   }
@@ -873,7 +892,7 @@
       const nowIso = new Date().toISOString();
       return {
         id: `flow_${Date.now()}`,
-        name: '未命名录制',
+        name: getMessage('rrUntitledRecording'),
         version: 1,
         steps: [],
         variables: [],

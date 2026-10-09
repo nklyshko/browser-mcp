@@ -3842,5 +3842,407 @@
   },
   "acReadPageError": {
     "message": "Failed to read the current page."
+  },
+  "emPanelDragHint": {
+    "message": "Drag to move"
+  },
+  "emPanelTitle": {
+    "message": "Element marker"
+  },
+  "emLocatorCss": {
+    "message": "CSS locator (recommended)"
+  },
+  "emLocatorXpath": {
+    "message": "XPath locator"
+  },
+  "emListMode": {
+    "message": "List mode"
+  },
+  "emListModeHint": {
+    "message": "List mode - mark similar elements in bulk"
+  },
+  "emBoxSelect": {
+    "message": "Box select"
+  },
+  "emBoxSelectHint": {
+    "message": "Box select - drag to select a page region"
+  },
+  "emToggleExecutePanel": {
+    "message": "Toggle the execute panel"
+  },
+  "emCopyLocator": {
+    "message": "Copy locator"
+  },
+  "emClickToMark": {
+    "message": "Click an element on the page to mark it"
+  },
+  "emSelectParent": {
+    "message": "Select the parent element"
+  },
+  "emSelectChild": {
+    "message": "Select a child element"
+  },
+  "emClickThroughHint": {
+    "message": "When off, the element is only recorded; the site’s own click handlers do not fire"
+  },
+  "emTriggerClickOnMark": {
+    "message": "Trigger the page click when marking"
+  },
+  "emGetElementText": {
+    "message": "Get this element’s text"
+  },
+  "emClickThroughUse": {
+    "message": "For opening dialogs and dropdowns"
+  },
+  "emTabMark": {
+    "message": "Mark"
+  },
+  "emTabVerify": {
+    "message": "Verify"
+  },
+  "emSelectedElement": {
+    "message": "Selected element"
+  },
+  "emElementNamePlaceholder": {
+    "message": "Element name"
+  },
+  "emLocatorLabel": {
+    "message": "Locator"
+  },
+  "emLocatorPrefs": {
+    "message": "Locator preferences"
+  },
+  "emRecommended": {
+    "message": "recommended"
+  },
+  "emPrefTestId": {
+    "message": "Test id"
+  },
+  "emPrefAria": {
+    "message": "Accessibility label"
+  },
+  "emPrefVisibleText": {
+    "message": "Visible text (XPath)"
+  },
+  "emPrefStableAttrs": {
+    "message": "Stable attributes"
+  },
+  "emPrefClassFallback": {
+    "message": "Fall back to class names"
+  },
+  "emPrefOrder": {
+    "message": "Order: test id → accessibility label → visible text → ID → stable attributes → class names → structural path"
+  },
+  "emCheckMatches": {
+    "message": "Check matches"
+  },
+  "emRunVerification": {
+    "message": "Run verification"
+  },
+  "emVerifyAction": {
+    "message": "Verification action"
+  },
+  "emActHover": {
+    "message": "Hover"
+  },
+  "emActLeftClick": {
+    "message": "Left click"
+  },
+  "emActDoubleClick": {
+    "message": "Double click"
+  },
+  "emActRightClick": {
+    "message": "Right click"
+  },
+  "emActScroll": {
+    "message": "Scroll"
+  },
+  "emActTypeText": {
+    "message": "Type text"
+  },
+  "emActPressKeys": {
+    "message": "Press keys"
+  },
+  "emTextLabel": {
+    "message": "Text"
+  },
+  "emTextToTypePlaceholder": {
+    "message": "Text to type"
+  },
+  "emKeysLabel": {
+    "message": "Keys"
+  },
+  "emKeysPlaceholder": {
+    "message": "e.g. Enter, Ctrl+C"
+  },
+  "emScrollDirection": {
+    "message": "Scroll direction"
+  },
+  "emDirDown": {
+    "message": "Down"
+  },
+  "emDirUp": {
+    "message": "Up"
+  },
+  "emDirLeft": {
+    "message": "Left"
+  },
+  "emDirRight": {
+    "message": "Right"
+  },
+  "emScrollCountHint": {
+    "message": "Count (1–10, about 100px each)"
+  },
+  "emMouseButton": {
+    "message": "Mouse button"
+  },
+  "emBtnLeft": {
+    "message": "Left"
+  },
+  "emBtnMiddle": {
+    "message": "Middle"
+  },
+  "emBtnRight": {
+    "message": "Right"
+  },
+  "emTimeoutMs": {
+    "message": "Timeout (ms)"
+  },
+  "emWaitForNavigation": {
+    "message": "Wait for navigation"
+  },
+  "emKeyAlt": {
+    "message": "Alt key"
+  },
+  "emKeyCtrl": {
+    "message": "Ctrl key"
+  },
+  "emKeyMeta": {
+    "message": "Meta key"
+  },
+  "emKeyShift": {
+    "message": "Shift key"
+  },
+  "emRecentRuns": {
+    "message": "Recent runs"
+  },
+  "emSaveMarker": {
+    "message": "Save marker"
+  },
+  "emExportLocator": {
+    "message": "Export locator"
+  },
+  "emFooterHintBefore": {
+    "message": "Click an element, or press"
+  },
+  "emSpaceKey": {
+    "message": "Space"
+  },
+  "emFooterHintAfter": {
+    "message": "to mark it; the box-select button can be dragged."
+  },
+  "emCodeDialogTitle": {
+    "message": "Element locator code"
+  },
+  "emCodeDialogHint": {
+    "message": "Ready to paste into an automation script"
+  },
+  "emCopyLang": {
+    "message": "Copy $P1$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "emKindCheckbox": {
+    "message": "checkbox"
+  },
+  "emKindRadio": {
+    "message": "radio button"
+  },
+  "emKindSubmit": {
+    "message": "submit button"
+  },
+  "emKindButton": {
+    "message": "button"
+  },
+  "emKindLink": {
+    "message": "link"
+  },
+  "emKindInput": {
+    "message": "input"
+  },
+  "emKindTextarea": {
+    "message": "text area"
+  },
+  "emKindSelect": {
+    "message": "dropdown"
+  },
+  "emKindImage": {
+    "message": "image"
+  },
+  "emKindElement": {
+    "message": "element"
+  },
+  "emPickElementBeforeCheck": {
+    "message": "Click an element on the page before checking matches"
+  },
+  "emVerifyingLocator": {
+    "message": "Verifying the locator…"
+  },
+  "emMatchedCount": {
+    "message": "Matched $P1$ element(s)",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "emNoMatchFound": {
+    "message": "No matching element found"
+  },
+  "emVerifyFailed": {
+    "message": "Verification failed"
+  },
+  "emPickElementBeforeVerify": {
+    "message": "Select an element before running verification"
+  },
+  "emRunningVerification": {
+    "message": "Running verification…"
+  },
+  "emVerifySucceeded": {
+    "message": "✓ Verification succeeded ($P1$ element(s) matched)",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "emErrorPrefix": {
+    "message": "Error: $P1$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "emNoLocatorToCopy": {
+    "message": "There is no locator to copy yet"
+  },
+  "emClipboardDenied": {
+    "message": "The browser denied clipboard access"
+  },
+  "emCopiedToClipboard": {
+    "message": "✓ Copied to the clipboard"
+  },
+  "emCopyLocatorFailed": {
+    "message": "Failed to copy the locator"
+  },
+  "emPickElementBeforeText": {
+    "message": "Click an element on the page before getting its text"
+  },
+  "emElementHasNoText": {
+    "message": "This element has no text to copy"
+  },
+  "emCopiedElementText": {
+    "message": "✓ Copied the element text ($P1$ characters)",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "emGetElementTextFailed": {
+    "message": "Failed to get the element text"
+  },
+  "emCannotLocateReselect": {
+    "message": "Could not locate the element; select it again and re-verify"
+  },
+  "emPickElementBeforeExport": {
+    "message": "Select an element before exporting a locator"
+  },
+  "emCodeCopied": {
+    "message": "✓ Locator code copied to the clipboard"
+  },
+  "emPickElementBeforeSave": {
+    "message": "Select an element before saving a marker"
+  },
+  "emMarkerSaved": {
+    "message": "✓ Marker saved"
+  },
+  "emSaveFailed": {
+    "message": "Save failed"
+  },
+  "rrRecording": {
+    "message": "Recording"
+  },
+  "rrPaused": {
+    "message": "Paused"
+  },
+  "rrHideValues": {
+    "message": "Hide input values"
+  },
+  "rrHighlight": {
+    "message": "Highlight"
+  },
+  "rrCollapse": {
+    "message": "Collapse"
+  },
+  "rrExpand": {
+    "message": "Expand"
+  },
+  "rrPause": {
+    "message": "Pause"
+  },
+  "rrResume": {
+    "message": "Resume"
+  },
+  "rrStop": {
+    "message": "Stop"
+  },
+  "rrRecordedSteps": {
+    "message": "Recorded steps"
+  },
+  "rrUnknownStep": {
+    "message": "Unknown step"
+  },
+  "rrStep": {
+    "message": "Step"
+  },
+  "rrStepFill": {
+    "message": "Fill"
+  },
+  "rrScopePage": {
+    "message": "page"
+  },
+  "rrContains": {
+    "message": "contains"
+  },
+  "rrUntitledRecording": {
+    "message": "Untitled recording"
+  },
+  "rrRunLogTitle": {
+    "message": "Record-Replay run log"
+  },
+  "rrPickElementTip": {
+    "message": "Click to pick an element (Esc to cancel)"
+  },
+  "rrEnterParam": {
+    "message": "Enter a value for $P1$ ($P2$)",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      },
+      "p2": {
+        "content": "$2"
+      }
+    }
+  },
+  "rrReplayParamsTitle": {
+    "message": "Enter the replay parameters"
+  },
+  "rrSensitive": {
+    "message": "sensitive"
   }
 }

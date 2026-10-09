@@ -2,6 +2,17 @@
   if (window.__ELEMENT_MARKER_INSTALLED__) return;
   window.__ELEMENT_MARKER_INSTALLED__ = true;
 
+  // Local i18n shim. This file is copied into the build verbatim rather than
+  // bundled, so it cannot import @/utils/i18n -- but it runs in the ISOLATED
+  // world, where chrome.i18n reads the same _locales as the rest of the UI.
+  const getMessage = (key, substitutions) => {
+    try {
+      return chrome.i18n.getMessage(key, substitutions) || key;
+    } catch {
+      return key;
+    }
+  };
+
   const IS_MAIN = window === window.top;
 
   // ============================================================================
@@ -874,10 +885,10 @@
     const PANEL_TEMPLATE = `
       <div class="em-panel" id="em_panel_root">
         <!-- Header -->
-        <div class="em-header em-drag-handle" id="__em_drag_handle" title="拖动移动">
-          <h2 class="em-title">元素标注</h2>
+        <div class="em-header em-drag-handle" id="__em_drag_handle" title="${getMessage('emPanelDragHint')}">
+          <h2 class="em-title">${getMessage('emPanelTitle')}</h2>
           <div class="em-header-actions">
-            <button class="em-icon-btn" id="__em_close" title="关闭">
+            <button class="em-icon-btn" id="__em_close" title="${getMessage('closeButton')}">
               <svg viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
               </svg>
@@ -889,21 +900,21 @@
         <div class="em-controls">
           <div class="em-select-wrapper">
             <select class="em-select" id="__em_selector_type">
-              <option value="css">CSS 定位（推荐）</option>
-              <option value="xpath">XPath 定位</option>
+              <option value="css">${getMessage('emLocatorCss')}</option>
+              <option value="xpath">${getMessage('emLocatorXpath')}</option>
             </select>
           </div>
-          <button class="em-square-btn" id="__em_toggle_list" title="列表模式 - 批量标注相似元素" aria-label="列表模式" aria-pressed="false">
+          <button class="em-square-btn" id="__em_toggle_list" title="${getMessage('emListModeHint')}" aria-label="${getMessage('emListMode')}" aria-pressed="false">
             <svg viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/>
             </svg>
           </button>
-          <button class="em-square-btn" id="__em_toggle_box" title="框选定位 - 拖动框选页面区域" aria-label="框选定位" aria-pressed="false">
+          <button class="em-square-btn" id="__em_toggle_box" title="${getMessage('emBoxSelectHint')}" aria-label="${getMessage('emBoxSelect')}" aria-pressed="false">
             <svg viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M4 9V5h4m8 0h4v4M4 15v4h4m8 0h4v-4M8 8h8v8H8z"/>
             </svg>
           </button>
-          <button class="em-square-btn" id="__em_toggle_tab" title="切换执行面板">
+          <button class="em-square-btn" id="__em_toggle_tab" title="${getMessage('emToggleExecutePanel')}">
             <svg viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
               <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
@@ -913,17 +924,17 @@
 
         <!-- Selector Display -->
         <div class="em-selector-display">
-          <svg viewBox="0 0 24 24" id="__em_copy_selector" title="复制定位">
+          <svg viewBox="0 0 24 24" id="__em_copy_selector" title="${getMessage('emCopyLocator')}">
             <path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
           </svg>
-          <span class="em-selector-text" id="__em_selector_text">点击页面元素进行标记</span>
+          <span class="em-selector-text" id="__em_selector_text">${getMessage('emClickToMark')}</span>
           <div class="em-selector-nav">
-            <button class="em-nav-btn" id="__em_nav_up" title="选择父元素">
+            <button class="em-nav-btn" id="__em_nav_up" title="${getMessage('emSelectParent')}">
               <svg viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M5 15l7-7 7 7"/>
               </svg>
             </button>
-            <button class="em-nav-btn" id="__em_nav_down" title="选择子元素">
+            <button class="em-nav-btn" id="__em_nav_down" title="${getMessage('emSelectChild')}">
               <svg viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
               </svg>
@@ -931,21 +942,21 @@
           </div>
         </div>
 
-        <div class="em-behavior-row" title="关闭后只记录元素，不会触发网站的点击逻辑">
+        <div class="em-behavior-row" title="${getMessage('emClickThroughHint')}">
           <label class="em-behavior-label">
             <input type="checkbox" id="__em_replay_click" />
-            <span>标记后触发页面点击</span>
+            <span>${getMessage('emTriggerClickOnMark')}</span>
           </label>
           <button class="em-copy-element-text-btn" id="__em_copy_element_text" type="button">
-            获取该元素文本
+            ${getMessage('emGetElementText')}
           </button>
-          <span class="em-behavior-hint">用于打开弹窗/下拉</span>
+          <span class="em-behavior-hint">${getMessage('emClickThroughUse')}</span>
         </div>
 
         <!-- Tabs are kept in the template for compatibility; the unified form hides them. -->
         <div class="em-tabs">
-          <button class="em-tab active" data-tab="attributes">标记</button>
-          <button class="em-tab" data-tab="execute">验证</button>
+          <button class="em-tab active" data-tab="attributes">${getMessage('emTabMark')}</button>
+          <button class="em-tab" data-tab="execute">${getMessage('emTabVerify')}</button>
         </div>
 
         <!-- Status -->
@@ -955,18 +966,18 @@
         <div class="em-content" id="__em_tab_attributes">
           <div class="em-annotation-layout">
             <section>
-              <h3 class="em-section-title">已选元素</h3>
+              <h3 class="em-section-title">${getMessage('emSelectedElement')}</h3>
               <div class="em-attributes">
                 <div class="em-attribute">
-                  <div class="em-attribute-label">名称</div>
+                  <div class="em-attribute-label">${getMessage('emNameLabel')}</div>
                   <div class="em-attribute-value editable">
-                    <input class="em-input" id="__em_name" placeholder="元素名称" />
+                    <input class="em-input" id="__em_name" placeholder="${getMessage('emElementNamePlaceholder')}" />
                   </div>
                 </div>
                 <div class="em-attribute">
-                  <div class="em-attribute-label">定位</div>
+                  <div class="em-attribute-label">${getMessage('emLocatorLabel')}</div>
                   <div class="em-attribute-value">
-                    <svg class="copy-icon" viewBox="0 0 24 24" id="__em_copy" title="复制定位">
+                    <svg class="copy-icon" viewBox="0 0 24 24" id="__em_copy" title="${getMessage('emCopyLocator')}">
                       <path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
                     </svg>
                     <span class="em-attribute-text" id="__em_selector">-</span>
@@ -976,86 +987,86 @@
             </section>
 
             <section>
-              <h3 class="em-section-title">定位偏好</h3>
+              <h3 class="em-section-title">${getMessage('emLocatorPrefs')}</h3>
               <div class="em-settings">
                 <div class="em-checkbox-group">
                   <label class="em-checkbox-label">
                     <input type="checkbox" id="__em_pref_testid" checked />
-                  <span>测试标识 <em>推荐</em></span>
+                  <span>${getMessage('emPrefTestId')} <em>${getMessage('emRecommended')}</em></span>
                   </label>
                   <label class="em-checkbox-label">
                     <input type="checkbox" id="__em_pref_aria" checked />
-                  <span>无障碍标签 <em>推荐</em></span>
+                  <span>${getMessage('emPrefAria')} <em>${getMessage('emRecommended')}</em></span>
                   </label>
                   <label class="em-checkbox-label">
                     <input type="checkbox" id="__em_pref_text" />
-                    <span>可见文本（XPath）</span>
+                    <span>${getMessage('emPrefVisibleText')}</span>
                   </label>
                   <label class="em-checkbox-label">
                     <input type="checkbox" id="__em_pref_id" checked />
-                  <span>ID <em>推荐</em></span>
+                  <span>ID <em>${getMessage('emRecommended')}</em></span>
                   </label>
                   <label class="em-checkbox-label">
                     <input type="checkbox" id="__em_pref_attr" checked />
-                  <span>稳定属性 <em>推荐</em></span>
+                  <span>${getMessage('emPrefStableAttrs')} <em>${getMessage('emRecommended')}</em></span>
                   </label>
                   <label class="em-checkbox-label">
                     <input type="checkbox" id="__em_pref_class" />
-                    <span>备用使用类名</span>
+                    <span>${getMessage('emPrefClassFallback')}</span>
                   </label>
                 </div>
-                <div class="em-field-label">顺序：测试标识 → 无障碍标签 → 可见文本 → ID → 稳定属性 → 类名 → 结构路径</div>
+                <div class="em-field-label">${getMessage('emPrefOrder')}</div>
               </div>
             </section>
           </div>
 
           <div class="em-actions">
-            <button class="em-btn em-btn-primary" id="__em_verify">检查匹配</button>
+            <button class="em-btn em-btn-primary" id="__em_verify">${getMessage('emCheckMatches')}</button>
           </div>
         </div>
 
         <!-- Validation content is visible together with annotation content. -->
         <div class="em-content em-verify-content" id="__em_tab_execute" style="display: block;">
-          <h3 class="em-section-title em-verify-title">执行验证</h3>
+          <h3 class="em-section-title em-verify-title">${getMessage('emRunVerification')}</h3>
           <div class="em-settings">
             <div class="em-settings-group">
-              <div class="em-settings-label">验证动作</div>
+              <div class="em-settings-label">${getMessage('emVerifyAction')}</div>
               <div class="em-select-wrapper">
                 <select class="em-select" id="__em_action">
-                  <option value="hover">悬停</option>
-                  <option value="left_click">左键点击</option>
-                  <option value="double_click">双击</option>
-                  <option value="right_click">右键点击</option>
-                  <option value="scroll">滚动</option>
-                  <option value="type_text">输入文本</option>
-                  <option value="press_keys">按键</option>
+                  <option value="hover">${getMessage('emActHover')}</option>
+                  <option value="left_click">${getMessage('emActLeftClick')}</option>
+                  <option value="double_click">${getMessage('emActDoubleClick')}</option>
+                  <option value="right_click">${getMessage('emActRightClick')}</option>
+                  <option value="scroll">${getMessage('emActScroll')}</option>
+                  <option value="type_text">${getMessage('emActTypeText')}</option>
+                  <option value="press_keys">${getMessage('emActPressKeys')}</option>
                 </select>
               </div>
             </div>
 
             <!-- Action-specific inputs (dynamically shown/hidden) -->
             <div class="em-settings-group" id="__em_action_text_group" style="display: none;">
-              <div class="em-settings-label">文本</div>
-              <input class="em-field-input" id="__em_action_text" placeholder="要输入的文本" />
+              <div class="em-settings-label">${getMessage('emTextLabel')}</div>
+              <input class="em-field-input" id="__em_action_text" placeholder="${getMessage('emTextToTypePlaceholder')}" />
             </div>
 
             <div class="em-settings-group" id="__em_action_keys_group" style="display: none;">
-              <div class="em-settings-label">按键</div>
-              <input class="em-field-input" id="__em_action_keys" placeholder="如 Enter、Ctrl+C" />
+              <div class="em-settings-label">${getMessage('emKeysLabel')}</div>
+              <input class="em-field-input" id="__em_action_keys" placeholder="${getMessage('emKeysPlaceholder')}" />
             </div>
 
             <div class="em-settings-group" id="__em_scroll_options" style="display: none;">
-              <div class="em-settings-label">滚动方向</div>
+              <div class="em-settings-label">${getMessage('emScrollDirection')}</div>
               <div class="em-select-wrapper">
                 <select class="em-select" id="__em_scroll_direction">
-                  <option value="down">向下</option>
-                  <option value="up">向上</option>
-                  <option value="left">向左</option>
-                  <option value="right">向右</option>
+                  <option value="down">${getMessage('emDirDown')}</option>
+                  <option value="up">${getMessage('emDirUp')}</option>
+                  <option value="left">${getMessage('emDirLeft')}</option>
+                  <option value="right">${getMessage('emDirRight')}</option>
                 </select>
               </div>
               <div class="em-field" style="margin-top: 8px;">
-                <div class="em-field-label">次数（1–10，每次约 100px）</div>
+                <div class="em-field-label">${getMessage('emScrollCountHint')}</div>
                 <input class="em-field-input" id="__em_scroll_distance" type="number" min="1" max="10" step="1" value="3" />
               </div>
             </div>
@@ -1064,15 +1075,15 @@
             <div id="__em_click_options" style="display: none;">
               <div class="em-grid">
                 <div class="em-field">
-                  <div class="em-field-label">鼠标按键</div>
+                  <div class="em-field-label">${getMessage('emMouseButton')}</div>
                   <select class="em-select" id="__em_btn">
-                    <option value="left">左键</option>
-                    <option value="middle">中键</option>
-                    <option value="right">右键</option>
+                    <option value="left">${getMessage('emBtnLeft')}</option>
+                    <option value="middle">${getMessage('emBtnMiddle')}</option>
+                    <option value="right">${getMessage('emBtnRight')}</option>
                   </select>
                 </div>
                 <div class="em-field">
-                  <div class="em-field-label">超时（毫秒）</div>
+                  <div class="em-field-label">${getMessage('emTimeoutMs')}</div>
                   <input class="em-field-input" id="__em_nav_timeout" type="number" value="3000" />
                 </div>
               </div>
@@ -1080,55 +1091,55 @@
               <div class="em-checkbox-group" style="margin-top: 12px;">
                 <label class="em-checkbox-label">
                   <input type="checkbox" id="__em_wait_nav" />
-                  <span>等待页面跳转</span>
+                  <span>${getMessage('emWaitForNavigation')}</span>
                 </label>
                 <label class="em-checkbox-label">
                   <input type="checkbox" id="__em_mod_alt" />
-                  <span>Alt 键</span>
+                  <span>${getMessage('emKeyAlt')}</span>
                 </label>
                 <label class="em-checkbox-label">
                   <input type="checkbox" id="__em_mod_ctrl" />
-                  <span>Ctrl 键</span>
+                  <span>${getMessage('emKeyCtrl')}</span>
                 </label>
                 <label class="em-checkbox-label">
                   <input type="checkbox" id="__em_mod_meta" />
-                  <span>Meta 键</span>
+                  <span>${getMessage('emKeyMeta')}</span>
                 </label>
                 <label class="em-checkbox-label">
                   <input type="checkbox" id="__em_mod_shift" />
-                  <span>Shift 键</span>
+                  <span>${getMessage('emKeyShift')}</span>
                 </label>
               </div>
             </div>
 
             <div class="em-actions" style="margin-top: 16px;">
-              <button class="em-btn em-btn-primary" id="__em_execute">执行验证</button>
+              <button class="em-btn em-btn-primary" id="__em_execute">${getMessage('emRunVerification')}</button>
             </div>
 
             <!-- Execution History -->
             <div id="__em_execution_history" style="margin-top: 16px; display: none;">
-              <div class="em-settings-label">最近执行</div>
+              <div class="em-settings-label">${getMessage('emRecentRuns')}</div>
               <div id="__em_history_list" style="font-size: 12px; color: #737373; margin-top: 8px;"></div>
             </div>
           </div>
         </div>
 
         <div class="em-actions em-save-actions">
-          <button class="em-btn em-btn-success" id="__em_save">保存标记</button>
-          <button class="em-btn em-btn-ghost" id="__em_export">导出定位</button>
-          <button class="em-btn em-btn-ghost" id="__em_cancel">取消</button>
+          <button class="em-btn em-btn-success" id="__em_save">${getMessage('emSaveMarker')}</button>
+          <button class="em-btn em-btn-ghost" id="__em_export">${getMessage('emExportLocator')}</button>
+          <button class="em-btn em-btn-ghost" id="__em_cancel">${getMessage('cancelButton')}</button>
         </div>
 
         <!-- Footer -->
         <div class="em-footer">
-          点击元素，或按 <kbd>空格</kbd> 标记；框选按钮可拖动定位
+          ${getMessage('emFooterHintBefore')} <kbd>${getMessage('emSpaceKey')}</kbd> ${getMessage('emFooterHintAfter')}
         </div>
 
-        <div class="em-code-dialog" id="__em_code_dialog" role="dialog" aria-modal="true" aria-label="元素定位代码">
+        <div class="em-code-dialog" id="__em_code_dialog" role="dialog" aria-modal="true" aria-label="${getMessage('emCodeDialogTitle')}">
           <div class="em-code-card">
             <div class="em-code-header">
-              <span class="em-code-title">元素定位代码</span>
-              <button class="em-icon-btn" id="__em_code_close" title="关闭">×</button>
+              <span class="em-code-title">${getMessage('emCodeDialogTitle')}</span>
+              <button class="em-icon-btn" id="__em_code_close" title="${getMessage('closeButton')}">×</button>
             </div>
             <div class="em-code-tabs">
               <button class="em-code-tab active" data-code-language="javascript">JavaScript</button>
@@ -1136,8 +1147,8 @@
             </div>
             <pre class="em-code-output" id="__em_code_output"></pre>
             <div class="em-code-actions">
-              <span id="__em_code_hint">可直接复制到自动化脚本</span>
-              <button class="em-btn em-btn-primary" id="__em_code_copy">复制 JavaScript</button>
+              <span id="__em_code_hint">${getMessage('emCodeDialogHint')}</span>
+              <button class="em-btn em-btn-primary" id="__em_code_copy">${getMessage('emCopyLang', ['JavaScript'])}</button>
             </div>
           </div>
         </div>
@@ -1351,13 +1362,13 @@
           const timestamp = new Date(entry.timestamp).toLocaleTimeString();
           const actionName =
             {
-              hover: '悬停',
-              left_click: '左键点击',
-              double_click: '双击',
-              right_click: '右键点击',
-              scroll: '滚动',
-              type_text: '输入文本',
-              press_keys: '按键',
+              hover: getMessage('emActHover'),
+              left_click: getMessage('emActLeftClick'),
+              double_click: getMessage('emActDoubleClick'),
+              right_click: getMessage('emActRightClick'),
+              scroll: getMessage('emActScroll'),
+              type_text: getMessage('emActTypeText'),
+              press_keys: getMessage('emActPressKeys'),
             }[entry.action] || entry.action;
           return `<div style="padding: 6px 0; border-bottom: 1px solid #f5f5f5;">
             <span style="color: ${color}; font-weight: 600;">${icon}</span>
@@ -1446,7 +1457,7 @@
     return { init, destroy };
   })();
 
-  // [继续下一部分...]
+  // [continued in the next section...]
   // ============================================================================
   // Selector Engine - Heuristic Selector Generation
   // ============================================================================
@@ -1808,20 +1819,20 @@
 
   function getElementName(el) {
     const inputTypes = {
-      checkbox: '复选框',
-      radio: '单选框',
-      submit: '提交按钮',
-      button: '按钮',
+      checkbox: getMessage('emKindCheckbox'),
+      radio: getMessage('emKindRadio'),
+      submit: getMessage('emKindSubmit'),
+      button: getMessage('emKindButton'),
     };
     const types = {
-      A: '链接',
-      BUTTON: '按钮',
-      INPUT: inputTypes[el.getAttribute('type')] || '输入框',
-      TEXTAREA: '文本框',
-      SELECT: '下拉框',
-      IMG: '图片',
+      A: getMessage('emKindLink'),
+      BUTTON: getMessage('emKindButton'),
+      INPUT: inputTypes[el.getAttribute('type')] || getMessage('emKindInput'),
+      TEXTAREA: getMessage('emKindTextarea'),
+      SELECT: getMessage('emKindSelect'),
+      IMG: getMessage('emKindImage'),
     };
-    const type = types[el.tagName] || '元素';
+    const type = types[el.tagName] || getMessage('emKindElement');
     const label = getAccessibleName(el).replace(/\s+/g, ' ').slice(0, 40);
     const peers = Array.from(el.getRootNode().querySelectorAll(el.tagName));
     const index = Math.max(peers.indexOf(el) + 1, 1);
@@ -2782,13 +2793,13 @@
       const selector = STATE.box?.querySelector('#__em_selector')?.textContent?.trim();
       if (!selector || selector === '-') {
         StateStore.set({
-          validation: { status: 'failure', message: '请先点击页面元素，再检查匹配' },
+          validation: { status: 'failure', message: getMessage('emPickElementBeforeCheck') },
         });
         return;
       }
 
       StateStore.set({
-        validation: { status: 'running', message: '正在验证定位…' },
+        validation: { status: 'running', message: getMessage('emVerifyingLocator') },
       });
 
       const selectorType = StateStore.get('selectorType');
@@ -2799,8 +2810,11 @@
         const result = await highlightSelectorExternal({ selector, selectorType: effectiveType });
         StateStore.set({
           validation: result.success
-            ? { status: 'success', message: `已定位到 ${result.count || 1} 个元素` }
-            : { status: 'failure', message: result.error || '未找到匹配元素' },
+            ? {
+                status: 'success',
+                message: getMessage('emMatchedCount', [String(result.count || 1)]),
+              }
+            : { status: 'failure', message: result.error || getMessage('emNoMatchFound') },
         });
         return;
       }
@@ -2814,7 +2828,7 @@
 
       if (!filteredMatches || filteredMatches.length === 0) {
         StateStore.set({
-          validation: { status: 'failure', message: '未找到匹配元素' },
+          validation: { status: 'failure', message: getMessage('emNoMatchFound') },
         });
         return;
       }
@@ -2837,7 +2851,7 @@
       StateStore.set({
         validation: {
           status: 'success',
-          message: `已定位到 ${filteredMatches.length} 个元素`,
+          message: getMessage('emMatchedCount', [String(filteredMatches.length)]),
         },
       });
 
@@ -2851,7 +2865,7 @@
     } catch (error) {
       console.error('[verifyHighlightOnly] error:', error);
       StateStore.set({
-        validation: { status: 'failure', message: error.message || '验证失败' },
+        validation: { status: 'failure', message: error.message || getMessage('emVerifyFailed') },
       });
     }
   }
@@ -2864,13 +2878,13 @@
       const selector = STATE.box?.querySelector('#__em_selector')?.textContent?.trim();
       if (!selector || selector === '-') {
         StateStore.set({
-          validation: { status: 'failure', message: '请先选择元素，再执行验证' },
+          validation: { status: 'failure', message: getMessage('emPickElementBeforeVerify') },
         });
         return;
       }
 
       StateStore.set({
-        validation: { status: 'running', message: '正在执行验证…' },
+        validation: { status: 'running', message: getMessage('emRunningVerification') },
       });
 
       const selectorType = StateStore.get('selectorType');
@@ -2890,7 +2904,7 @@
 
       if (!isComposite && (!filteredMatches || filteredMatches.length === 0)) {
         StateStore.set({
-          validation: { status: 'failure', message: '未找到匹配元素' },
+          validation: { status: 'failure', message: getMessage('emNoMatchFound') },
         });
         return;
       }
@@ -2972,7 +2986,9 @@
         StateStore.set({
           validation: {
             status: 'success',
-            message: `✓ 验证成功 (匹配 ${isComposite ? 1 : filteredMatches.length} 个元素)`,
+            message: getMessage('emVerifySucceeded', [
+              String(isComposite ? 1 : filteredMatches.length),
+            ]),
           },
           validationHistory: history,
         });
@@ -2997,7 +3013,7 @@
       StateStore.set({
         validation: {
           status: 'failure',
-          message: `错误: ${err.message}`,
+          message: getMessage('emErrorPrefix', [err.message]),
         },
         validationHistory: history,
       });
@@ -3119,7 +3135,7 @@
       const sel = STATE.box?.querySelector('#__em_selector')?.textContent?.trim();
       if (!sel || sel === '-') {
         StateStore.set({
-          validation: { status: 'failure', message: '还没有可复制的定位' },
+          validation: { status: 'failure', message: getMessage('emNoLocatorToCopy') },
         });
         return;
       }
@@ -3132,14 +3148,14 @@
           textarea.value = sel;
           document.body.appendChild(textarea);
           textarea.select();
-          if (!document.execCommand('copy')) throw new Error('浏览器拒绝访问剪贴板');
+          if (!document.execCommand('copy')) throw new Error(getMessage('emClipboardDenied'));
         } finally {
           textarea.remove();
         }
       }
 
       StateStore.set({
-        validation: { status: 'success', message: '✓ 已复制到剪贴板' },
+        validation: { status: 'success', message: getMessage('emCopiedToClipboard') },
       });
 
       setTimeout(() => {
@@ -3147,7 +3163,10 @@
       }, 2000);
     } catch (error) {
       StateStore.set({
-        validation: { status: 'failure', message: error?.message || '复制定位失败' },
+        validation: {
+          status: 'failure',
+          message: error?.message || getMessage('emCopyLocatorFailed'),
+        },
       });
     }
   }
@@ -3157,7 +3176,7 @@
       const selected = STATE.selectedEl;
       if (!(selected instanceof Element)) {
         StateStore.set({
-          validation: { status: 'failure', message: '请先点击页面元素，再获取文本' },
+          validation: { status: 'failure', message: getMessage('emPickElementBeforeText') },
         });
         return;
       }
@@ -3180,7 +3199,7 @@
         .join('\n');
       if (!value) {
         StateStore.set({
-          validation: { status: 'failure', message: '该元素没有可复制的文本内容' },
+          validation: { status: 'failure', message: getMessage('emElementHasNoText') },
         });
         return;
       }
@@ -3193,14 +3212,17 @@
           textarea.value = value;
           document.body.appendChild(textarea);
           textarea.select();
-          if (!document.execCommand('copy')) throw new Error('浏览器拒绝访问剪贴板');
+          if (!document.execCommand('copy')) throw new Error(getMessage('emClipboardDenied'));
         } finally {
           textarea.remove();
         }
       }
 
       StateStore.set({
-        validation: { status: 'success', message: `✓ 已复制该元素文本（${value.length} 字）` },
+        validation: {
+          status: 'success',
+          message: getMessage('emCopiedElementText', [String(value.length)]),
+        },
       });
 
       setTimeout(() => {
@@ -3208,15 +3230,18 @@
       }, 2000);
     } catch (error) {
       StateStore.set({
-        validation: { status: 'failure', message: error?.message || '获取元素文本失败' },
+        validation: {
+          status: 'failure',
+          message: error?.message || getMessage('emGetElementTextFailed'),
+        },
       });
     }
   }
 
   function formatValidationError(error) {
-    const message = String(error || '验证失败');
+    const message = String(error || getMessage('emVerifyFailed'));
     if (message.includes('Provide ref or selector or coordinates for hover')) {
-      return '无法定位元素，请重新选择后验证';
+      return getMessage('emCannotLocateReselect');
     }
     return message;
   }
@@ -3247,7 +3272,7 @@
     const marker = getMarkerData();
     if (!marker) {
       StateStore.set({
-        validation: { status: 'failure', message: '请先选择元素，再导出定位' },
+        validation: { status: 'failure', message: getMessage('emPickElementBeforeExport') },
       });
       return;
     }
@@ -3283,7 +3308,9 @@
     if (!dialog || !output || !copyButton) return;
     const code = dialog.dataset[language] || '';
     output.textContent = code;
-    copyButton.textContent = `复制 ${language === 'python' ? 'Python' : 'JavaScript'}`;
+    copyButton.textContent = getMessage('emCopyLang', [
+      language === 'python' ? 'Python' : 'JavaScript',
+    ]);
     dialog.dataset.codeLanguage = language;
     dialog.querySelectorAll('[data-code-language]').forEach((tab) => {
       tab.classList.toggle('active', tab.dataset.codeLanguage === language);
@@ -3304,7 +3331,7 @@
       document.execCommand('copy');
       textarea.remove();
     }
-    StateStore.set({ validation: { status: 'success', message: '✓ 定位代码已复制到剪贴板' } });
+    StateStore.set({ validation: { status: 'success', message: getMessage('emCodeCopied') } });
   }
 
   async function save() {
@@ -3312,7 +3339,7 @@
       const marker = getMarkerData();
       if (!marker) {
         StateStore.set({
-          validation: { status: 'failure', message: '请先选择元素，再保存标记' },
+          validation: { status: 'failure', message: getMessage('emPickElementBeforeSave') },
         });
         return;
       }
@@ -3322,11 +3349,13 @@
       });
       StateStore.set({
         validation: response?.success
-          ? { status: 'success', message: '✓ 标记已保存' }
-          : { status: 'failure', message: response?.error || '保存失败' },
+          ? { status: 'success', message: getMessage('emMarkerSaved') }
+          : { status: 'failure', message: response?.error || getMessage('emSaveFailed') },
       });
     } catch (error) {
-      StateStore.set({ validation: { status: 'failure', message: error?.message || '保存失败' } });
+      StateStore.set({
+        validation: { status: 'failure', message: error?.message || getMessage('emSaveFailed') },
+      });
     }
   }
 
@@ -3727,7 +3756,7 @@
             selectorDisplay.textContent = composite;
             selectorDisplay.title = composite;
           }
-          if (inputName) inputName.value = data.name || '元素';
+          if (inputName) inputName.value = data.name || getMessage('emKindElement');
           if (data.selectorType) {
             StateStore.set({ selectorType: data.selectorType });
             const typeSelect = STATE.box?.querySelector('#__em_selector_type');

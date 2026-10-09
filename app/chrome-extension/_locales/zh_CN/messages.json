@@ -3842,5 +3842,407 @@
   },
   "acReadPageError": {
     "message": "读取当前网页失败。"
+  },
+  "emPanelDragHint": {
+    "message": "拖动移动"
+  },
+  "emPanelTitle": {
+    "message": "元素标注"
+  },
+  "emLocatorCss": {
+    "message": "CSS 定位（推荐）"
+  },
+  "emLocatorXpath": {
+    "message": "XPath 定位"
+  },
+  "emListMode": {
+    "message": "列表模式"
+  },
+  "emListModeHint": {
+    "message": "列表模式 - 批量标注相似元素"
+  },
+  "emBoxSelect": {
+    "message": "框选定位"
+  },
+  "emBoxSelectHint": {
+    "message": "框选定位 - 拖动框选页面区域"
+  },
+  "emToggleExecutePanel": {
+    "message": "切换执行面板"
+  },
+  "emCopyLocator": {
+    "message": "复制定位"
+  },
+  "emClickToMark": {
+    "message": "点击页面元素进行标记"
+  },
+  "emSelectParent": {
+    "message": "选择父元素"
+  },
+  "emSelectChild": {
+    "message": "选择子元素"
+  },
+  "emClickThroughHint": {
+    "message": "关闭后只记录元素，不会触发网站的点击逻辑"
+  },
+  "emTriggerClickOnMark": {
+    "message": "标记后触发页面点击"
+  },
+  "emGetElementText": {
+    "message": "获取该元素文本"
+  },
+  "emClickThroughUse": {
+    "message": "用于打开弹窗/下拉"
+  },
+  "emTabMark": {
+    "message": "标记"
+  },
+  "emTabVerify": {
+    "message": "验证"
+  },
+  "emSelectedElement": {
+    "message": "已选元素"
+  },
+  "emElementNamePlaceholder": {
+    "message": "元素名称"
+  },
+  "emLocatorLabel": {
+    "message": "定位"
+  },
+  "emLocatorPrefs": {
+    "message": "定位偏好"
+  },
+  "emRecommended": {
+    "message": "推荐"
+  },
+  "emPrefTestId": {
+    "message": "测试标识"
+  },
+  "emPrefAria": {
+    "message": "无障碍标签"
+  },
+  "emPrefVisibleText": {
+    "message": "可见文本（XPath）"
+  },
+  "emPrefStableAttrs": {
+    "message": "稳定属性"
+  },
+  "emPrefClassFallback": {
+    "message": "备用使用类名"
+  },
+  "emPrefOrder": {
+    "message": "顺序：测试标识 → 无障碍标签 → 可见文本 → ID → 稳定属性 → 类名 → 结构路径"
+  },
+  "emCheckMatches": {
+    "message": "检查匹配"
+  },
+  "emRunVerification": {
+    "message": "执行验证"
+  },
+  "emVerifyAction": {
+    "message": "验证动作"
+  },
+  "emActHover": {
+    "message": "悬停"
+  },
+  "emActLeftClick": {
+    "message": "左键点击"
+  },
+  "emActDoubleClick": {
+    "message": "双击"
+  },
+  "emActRightClick": {
+    "message": "右键点击"
+  },
+  "emActScroll": {
+    "message": "滚动"
+  },
+  "emActTypeText": {
+    "message": "输入文本"
+  },
+  "emActPressKeys": {
+    "message": "按键"
+  },
+  "emTextLabel": {
+    "message": "文本"
+  },
+  "emTextToTypePlaceholder": {
+    "message": "要输入的文本"
+  },
+  "emKeysLabel": {
+    "message": "按键"
+  },
+  "emKeysPlaceholder": {
+    "message": "如 Enter、Ctrl+C"
+  },
+  "emScrollDirection": {
+    "message": "滚动方向"
+  },
+  "emDirDown": {
+    "message": "向下"
+  },
+  "emDirUp": {
+    "message": "向上"
+  },
+  "emDirLeft": {
+    "message": "向左"
+  },
+  "emDirRight": {
+    "message": "向右"
+  },
+  "emScrollCountHint": {
+    "message": "次数（1–10，每次约 100px）"
+  },
+  "emMouseButton": {
+    "message": "鼠标按键"
+  },
+  "emBtnLeft": {
+    "message": "左键"
+  },
+  "emBtnMiddle": {
+    "message": "中键"
+  },
+  "emBtnRight": {
+    "message": "右键"
+  },
+  "emTimeoutMs": {
+    "message": "超时（毫秒）"
+  },
+  "emWaitForNavigation": {
+    "message": "等待页面跳转"
+  },
+  "emKeyAlt": {
+    "message": "Alt 键"
+  },
+  "emKeyCtrl": {
+    "message": "Ctrl 键"
+  },
+  "emKeyMeta": {
+    "message": "Meta 键"
+  },
+  "emKeyShift": {
+    "message": "Shift 键"
+  },
+  "emRecentRuns": {
+    "message": "最近执行"
+  },
+  "emSaveMarker": {
+    "message": "保存标记"
+  },
+  "emExportLocator": {
+    "message": "导出定位"
+  },
+  "emFooterHintBefore": {
+    "message": "点击元素，或按"
+  },
+  "emSpaceKey": {
+    "message": "空格"
+  },
+  "emFooterHintAfter": {
+    "message": "标记；框选按钮可拖动定位"
+  },
+  "emCodeDialogTitle": {
+    "message": "元素定位代码"
+  },
+  "emCodeDialogHint": {
+    "message": "可直接复制到自动化脚本"
+  },
+  "emCopyLang": {
+    "message": "复制 $P1$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "emKindCheckbox": {
+    "message": "复选框"
+  },
+  "emKindRadio": {
+    "message": "单选框"
+  },
+  "emKindSubmit": {
+    "message": "提交按钮"
+  },
+  "emKindButton": {
+    "message": "按钮"
+  },
+  "emKindLink": {
+    "message": "链接"
+  },
+  "emKindInput": {
+    "message": "输入框"
+  },
+  "emKindTextarea": {
+    "message": "文本框"
+  },
+  "emKindSelect": {
+    "message": "下拉框"
+  },
+  "emKindImage": {
+    "message": "图片"
+  },
+  "emKindElement": {
+    "message": "元素"
+  },
+  "emPickElementBeforeCheck": {
+    "message": "请先点击页面元素，再检查匹配"
+  },
+  "emVerifyingLocator": {
+    "message": "正在验证定位…"
+  },
+  "emMatchedCount": {
+    "message": "已定位到 $P1$ 个元素",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "emNoMatchFound": {
+    "message": "未找到匹配元素"
+  },
+  "emVerifyFailed": {
+    "message": "验证失败"
+  },
+  "emPickElementBeforeVerify": {
+    "message": "请先选择元素，再执行验证"
+  },
+  "emRunningVerification": {
+    "message": "正在执行验证…"
+  },
+  "emVerifySucceeded": {
+    "message": "✓ 验证成功 (匹配 $P1$ 个元素)",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "emErrorPrefix": {
+    "message": "错误: $P1$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "emNoLocatorToCopy": {
+    "message": "还没有可复制的定位"
+  },
+  "emClipboardDenied": {
+    "message": "浏览器拒绝访问剪贴板"
+  },
+  "emCopiedToClipboard": {
+    "message": "✓ 已复制到剪贴板"
+  },
+  "emCopyLocatorFailed": {
+    "message": "复制定位失败"
+  },
+  "emPickElementBeforeText": {
+    "message": "请先点击页面元素，再获取文本"
+  },
+  "emElementHasNoText": {
+    "message": "该元素没有可复制的文本内容"
+  },
+  "emCopiedElementText": {
+    "message": "✓ 已复制该元素文本（$P1$ 字）",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "emGetElementTextFailed": {
+    "message": "获取元素文本失败"
+  },
+  "emCannotLocateReselect": {
+    "message": "无法定位元素，请重新选择后验证"
+  },
+  "emPickElementBeforeExport": {
+    "message": "请先选择元素，再导出定位"
+  },
+  "emCodeCopied": {
+    "message": "✓ 定位代码已复制到剪贴板"
+  },
+  "emPickElementBeforeSave": {
+    "message": "请先选择元素，再保存标记"
+  },
+  "emMarkerSaved": {
+    "message": "✓ 标记已保存"
+  },
+  "emSaveFailed": {
+    "message": "保存失败"
+  },
+  "rrRecording": {
+    "message": "录制中"
+  },
+  "rrPaused": {
+    "message": "已暂停"
+  },
+  "rrHideValues": {
+    "message": "隐藏输入值"
+  },
+  "rrHighlight": {
+    "message": "高亮"
+  },
+  "rrCollapse": {
+    "message": "折叠"
+  },
+  "rrExpand": {
+    "message": "展开"
+  },
+  "rrPause": {
+    "message": "暂停"
+  },
+  "rrResume": {
+    "message": "继续"
+  },
+  "rrStop": {
+    "message": "停止"
+  },
+  "rrRecordedSteps": {
+    "message": "已录制步骤"
+  },
+  "rrUnknownStep": {
+    "message": "未知步骤"
+  },
+  "rrStep": {
+    "message": "步骤"
+  },
+  "rrStepFill": {
+    "message": "输入"
+  },
+  "rrScopePage": {
+    "message": "页面"
+  },
+  "rrContains": {
+    "message": "包含"
+  },
+  "rrUntitledRecording": {
+    "message": "未命名录制"
+  },
+  "rrRunLogTitle": {
+    "message": "Record-Replay 运行日志"
+  },
+  "rrPickElementTip": {
+    "message": "点击选取元素（Esc 取消）"
+  },
+  "rrEnterParam": {
+    "message": "请输入参数 $P1$ ($P2$)",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      },
+      "p2": {
+        "content": "$2"
+      }
+    }
+  },
+  "rrReplayParamsTitle": {
+    "message": "请输入回放参数"
+  },
+  "rrSensitive": {
+    "message": "敏感"
   }
 }
