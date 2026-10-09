@@ -1568,14 +1568,6 @@ body {
   padding: 20px 24px;
 }
 
-body::before {
-  opacity: 1;
-  background-image: url('/assets/backgrounds/desktop-blossom-room-v2.webp');
-  background-position: center;
-  background-size: cover;
-  filter: none;
-}
-
 .sidebar {
   inset: 20px auto 20px 24px;
   width: 238px;
@@ -1738,18 +1730,7 @@ body::before {
   padding: 30px 42px;
   overflow: hidden;
   border-color: rgba(174, 146, 229, 0.42);
-  background-image:
-    linear-gradient(
-      95deg,
-      rgba(255, 255, 255, 0.9) 0%,
-      rgba(255, 255, 255, 0.78) 39%,
-      rgba(255, 255, 255, 0.12) 73%
-    ),
-    url('/assets/backgrounds/desktop-blossom-room-v2.webp');
-  background-position:
-    center,
-    right top;
-  background-size: cover;
+  background-image: linear-gradient(95deg, #ffffff 0%, #f8f3ff 52%, #eef8ff 100%);
 }
 
 .hero::before {
@@ -1910,13 +1891,6 @@ h1 {
   opacity: 0.82;
 }
 
-.metric-decoration-mascot {
-  top: 14px;
-  right: 22px;
-  width: 126px;
-  opacity: 0.22;
-}
-
 .metric-decoration-cube {
   top: 15px;
   right: 13px;
@@ -2053,6 +2027,12 @@ h1 {
   overflow: hidden;
   color: #6c4ac9;
   text-align: center;
+}
+
+/* The task-list empty state has no artwork, so centre its text instead of
+   pinning it below the space the detail panel reserves for its illustration. */
+.runtime-task-list .runtime-empty {
+  justify-content: center;
 }
 
 .runtime-empty-art {

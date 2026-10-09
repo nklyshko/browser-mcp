@@ -16,7 +16,7 @@
       <div class="header">
         <div class="header-content">
           <div class="header-brand">
-            <img class="header-brand-icon" src="/assets/brand/popup-mascot.png" alt="" />
+            <img class="header-brand-icon" src="/icon/128.png" alt="" />
             <div class="header-brand-copy">
               <h1 class="header-title">Chrome MCP</h1>
               <p class="header-caption">CHROME MCP SERVER FOR ANYTHING</p>
@@ -30,10 +30,10 @@
             aria-label="打开欢迎页"
             @click="openWelcomePage"
           >
-            <img class="header-logo" src="/assets/brand/popup-avatar.webp" alt="" />
+            <img class="header-logo" src="/icon/128.png" alt="" />
           </button>
           <div v-else class="header-logo-button header-logo-button--hidden" aria-hidden="true">
-            <img class="header-logo" src="/assets/brand/popup-avatar.webp" alt="" />
+            <img class="header-logo" src="/icon/128.png" alt="" />
           </div>
         </div>
       </div>

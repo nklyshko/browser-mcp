@@ -7,7 +7,6 @@ const iconFiles = {
   browser: 'browser',
   box: 'box',
   cable: 'cable',
-  cat: 'cat',
   close: 'close',
   'check-circle': 'check-circle',
   'chevron-right': 'chevron-right',

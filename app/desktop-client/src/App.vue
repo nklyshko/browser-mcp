@@ -847,12 +847,6 @@ onUnmounted(() => {
           @click="showClients = true"
         >
           <span class="metric-icon"><AssetIcon name="message" :size="25" /></span>
-          <img
-            class="metric-decoration metric-decoration-mascot"
-            src="/assets/illustrations/dashboard-motifs/session-mascot.webp"
-            alt=""
-            aria-hidden="true"
-          />
           <span class="metric-label">活跃 MCP 会话</span>
           <strong>{{ sessions }}</strong>
           <small>{{
@@ -938,12 +932,6 @@ onUnmounted(() => {
               >
             </button>
             <div v-if="!visibleRuntimeTasks.length" class="runtime-empty">
-              <img
-                class="runtime-empty-art"
-                src="/assets/illustrations/dashboard-motifs/task-gift-cat.webp"
-                alt=""
-                aria-hidden="true"
-              />
               <strong>当前没有符合筛选条件的任务。</strong>
               <small>正在运行的 MCP、Agent 和 Workflow 会显示在这里。</small>
             </div>
