@@ -81,7 +81,7 @@ defineEmits<{ (e: 'back'): void }>();
 const query = ref('');
 type Locale = 'zh' | 'en';
 
-const locale = ref<Locale>(localStorage.getItem('mcp-tools-locale') === 'en' ? 'en' : 'zh');
+const locale = ref<Locale>(localStorage.getItem('mcp-tools-locale') === 'zh' ? 'zh' : 'en');
 // Keep the page's shape and fallback text on the complete English catalog.
 const toolSchemas = TOOL_SCHEMAS_EN;
 const zhToolSchemas = new Map(TOOL_SCHEMAS.map((tool) => [tool.name, tool]));

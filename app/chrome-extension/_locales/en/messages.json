@@ -622,5 +622,956 @@
   "placeholderDomainHint": {
     "message": "example.com",
     "description": "domain filter placeholder"
+  },
+  "backButton": {
+    "message": "Back",
+    "description": "back button"
+  },
+  "backToHomeTitle": {
+    "message": "Back to home",
+    "description": "back-to-home button title"
+  },
+  "localModelTitle": {
+    "message": "Local Model",
+    "description": "local model page title"
+  },
+  "clearButton": {
+    "message": "Clear",
+    "description": "clear button"
+  },
+  "editButton": {
+    "message": "Edit",
+    "description": "edit button"
+  },
+  "validateButton": {
+    "message": "Validate",
+    "description": "validate button"
+  },
+  "openButton": {
+    "message": "Open",
+    "description": "open button"
+  },
+  "runButton": {
+    "message": "Run",
+    "description": "run button"
+  },
+  "nextButton": {
+    "message": "Next",
+    "description": "next step button"
+  },
+  "gotItButton": {
+    "message": "Got it",
+    "description": "dismiss button"
+  },
+  "refreshButton": {
+    "message": "Refresh",
+    "description": "refresh button"
+  },
+  "selectAllButton": {
+    "message": "Select all",
+    "description": "select all button"
+  },
+  "selectNoneButton": {
+    "message": "Select none",
+    "description": "clear selection button"
+  },
+  "invertSelectionButton": {
+    "message": "Invert",
+    "description": "invert selection button"
+  },
+  "testConnectionButton": {
+    "message": "Test connection",
+    "description": "test proxy connection button"
+  },
+  "secondsUnit": {
+    "message": "s",
+    "description": "seconds unit suffix"
+  },
+  "optionalSuffix": {
+    "message": " (optional)",
+    "description": "optional field suffix"
+  },
+  "currentBadge": {
+    "message": "Current",
+    "description": "badge marking the active item"
+  },
+  "fetchFailedLabel": {
+    "message": "Lookup failed",
+    "description": "value shown when a lookup failed"
+  },
+  "unknownErrorLabel": {
+    "message": "Unknown error",
+    "description": "generic unknown error"
+  },
+  "copiedLabel": {
+    "message": "Copied",
+    "description": "copy succeeded"
+  },
+  "copyFailedLabel": {
+    "message": "Copy failed",
+    "description": "copy failed"
+  },
+  "errorPrefix": {
+    "message": "Error: $DETAIL$",
+    "description": "error message prefix",
+    "placeholders": {
+      "detail": {
+        "content": "$1"
+      }
+    }
+  },
+  "elementMarkerTitle": {
+    "message": "Element Markers",
+    "description": "element marker page title"
+  },
+  "markedElementsLabel": {
+    "message": "Marked elements",
+    "description": "count of marked elements"
+  },
+  "addMarkerLabel": {
+    "message": "Add marker",
+    "description": "add marker section label"
+  },
+  "markerNamePlaceholder": {
+    "message": "Name, e.g. Login button",
+    "description": "marker name input"
+  },
+  "selectorPlaceholder": {
+    "message": "CSS selector",
+    "description": "selector input placeholder"
+  },
+  "scopePrefixOption": {
+    "message": "Path prefix",
+    "description": "marker scope option"
+  },
+  "scopeExactOption": {
+    "message": "Exact match",
+    "description": "marker scope option"
+  },
+  "scopeHostOption": {
+    "message": "Domain",
+    "description": "marker scope option"
+  },
+  "scheduleTitle": {
+    "message": "Scheduled run",
+    "description": "schedule dialog title"
+  },
+  "enableLabel": {
+    "message": "Enable",
+    "description": "enable field label"
+  },
+  "enableScheduleLabel": {
+    "message": "Enable schedule",
+    "description": "enable schedule checkbox"
+  },
+  "scheduleTypeLabel": {
+    "message": "Type",
+    "description": "schedule type label"
+  },
+  "scheduleIntervalOption": {
+    "message": "Every N minutes",
+    "description": "interval schedule option"
+  },
+  "scheduleDailyOption": {
+    "message": "Daily at a fixed time",
+    "description": "daily schedule option"
+  },
+  "scheduleOnceOption": {
+    "message": "Run once",
+    "description": "one-off schedule option"
+  },
+  "scheduleIntervalLabel": {
+    "message": "Interval (minutes)",
+    "description": "interval minutes label"
+  },
+  "scheduleTimeLabel": {
+    "message": "Time (HH:mm)",
+    "description": "daily time label"
+  },
+  "scheduleTimePlaceholder": {
+    "message": "e.g. 09:30",
+    "description": "daily time placeholder"
+  },
+  "scheduleIsoLabel": {
+    "message": "Time (ISO)",
+    "description": "one-off ISO time label"
+  },
+  "scheduleIsoPlaceholder": {
+    "message": "e.g. 2025-10-05T10:00:00",
+    "description": "ISO time placeholder"
+  },
+  "scheduleParamsLabel": {
+    "message": "Parameters (JSON)",
+    "description": "schedule params label"
+  },
+  "existingSchedulesLabel": {
+    "message": "Existing schedules",
+    "description": "existing schedules heading"
+  },
+  "scheduleEveryMinutes": {
+    "message": "Every $MINUTES$ min",
+    "description": "interval summary",
+    "placeholders": {
+      "minutes": {
+        "content": "$1"
+      }
+    }
+  },
+  "scheduleDailyAt": {
+    "message": "Daily at $TIME$",
+    "description": "daily summary",
+    "placeholders": {
+      "time": {
+        "content": "$1"
+      }
+    }
+  },
+  "scheduleOnceAt": {
+    "message": "Once at $TIME$",
+    "description": "one-off summary",
+    "placeholders": {
+      "time": {
+        "content": "$1"
+      }
+    }
+  },
+  "openWelcomePageTitle": {
+    "message": "Open welcome page",
+    "description": "welcome page button title"
+  },
+  "nativeServerConfigDesc": {
+    "message": "Quickly configure and manage your local MCP server",
+    "description": "native server section description"
+  },
+  "serverHealthyDesc": {
+    "message": "All good — serving clients right now",
+    "description": "server running description"
+  },
+  "serverIdleDesc": {
+    "message": "Connect the local service to give clients MCP access",
+    "description": "server not running description"
+  },
+  "mcpTransportHint": {
+    "message": "Pick the matching config link and use it in your client",
+    "description": "transport picker hint"
+  },
+  "copyTransportConfigLabel": {
+    "message": "Copy $NAME$ configuration",
+    "description": "copy transport config aria-label",
+    "placeholders": {
+      "name": {
+        "content": "$1"
+      }
+    }
+  },
+  "mcpTransportGroupLabel": {
+    "message": "MCP service endpoints",
+    "description": "transport radiogroup label"
+  },
+  "transportCompatTitle": {
+    "message": "Streamable HTTP (compatible)",
+    "description": "transport name"
+  },
+  "transportCompatDesc": {
+    "message": "Keeps sessions; works with existing clients",
+    "description": "transport description"
+  },
+  "transportPreviewTitle": {
+    "message": "Streamable HTTP (preview)",
+    "description": "transport name"
+  },
+  "transportPreviewDesc": {
+    "message": "MCP 2026-07-28, sessionless",
+    "description": "transport description"
+  },
+  "transportSseTitle": {
+    "message": "SSE (legacy MCP)",
+    "description": "transport name"
+  },
+  "transportSseDesc": {
+    "message": "Message endpoint: /messages?sessionId=…",
+    "description": "transport description"
+  },
+  "transportStdioEndpoint": {
+    "message": "mcp-chrome-stdio or EXE --stdio",
+    "description": "stdio transport endpoint"
+  },
+  "transportStdioDesc": {
+    "message": "Tries /mcp-new first, falls back to /mcp",
+    "description": "transport description"
+  },
+  "settingsPrefsTitle": {
+    "message": "Settings / Preferences",
+    "description": "settings section title"
+  },
+  "settingsPrefsDesc": {
+    "message": "Customise extension behaviour and feature preferences",
+    "description": "settings section description"
+  },
+  "extensionIdLabel": {
+    "message": "Extension ID:",
+    "description": "extension id label"
+  },
+  "backgroundOperationTitle": {
+    "message": "Background operation",
+    "description": "setting title"
+  },
+  "backgroundOperationDesc": {
+    "message": "Do not steal focus when opening pages or running automation",
+    "description": "setting description"
+  },
+  "pageMessageTimeoutTitle": {
+    "message": "Page message timeout",
+    "description": "setting title"
+  },
+  "pageMessageTimeoutDesc": {
+    "message": "How long to wait for the content script; default 30 s (5–300 s)",
+    "description": "setting description"
+  },
+  "pageMessageTimeoutAriaLabel": {
+    "message": "Page message timeout (seconds)",
+    "description": "timeout input aria-label"
+  },
+  "sendScrollCoordsTitle": {
+    "message": "Send scroll coordinates",
+    "description": "setting title"
+  },
+  "sendScrollCoordsDesc": {
+    "message": "Show page X/Y coordinates in the overlay at the bottom left of the page editor",
+    "description": "setting description"
+  },
+  "quickToolsLabel": {
+    "message": "Quick tools",
+    "description": "quick tools section"
+  },
+  "pageEditTooltip": {
+    "message": "Page editor: adjust elements visually and hand the selection to the assistant",
+    "description": "quick tool tooltip"
+  },
+  "pageEditLabel": {
+    "message": "Page editor",
+    "description": "quick tool label"
+  },
+  "elementMarkerTooltip": {
+    "message": "Element markers: save key elements for MCP to read and the assistant to locate",
+    "description": "quick tool tooltip"
+  },
+  "elementMarkerLabel": {
+    "message": "Element markers",
+    "description": "quick tool label"
+  },
+  "viewErrorLogsTooltip": {
+    "message": "View error logs",
+    "description": "quick tool tooltip"
+  },
+  "errorLogsLabel": {
+    "message": "Error logs",
+    "description": "error log dialog title"
+  },
+  "startRecordingTooltip": {
+    "message": "Start recording (Ctrl+Shift+1)",
+    "description": "tooltip"
+  },
+  "recordLabel": {
+    "message": "Record",
+    "description": "record button label"
+  },
+  "resumeRecordingTooltip": {
+    "message": "Resume recording (Ctrl+Shift+2)",
+    "description": "tooltip"
+  },
+  "pauseRecordingTooltip": {
+    "message": "Pause recording (Ctrl+Shift+2)",
+    "description": "tooltip"
+  },
+  "resumeLabel": {
+    "message": "Resume",
+    "description": "resume button label"
+  },
+  "pauseLabel": {
+    "message": "Pause",
+    "description": "pause button label"
+  },
+  "stopRecordingTooltip": {
+    "message": "Stop recording (Ctrl+Shift+3)",
+    "description": "tooltip"
+  },
+  "stopLabel": {
+    "message": "Stop",
+    "description": "stop button label"
+  },
+  "quickToolsHint": {
+    "message": "Use the page editor for visual tweaks and precise questions; use element markers to save key page elements for MCP and the assistant to reuse.",
+    "description": "quick tools footnote"
+  },
+  "managementSectionTitle": {
+    "message": "Management",
+    "description": "management section title"
+  },
+  "assistantEntryTitle": {
+    "message": "Assistant",
+    "description": "management entry"
+  },
+  "assistantEntryDesc": {
+    "message": "AI agent chat and tasks",
+    "description": "management entry"
+  },
+  "workflowEntryTitle": {
+    "message": "Workflows",
+    "description": "management entry"
+  },
+  "workflowEntryDesc": {
+    "message": "Record and replay automation flows",
+    "description": "management entry"
+  },
+  "elementMarkerEntryTitle": {
+    "message": "Element markers",
+    "description": "management entry"
+  },
+  "elementMarkerEntryDesc": {
+    "message": "Manage page element markers",
+    "description": "management entry"
+  },
+  "localModelEntryTitle": {
+    "message": "Local model",
+    "description": "management entry"
+  },
+  "localModelEntryDesc": {
+    "message": "Semantic engine and model management",
+    "description": "management entry"
+  },
+  "mcpToolsEntryTitle": {
+    "message": "MCP tools",
+    "description": "management entry"
+  },
+  "mcpToolsEntryDesc": {
+    "message": "Browse available tools and parameters",
+    "description": "management entry"
+  },
+  "proxyEntryTitle": {
+    "message": "Residential proxy",
+    "description": "management entry"
+  },
+  "proxyEntryDesc": {
+    "message": "Configure the proxy and automatic rotation on page errors",
+    "description": "management entry"
+  },
+  "cookieEntryTitle": {
+    "message": "Cookie management",
+    "description": "management entry"
+  },
+  "cookieEntryDesc": {
+    "message": "Review and selectively clear cookies across all web tabs",
+    "description": "management entry"
+  },
+  "recentScriptsEntryTitle": {
+    "message": "Recent recordings",
+    "description": "management entry"
+  },
+  "recentScriptsEntryDesc": {
+    "message": "Find, open or copy recorded page flows",
+    "description": "management entry"
+  },
+  "exportingStatus": {
+    "message": "Exporting…",
+    "description": "export in progress"
+  },
+  "exportJsonButton": {
+    "message": "Export JSON",
+    "description": "export button"
+  },
+  "clearLogsButton": {
+    "message": "Clear logs",
+    "description": "clear logs button"
+  },
+  "copyLogsButton": {
+    "message": "Copy logs",
+    "description": "copy logs button"
+  },
+  "noErrorLogsMessage": {
+    "message": "No error logs yet.",
+    "description": "empty error log"
+  },
+  "residentialProxyTitle": {
+    "message": "Residential proxy",
+    "description": "proxy dialog title"
+  },
+  "proxySettingsTitle": {
+    "message": "Proxy settings",
+    "description": "proxy settings entry"
+  },
+  "proxySettingsDesc": {
+    "message": "Manage network proxy configuration",
+    "description": "proxy settings description"
+  },
+  "proxyEnabledDesc": {
+    "message": "Enabled — traffic from this Chrome profile goes through the proxy",
+    "description": "proxy enabled description"
+  },
+  "proxyOffDesc": {
+    "message": "Off",
+    "description": "proxy disabled description"
+  },
+  "proxyDialogHint": {
+    "message": "The reverse endpoint uses <code>pr.oxylabs.io:7777</code> plus <code>cc-XX</code>; country endpoints use that country’s host and port, and the username drops <code>cc</code>. The extension keeps one exit per site, defaulting to about 5 minutes when <code>sesstime</code> is unset; add <code>sesstime-60</code> for longer stickiness.",
+    "description": "proxy dialog help text, contains inline markup"
+  },
+  "enableProxyLabel": {
+    "message": "Enable proxy",
+    "description": "proxy toggle label"
+  },
+  "endpointTypeLabel": {
+    "message": "Endpoint type",
+    "description": "proxy field label"
+  },
+  "endpointReverseOption": {
+    "message": "Reverse connection (7777)",
+    "description": "proxy option"
+  },
+  "endpointCountryOption": {
+    "message": "Country-specific endpoint",
+    "description": "proxy option"
+  },
+  "accessRegionLabel": {
+    "message": "Access region",
+    "description": "proxy field label"
+  },
+  "regionGlobalOption": {
+    "message": "Global (pr.oxylabs.io:7777)",
+    "description": "proxy option"
+  },
+  "regionBeijingOption": {
+    "message": "Beijing (cnt9t1is.com:8000)",
+    "description": "proxy option"
+  },
+  "regionHongKongOption": {
+    "message": "Hong Kong (a81298871.com:8000)",
+    "description": "proxy option"
+  },
+  "regionCustomOption": {
+    "message": "Custom address",
+    "description": "proxy option"
+  },
+  "protocolLabel": {
+    "message": "Output format / protocol",
+    "description": "proxy field label"
+  },
+  "protocolHttpOption": {
+    "message": "Endpoint: port / HTTP",
+    "description": "proxy option"
+  },
+  "protocolHttpsOption": {
+    "message": "HTTPS (required for Beijing/Hong Kong)",
+    "description": "proxy option"
+  },
+  "protocolSocks5Option": {
+    "message": "SOCKS5 (Oxylabs does not support Chrome)",
+    "description": "proxy option"
+  },
+  "proxyAddressLabel": {
+    "message": "Proxy address or full connection string",
+    "description": "proxy field label"
+  },
+  "portLabel": {
+    "message": "Port",
+    "description": "proxy field label"
+  },
+  "usernameLabel": {
+    "message": "Username",
+    "description": "proxy field label"
+  },
+  "countryRegionLabel": {
+    "message": "Country/region",
+    "description": "proxy field label"
+  },
+  "countryUnsetOption": {
+    "message": "Unset (keep username)",
+    "description": "proxy option"
+  },
+  "countryRandomOption": {
+    "message": "Random (drop cc)",
+    "description": "proxy option"
+  },
+  "passwordLabel": {
+    "message": "Password",
+    "description": "proxy field label"
+  },
+  "sessionIdLabel": {
+    "message": "Session ID (optional)",
+    "description": "proxy field label"
+  },
+  "autoRotateLabel": {
+    "message": "Auto-rotate IP on page errors (min 5 minutes per site, no hourly cap)",
+    "description": "proxy toggle label"
+  },
+  "proxyScopeLabel": {
+    "message": "Only proxy these sites (leave blank for all sites)",
+    "description": "proxy field label"
+  },
+  "rotateIpButton": {
+    "message": "Rotate IP",
+    "description": "rotate ip button"
+  },
+  "rotateCurrentTabIpButton": {
+    "message": "Rotate this tab's IP",
+    "description": "rotate ip button"
+  },
+  "rotatingStatus": {
+    "message": "Rotating, please wait…",
+    "description": "rotation in progress"
+  },
+  "currentExitIpTitle": {
+    "message": "Current exit IP location",
+    "description": "proxy panel title"
+  },
+  "fetchingStatus": {
+    "message": "Fetching…",
+    "description": "fetch in progress"
+  },
+  "proxyDisabledMessage": {
+    "message": "Proxy is not enabled",
+    "description": "proxy disabled notice"
+  },
+  "fetchingLocationStatus": {
+    "message": "Fetching current location…",
+    "description": "location lookup"
+  },
+  "noLocationDataMessage": {
+    "message": "The API returned no location data",
+    "description": "empty location"
+  },
+  "exitIpUnavailableMessage": {
+    "message": "Exit IP location is temporarily unavailable",
+    "description": "location lookup failed"
+  },
+  "testingProxyStatus": {
+    "message": "Testing the proxy exit…",
+    "description": "proxy test in progress"
+  },
+  "proxyTestSuccessMessage": {
+    "message": "Connected. Exit IP: $IP$",
+    "description": "proxy test success",
+    "placeholders": {
+      "ip": {
+        "content": "$1"
+      }
+    }
+  },
+  "proxyCountrySuffix": {
+    "message": " (country/region: $COUNTRY$)",
+    "description": "country suffix appended to the proxy test result",
+    "placeholders": {
+      "country": {
+        "content": "$1"
+      }
+    }
+  },
+  "saveFailedMessage": {
+    "message": "Save failed",
+    "description": "save failed"
+  },
+  "proxyEnabledMessage": {
+    "message": "Proxy enabled",
+    "description": "proxy enabled"
+  },
+  "proxyStoppedMessage": {
+    "message": "Proxy disabled",
+    "description": "proxy disabled"
+  },
+  "testFailedMessage": {
+    "message": "Test failed",
+    "description": "test failed"
+  },
+  "proxyTurnedOnMessage": {
+    "message": "Proxy turned on",
+    "description": "proxy on"
+  },
+  "proxyTurnedOffMessage": {
+    "message": "Proxy turned off",
+    "description": "proxy off"
+  },
+  "noQueryableTabMessage": {
+    "message": "There is no web tab to query right now",
+    "description": "no tab available"
+  },
+  "locationQueryFailedMessage": {
+    "message": "Location lookup failed",
+    "description": "location lookup failed"
+  },
+  "toggleFailedMessage": {
+    "message": "Toggle failed",
+    "description": "toggle failed"
+  },
+  "noRotatableTabMessage": {
+    "message": "There is no web tab whose proxy can be rotated",
+    "description": "no tab available"
+  },
+  "rotateIpFailedMessage": {
+    "message": "IP rotation failed",
+    "description": "rotation failed"
+  },
+  "rotationInProgressReason": {
+    "message": "This tab is already rotating",
+    "description": "skip reason"
+  },
+  "rateLimitedReason": {
+    "message": "Rotating too often, try again shortly",
+    "description": "skip reason"
+  },
+  "outsideProxyScopeReason": {
+    "message": "This page is outside the proxy site list",
+    "description": "skip reason"
+  },
+  "noRotationReason": {
+    "message": "The IP was not rotated",
+    "description": "skip reason"
+  },
+  "ipRotationDoneTitle": {
+    "message": "IP rotation complete",
+    "description": "rotation dialog title"
+  },
+  "ipRotationDoneMessage": {
+    "message": "IP rotation complete.",
+    "description": "rotation result"
+  },
+  "tabIpUpdatedTitle": {
+    "message": "This tab's IP was updated",
+    "description": "rotation result title"
+  },
+  "tabIpUpdatedDesc": {
+    "message": "The current IP changed from:",
+    "description": "rotation result description"
+  },
+  "ipComparisonAriaLabel": {
+    "message": "IP before and after rotation",
+    "description": "aria label"
+  },
+  "beforeRotationLabel": {
+    "message": "Before",
+    "description": "rotation comparison label"
+  },
+  "afterRotationLabel": {
+    "message": "After",
+    "description": "rotation comparison label"
+  },
+  "pageReloadingNote": {
+    "message": "The page is reloading; check back in a moment.",
+    "description": "rotation note"
+  },
+  "countryPrefix": {
+    "message": "Country: $VALUE$",
+    "description": "location part",
+    "placeholders": {
+      "value": {
+        "content": "$1"
+      }
+    }
+  },
+  "regionPrefix": {
+    "message": "Region/state: $VALUE$",
+    "description": "location part",
+    "placeholders": {
+      "value": {
+        "content": "$1"
+      }
+    }
+  },
+  "cityPrefix": {
+    "message": "City: $VALUE$",
+    "description": "location part",
+    "placeholders": {
+      "value": {
+        "content": "$1"
+      }
+    }
+  },
+  "unlockDialogTitle": {
+    "message": "Unlock hidden features",
+    "description": "unlock dialog title"
+  },
+  "unlockStep1Prompt": {
+    "message": "Enter the first authorisation passphrase.",
+    "description": "unlock prompt"
+  },
+  "unlockStep2Prompt": {
+    "message": "Enter the second authorisation passphrase.",
+    "description": "unlock prompt"
+  },
+  "unlockStep1Placeholder": {
+    "message": "First passphrase",
+    "description": "unlock input placeholder"
+  },
+  "unlockStep2Placeholder": {
+    "message": "Second passphrase",
+    "description": "unlock input placeholder"
+  },
+  "unlockStep1AriaLabel": {
+    "message": "First authorisation passphrase",
+    "description": "unlock aria label"
+  },
+  "unlockStep2AriaLabel": {
+    "message": "Second authorisation passphrase",
+    "description": "unlock aria label"
+  },
+  "confirmUnlockButton": {
+    "message": "Confirm",
+    "description": "unlock confirm button"
+  },
+  "unlockStep1ErrorMessage": {
+    "message": "The first passphrase is incorrect, please try again.",
+    "description": "unlock error"
+  },
+  "unlockStep2ErrorMessage": {
+    "message": "The second passphrase is incorrect, please try again.",
+    "description": "unlock error"
+  },
+  "unlockVerifyFailedMessage": {
+    "message": "Verification failed, please try again later.",
+    "description": "unlock error"
+  },
+  "allTabsCookiesTitle": {
+    "message": "Cookies across all tabs",
+    "description": "cookie dialog title"
+  },
+  "cookieDialogHint": {
+    "message": "Pick any web tab, then tick the cookies to clear; unticked cookies are kept. Only <code>http/https</code> web tabs are handled, and cookie values are never shown.",
+    "description": "cookie dialog help text, contains inline markup"
+  },
+  "selectedCountLabel": {
+    "message": "$COUNT$ selected",
+    "description": "selected cookie count",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "loadingAllCookiesStatus": {
+    "message": "Reading cookies from all web tabs…",
+    "description": "cookie loading"
+  },
+  "noCookieTabsMessage": {
+    "message": "No web tab currently exposes readable cookies.",
+    "description": "cookie empty state"
+  },
+  "tabLabel": {
+    "message": "Tab",
+    "description": "tab badge"
+  },
+  "noCookiesMatchedMessage": {
+    "message": "No cookies matched.",
+    "description": "cookie empty state"
+  },
+  "cookiePlainLabel": {
+    "message": "Plain",
+    "description": "non-secure cookie"
+  },
+  "cookieScriptReadableLabel": {
+    "message": "Script-readable",
+    "description": "non-httpOnly cookie"
+  },
+  "cookieSessionLabel": {
+    "message": "Session",
+    "description": "session cookie"
+  },
+  "cookiePersistentLabel": {
+    "message": "Persistent",
+    "description": "persistent cookie"
+  },
+  "clearSelectedButton": {
+    "message": "Clear $COUNT$ selected",
+    "description": "clear cookies button",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "confirmClearCookiesMessage": {
+    "message": "Clear the $COUNT$ selected cookies? Unselected cookies are kept.",
+    "description": "cookie clear confirmation",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "cookiesClearedPartialMessage": {
+    "message": "Cleared $REMOVED$; $FAILED$ failed.",
+    "description": "cookie clear partial result",
+    "placeholders": {
+      "removed": {
+        "content": "$1"
+      },
+      "failed": {
+        "content": "$2"
+      }
+    }
+  },
+  "cookiesClearedMessage": {
+    "message": "Cleared $REMOVED$ cookies; unselected cookies were kept.",
+    "description": "cookie clear result",
+    "placeholders": {
+      "removed": {
+        "content": "$1"
+      }
+    }
+  },
+  "readCookiesFailedMessage": {
+    "message": "Failed to read cookies",
+    "description": "cookie read error"
+  },
+  "recentScriptsTitle": {
+    "message": "Recently recorded page flows",
+    "description": "dialog title"
+  },
+  "noRecordedScriptsMessage": {
+    "message": "No recorded page flows yet.",
+    "description": "empty state"
+  },
+  "scriptStartedMessage": {
+    "message": "The recorded flow is running.",
+    "description": "run result"
+  },
+  "scriptRunFailedMessage": {
+    "message": "Failed to run the flow.",
+    "description": "run error"
+  },
+  "confirmDeleteScriptMessage": {
+    "message": "Delete this recorded flow? This cannot be undone.",
+    "description": "delete confirmation"
+  },
+  "scriptDeletedMessage": {
+    "message": "The recorded flow was deleted.",
+    "description": "delete result"
+  },
+  "scriptDeleteFailedMessage": {
+    "message": "Failed to delete the flow.",
+    "description": "delete error"
+  },
+  "unknownTimeLabel": {
+    "message": "Time unknown",
+    "description": "missing timestamp"
+  },
+  "recordingActionFailedMessage": {
+    "message": "The recording action failed",
+    "description": "recording error"
+  },
+  "recordingServiceUnavailableMessage": {
+    "message": "Cannot reach the recording service",
+    "description": "recording error"
+  },
+  "stopRecordingFailedMessage": {
+    "message": "Failed to stop recording",
+    "description": "recording error"
+  },
+  "comingSoonMessage": {
+    "message": "$FEATURE$ is still in development — stay tuned",
+    "description": "coming soon toast",
+    "placeholders": {
+      "feature": {
+        "content": "$1"
+      }
+    }
   }
 }

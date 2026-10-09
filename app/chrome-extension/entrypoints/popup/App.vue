@@ -11,7 +11,7 @@
     ]"
     :data-agent-theme="agentTheme"
   >
-    <!-- 首页 -->
+    <!-- Home -->
     <div v-show="currentView === 'home'" class="home-view">
       <div class="header">
         <div class="header-content">
@@ -26,8 +26,8 @@
             v-if="hiddenInterfaceUnlocked"
             type="button"
             class="header-logo-button"
-            title="打开欢迎页"
-            aria-label="打开欢迎页"
+            :title="getMessage('openWelcomePageTitle')"
+            :aria-label="getMessage('openWelcomePageTitle')"
             @click="openWelcomePage"
           >
             <img class="header-logo" src="/icon/128.png" alt="" />
@@ -38,10 +38,10 @@
         </div>
       </div>
       <div ref="homeContentRef" class="content">
-        <!-- 服务配置卡片 -->
+        <!-- Service configuration card -->
         <div class="section">
           <h2 class="section-title">{{ getMessage('nativeServerConfigLabel') }}</h2>
-          <p class="section-description">快速配置和管理你的本地 MCP 服务器</p>
+          <p class="section-description">{{ getMessage('nativeServerConfigDesc') }}</p>
           <div class="config-card">
             <div :class="['status-section', getStatusBgClass()]">
               <div :class="['status-banner', getStatusBgClass()]">
@@ -54,8 +54,8 @@
                   <span class="status-description">
                     {{
                       serverStatus.isRunning
-                        ? '一切正常，正在为客户端提供服务'
-                        : '连接本地服务后即可向客户端提供 MCP 接入'
+                        ? getMessage('serverHealthyDesc')
+                        : getMessage('serverIdleDesc')
                     }}
                   </span>
                 </div>
@@ -109,20 +109,26 @@
                   <PopupIcon name="server" />
                   <div>
                     <p class="mcp-config-label">{{ getMessage('mcpServerConfigLabel') }}</p>
-                    <span>选择合适的配置链接，在客户端中使用</span>
+                    <span>{{ getMessage('mcpTransportHint') }}</span>
                   </div>
                 </div>
                 <button
                   type="button"
                   class="copy-config-button"
-                  :aria-label="`复制${selectedMcpTransportOption.title}配置`"
+                  :aria-label="
+                    getMessage('copyTransportConfigLabel', [selectedMcpTransportOption.title])
+                  "
                   @click="copyMcpConfig"
                 >
                   <PopupIcon name="copy" />
                   {{ copyButtonText }}
                 </button>
               </div>
-              <div class="mcp-transport-options" role="radiogroup" aria-label="MCP 服务入口">
+              <div
+                class="mcp-transport-options"
+                role="radiogroup"
+                :aria-label="getMessage('mcpTransportGroupLabel')"
+              >
                 <button
                   v-for="transport in mcpTransportOptions"
                   :key="transport.id"
@@ -150,7 +156,7 @@
                       v-if="selectedMcpTransport === transport.id"
                       class="mcp-transport-option-selected"
                     >
-                      当前
+                      {{ getMessage('currentBadge') }}
                     </span>
                   </span>
                   <code class="mcp-transport-option-endpoint">{{ transport.endpoint }}</code>
@@ -163,7 +169,7 @@
               </div>
             </div>
 
-            <!-- 端口与连接 -->
+            <!-- Port and connection -->
             <div class="connection-group">
               <div class="port-section">
                 <label for="port" class="port-label">{{ getMessage('connectionPortLabel') }}</label>
@@ -192,7 +198,7 @@
             </div>
             <section class="proxy-live-status" aria-live="polite">
               <div class="proxy-live-status-header">
-                <strong>当前出口 IP 位置</strong>
+                <strong>{{ getMessage('currentExitIpTitle') }}</strong>
                 <button
                   class="proxy-live-refresh"
                   type="button"
@@ -200,39 +206,47 @@
                   :aria-busy="currentProxyInfoLoading"
                   @click="refreshCurrentProxyInfo"
                 >
-                  {{ currentProxyInfoLoading ? '获取中…' : '刷新' }}
+                  {{
+                    currentProxyInfoLoading
+                      ? getMessage('fetchingStatus')
+                      : getMessage('refreshButton')
+                  }}
                 </button>
               </div>
-              <p v-if="!proxy.enabled" class="proxy-live-placeholder">代理未启用</p>
+              <p v-if="!proxy.enabled" class="proxy-live-placeholder">{{
+                getMessage('proxyDisabledMessage')
+              }}</p>
               <p
                 v-else-if="currentProxyInfoLoading && !currentProxyInfo"
                 class="proxy-live-placeholder"
               >
-                正在获取当前位置…
+                {{ getMessage('fetchingLocationStatus') }}
               </p>
               <template v-else-if="currentProxyInfo">
                 <p v-if="currentProxyLocation" class="proxy-live-location">{{
                   currentProxyLocation
                 }}</p>
-                <p v-else class="proxy-live-placeholder">接口未返回位置数据</p>
+                <p v-else class="proxy-live-placeholder">{{
+                  getMessage('noLocationDataMessage')
+                }}</p>
                 <code class="proxy-live-ip">{{ currentProxyInfo.ip }}</code>
               </template>
               <p v-else class="proxy-live-placeholder">
-                {{ currentProxyInfoError || '暂时无法获取出口 IP 位置' }}
+                {{ currentProxyInfoError || getMessage('exitIpUnavailableMessage') }}
               </p>
             </section>
             <div class="popup-subsection-heading">
               <PopupIcon name="sparkles" />
               <div>
-                <strong>设置 / 偏好</strong>
-                <small>自定义扩展行为和功能偏好</small>
+                <strong>{{ getMessage('settingsPrefsTitle') }}</strong>
+                <small>{{ getMessage('settingsPrefsDesc') }}</small>
               </div>
             </div>
-            <div class="extension-id">扩展 ID: {{ extensionId }}</div>
+            <div class="extension-id">{{ getMessage('extensionIdLabel') }} {{ extensionId }}</div>
             <label class="background-operations-switch">
               <span>
-                <strong>后台操作</strong>
-                <small>打开页面和自动化操作时不抢占前台</small>
+                <strong>{{ getMessage('backgroundOperationTitle') }}</strong>
+                <small>{{ getMessage('backgroundOperationDesc') }}</small>
               </span>
               <input
                 v-model="backgroundOperations"
@@ -242,8 +256,8 @@
             </label>
             <label class="background-operations-switch timeout-setting">
               <span>
-                <strong>页面消息超时</strong>
-                <small>等待内容脚本响应，默认 30 秒（5–300 秒）</small>
+                <strong>{{ getMessage('pageMessageTimeoutTitle') }}</strong>
+                <small>{{ getMessage('pageMessageTimeoutDesc') }}</small>
               </span>
               <span class="timeout-input">
                 <input
@@ -252,17 +266,17 @@
                   min="5"
                   max="300"
                   step="1"
-                  aria-label="页面消息超时（秒）"
+                  :aria-label="getMessage('pageMessageTimeoutAriaLabel')"
                   @change="saveContentMessageTimeout"
                 />
-                <small>秒</small>
+                <small>{{ getMessage('secondsUnit') }}</small>
               </span>
             </label>
             <template v-if="hiddenInterfaceUnlocked">
               <label class="background-operations-switch">
                 <span>
-                  <strong>发送滚动坐标</strong>
-                  <small>在页面编辑器左下角悬浮窗显示页面 X/Y 坐标</small>
+                  <strong>{{ getMessage('sendScrollCoordsTitle') }}</strong>
+                  <small>{{ getMessage('sendScrollCoordsDesc') }}</small>
                 </span>
                 <input
                   v-model="sendScrollCoordinates"
@@ -273,15 +287,15 @@
               <div class="popup-subsection-heading popup-subsection-heading--nested">
                 <PopupIcon name="home" />
                 <div>
-                  <strong>代理设置</strong>
-                  <small>管理网络代理相关配置</small>
+                  <strong>{{ getMessage('proxySettingsTitle') }}</strong>
+                  <small>{{ getMessage('proxySettingsDesc') }}</small>
                 </div>
               </div>
               <label class="background-operations-switch">
                 <span>
-                  <strong>住宅代理</strong>
+                  <strong>{{ getMessage('residentialProxyTitle') }}</strong>
                   <small>{{
-                    proxy.enabled ? '已启用，当前 Chrome 配置文件流量将走代理' : '已关闭'
+                    proxy.enabled ? getMessage('proxyEnabledDesc') : getMessage('proxyOffDesc')
                   }}</small>
                 </span>
                 <input
@@ -302,10 +316,10 @@
                 >
                   {{
                     proxyRotationPending
-                      ? '切换中，请稍后…'
+                      ? getMessage('rotatingStatus')
                       : proxySaving
-                        ? '正在处理…'
-                        : '手动切换当前页 IP'
+                        ? getMessage('processingStatus')
+                        : getMessage('rotateCurrentTabIpButton')
                   }}
                 </button>
               </div>
@@ -313,86 +327,88 @@
           </div>
         </div>
 
-        <!-- 快捷工具卡片 -->
+        <!-- Quick tools card -->
         <div class="section">
           <button
             type="button"
             class="section-title quick-tools-unlock-trigger"
-            aria-label="快捷工具"
+            :aria-label="getMessage('quickToolsLabel')"
             @click="handleQuickToolsClick"
           >
-            快捷工具
+            {{ getMessage('quickToolsLabel') }}
           </button>
           <div class="rr-icon-buttons">
             <button
               class="rr-icon-btn rr-icon-btn-edit has-tooltip"
               @click="toggleWebEditor"
-              data-tooltip="页面编辑：可视化调整元素，并将选中元素交给助手修改"
+              :data-tooltip="getMessage('pageEditTooltip')"
             >
               <PopupIcon name="edit" />
-              <span>页面编辑</span>
+              <span>{{ getMessage('pageEditLabel') }}</span>
             </button>
             <button
               class="rr-icon-btn rr-icon-btn-marker has-tooltip"
               @click="toggleElementMarker"
-              data-tooltip="元素标注：保存关键元素，供 MCP 读取与助手定位"
+              :data-tooltip="getMessage('elementMarkerTooltip')"
             >
               <PopupIcon name="tag" />
-              <span>元素标注</span>
+              <span>{{ getMessage('elementMarkerLabel') }}</span>
             </button>
             <button
               class="rr-icon-btn rr-icon-btn-logs has-tooltip"
               @click="openErrorLogs"
-              data-tooltip="查看错误日志"
+              :data-tooltip="getMessage('viewErrorLogsTooltip')"
             >
               <PopupIcon name="warning" />
-              <span>错误日志</span>
+              <span>{{ getMessage('errorLogsLabel') }}</span>
             </button>
             <button
               class="rr-icon-btn rr-icon-btn-record has-tooltip"
               :disabled="rrRecording"
               @click="startRecording"
-              data-tooltip="开始录制（Ctrl+Shift+1）"
+              :data-tooltip="getMessage('startRecordingTooltip')"
             >
               <PopupIcon name="record" />
-              <span>录制</span>
+              <span>{{ getMessage('recordLabel') }}</span>
             </button>
             <button
               class="rr-icon-btn rr-icon-btn-pause has-tooltip"
               :disabled="!rrRecording"
               @click="togglePauseRecording"
-              :data-tooltip="rrPaused ? '继续录制（Ctrl+Shift+2）' : '暂停录制（Ctrl+Shift+2）'"
+              :data-tooltip="
+                rrPaused
+                  ? getMessage('resumeRecordingTooltip')
+                  : getMessage('pauseRecordingTooltip')
+              "
             >
               <PopupIcon name="pause" />
-              <span>{{ rrPaused ? '继续' : '暂停' }}</span>
+              <span>{{ rrPaused ? getMessage('resumeLabel') : getMessage('pauseLabel') }}</span>
             </button>
             <button
               class="rr-icon-btn rr-icon-btn-stop has-tooltip"
               :disabled="!rrRecording"
               @click="stopRecording"
-              data-tooltip="停止录制（Ctrl+Shift+3）"
+              :data-tooltip="getMessage('stopRecordingTooltip')"
             >
               <PopupIcon name="stop" />
-              <span>停止</span>
+              <span>{{ getMessage('stopLabel') }}</span>
             </button>
           </div>
-          <p class="quick-tools-help"
-            >页面编辑用于可视化调整与精确提问；元素标注用于保存页面关键元素，供 MCP 和助手复用。</p
-          >
+          <p class="quick-tools-help">{{ getMessage('quickToolsHint') }}</p>
           <p v-if="rrError" class="quick-tools-error">{{ rrError }}</p>
         </div>
 
-        <!-- 管理入口卡片 -->
+        <!-- Management entries card -->
         <div v-if="hiddenInterfaceUnlocked" class="section">
-          <h2 class="section-title">管理入口</h2>
+          <h2 class="section-title">{{ getMessage('managementSectionTitle') }}</h2>
           <div class="entry-card">
             <button class="entry-item" @click="openAgentSidepanel">
               <div class="entry-icon agent">
                 <PopupIcon name="chat" />
               </div>
               <div class="entry-content">
-                <span class="entry-title">智能助手</span>
-                <span class="entry-desc">AI Agent 对话与任务</span>
+                <span class="entry-title">{{ getMessage('assistantEntryTitle') }}</span>
+                <span class="entry-desc">{{ getMessage('assistantEntryDesc') }}</span>
               </div>
               <PopupIcon name="chevron" class="entry-arrow" />
             </button>
@@ -401,8 +417,8 @@
                 <PopupIcon name="workflow" />
               </div>
               <div class="entry-content">
-                <span class="entry-title"> 工作流管理 </span>
-                <span class="entry-desc">录制与回放自动化流程</span>
+                <span class="entry-title">{{ getMessage('workflowEntryTitle') }}</span>
+                <span class="entry-desc">{{ getMessage('workflowEntryDesc') }}</span>
               </div>
               <PopupIcon name="chevron" class="entry-arrow" />
             </button>
@@ -411,8 +427,8 @@
                 <PopupIcon name="tag" />
               </div>
               <div class="entry-content">
-                <span class="entry-title">元素标注管理</span>
-                <span class="entry-desc">管理页面元素标注</span>
+                <span class="entry-title">{{ getMessage('elementMarkerEntryTitle') }}</span>
+                <span class="entry-desc">{{ getMessage('elementMarkerEntryDesc') }}</span>
               </div>
               <PopupIcon name="chevron" class="entry-arrow" />
             </button>
@@ -421,8 +437,8 @@
                 <PopupIcon name="server" />
               </div>
               <div class="entry-content">
-                <span class="entry-title">本地模型</span>
-                <span class="entry-desc">语义引擎与模型管理</span>
+                <span class="entry-title">{{ getMessage('localModelEntryTitle') }}</span>
+                <span class="entry-desc">{{ getMessage('localModelEntryDesc') }}</span>
               </div>
               <PopupIcon name="chevron" class="entry-arrow" />
             </button>
@@ -431,8 +447,8 @@
                 <PopupIcon name="grid" />
               </div>
               <div class="entry-content">
-                <span class="entry-title">MCP 工具一览</span>
-                <span class="entry-desc">查询可用工具与参数</span>
+                <span class="entry-title">{{ getMessage('mcpToolsEntryTitle') }}</span>
+                <span class="entry-desc">{{ getMessage('mcpToolsEntryDesc') }}</span>
               </div>
               <PopupIcon name="chevron" class="entry-arrow" />
             </button>
@@ -441,8 +457,8 @@
                 <PopupIcon name="home" />
               </div>
               <div class="entry-content">
-                <span class="entry-title">住宅代理</span>
-                <span class="entry-desc">配置代理与页面异常自动轮换</span>
+                <span class="entry-title">{{ getMessage('proxyEntryTitle') }}</span>
+                <span class="entry-desc">{{ getMessage('proxyEntryDesc') }}</span>
               </div>
               <PopupIcon name="chevron" class="entry-arrow" />
             </button>
@@ -451,8 +467,8 @@
                 <PopupIcon name="cookie" />
               </div>
               <div class="entry-content">
-                <span class="entry-title">Cookie 管理</span>
-                <span class="entry-desc">查看并选择清除所有网页标签页 Cookie</span>
+                <span class="entry-title">{{ getMessage('cookieEntryTitle') }}</span>
+                <span class="entry-desc">{{ getMessage('cookieEntryDesc') }}</span>
               </div>
               <PopupIcon name="chevron" class="entry-arrow" />
             </button>
@@ -461,8 +477,8 @@
                 <PopupIcon name="document" />
               </div>
               <div class="entry-content">
-                <span class="entry-title">最近录制脚本</span>
-                <span class="entry-desc">查询、打开或复制页面录制流程</span>
+                <span class="entry-title">{{ getMessage('recentScriptsEntryTitle') }}</span>
+                <span class="entry-desc">{{ getMessage('recentScriptsEntryDesc') }}</span>
               </div>
               <PopupIcon name="chevron" class="entry-arrow" />
             </button>
@@ -486,10 +502,17 @@
     </div>
 
     <div v-if="showErrorLogs" class="error-log-modal" @click.self="showErrorLogs = false">
-      <section class="error-log-dialog" role="dialog" aria-modal="true" aria-label="错误日志">
+      <section
+        class="error-log-dialog"
+        role="dialog"
+        aria-modal="true"
+        :aria-label="getMessage('errorLogsLabel')"
+      >
         <header class="error-log-header">
-          <strong>错误日志</strong>
-          <button class="copy-config-button" @click="showErrorLogs = false">关闭</button>
+          <strong>{{ getMessage('errorLogsLabel') }}</strong>
+          <button class="copy-config-button" @click="showErrorLogs = false">{{
+            getMessage('closeButton')
+          }}</button>
         </header>
         <textarea readonly class="error-log-content" :value="errorLogText"></textarea>
         <footer class="error-log-actions">
@@ -499,9 +522,13 @@
             :disabled="isExportingErrorLogs"
             @click="exportErrorLogs"
           >
-            {{ isExportingErrorLogs ? '正在导出…' : '导出 JSON' }}
+            {{
+              isExportingErrorLogs ? getMessage('exportingStatus') : getMessage('exportJsonButton')
+            }}
           </button>
-          <button class="copy-config-button" @click="clearErrorLogs">清空日志</button>
+          <button class="copy-config-button" @click="clearErrorLogs">{{
+            getMessage('clearLogsButton')
+          }}</button>
         </footer>
       </section>
     </div>
@@ -515,58 +542,69 @@
         class="error-log-dialog proxy-dialog"
         role="dialog"
         aria-modal="true"
-        aria-label="住宅代理"
+        :aria-label="getMessage('residentialProxyTitle')"
       >
         <header class="error-log-header">
-          <strong>住宅代理</strong>
-          <button class="copy-config-button" @click="showProxyModal = false">关闭</button>
+          <strong>{{ getMessage('residentialProxyTitle') }}</strong>
+          <button class="copy-config-button" @click="showProxyModal = false">{{
+            getMessage('closeButton')
+          }}</button>
         </header>
-        <p class="proxy-description"
-          >反向入口使用 <code>pr.oxylabs.io:7777</code> +
-          <code>cc-XX</code>；具体国家入口使用对应国家主机和端口，用户名不带
-          <code>cc</code>。插件会按站点保持同一出口，未指定 <code>sesstime</code> 时默认约 5
-          分钟；需要更长粘性时可加 <code>sesstime-60</code>。</p
-        >
+        <!-- eslint-disable-next-line vue/no-v-html -- static text from our own _locales bundle -->
+        <p class="proxy-description" v-html="getMessage('proxyDialogHint')"></p>
         <div class="proxy-form">
           <label class="proxy-toggle"
-            ><span>启用代理</span><input v-model="proxy.enabled" type="checkbox"
+            ><span>{{ getMessage('enableProxyLabel') }}</span
+            ><input v-model="proxy.enabled" type="checkbox"
           /></label>
           <label
-            >端点类型<select v-model="proxy.endpointType"
-              ><option value="reverse">反向连接入口（7777）</option
-              ><option value="country">具体国家/地区入口</option></select
+            >{{ getMessage('endpointTypeLabel')
+            }}<select v-model="proxy.endpointType"
+              ><option value="reverse">{{ getMessage('endpointReverseOption') }}</option
+              ><option value="country">{{ getMessage('endpointCountryOption') }}</option></select
             ></label
           >
           <label v-if="proxy.endpointType === 'reverse'"
-            >接入地区<select v-model="proxy.accessRegion"
-              ><option value="global">全球（pr.oxylabs.io:7777）</option
-              ><option value="beijing">北京（cnt9t1is.com:8000）</option
-              ><option value="hongkong">香港（a81298871.com:8000）</option
-              ><option value="custom">自定义地址</option></select
+            >{{ getMessage('accessRegionLabel')
+            }}<select v-model="proxy.accessRegion"
+              ><option value="global">{{ getMessage('regionGlobalOption') }}</option
+              ><option value="beijing">{{ getMessage('regionBeijingOption') }}</option
+              ><option value="hongkong">{{ getMessage('regionHongKongOption') }}</option
+              ><option value="custom">{{ getMessage('regionCustomOption') }}</option></select
             ></label
           >
           <label
-            >输出格式 / 连接协议<select v-model="proxy.protocol"
-              ><option value="http">端点：端口 / HTTP</option
-              ><option value="https">HTTPS（北京/香港入口必选）</option
-              ><option value="socks5" disabled>SOCKS5（Oxylabs 不支持 Chrome）</option></select
+            >{{ getMessage('protocolLabel')
+            }}<select v-model="proxy.protocol"
+              ><option value="http">{{ getMessage('protocolHttpOption') }}</option
+              ><option value="https">{{ getMessage('protocolHttpsOption') }}</option
+              ><option value="socks5" disabled>{{
+                getMessage('protocolSocks5Option')
+              }}</option></select
             ></label
           >
           <label
-            >代理地址或完整连接串<input
-              v-model="proxy.host"
-              placeholder="customer-USER:PASSWORD@pr.oxylabs.io:7777"
-          /></label>
-          <label>端口<input v-model.number="proxy.port" type="number" min="1" max="65535" /></label>
-          <label
-            >用户名<input v-model="proxy.username" placeholder="customer-USERNAME-cc-us"
+            >{{ getMessage('proxyAddressLabel')
+            }}<input v-model="proxy.host" placeholder="customer-USER:PASSWORD@pr.oxylabs.io:7777"
           /></label>
           <label
-            >国家/地区{{ proxy.endpointType === 'country' ? '' : '（可选）'
+            >{{ getMessage('portLabel')
+            }}<input v-model.number="proxy.port" type="number" min="1" max="65535"
+          /></label>
+          <label
+            >{{ getMessage('usernameLabel')
+            }}<input v-model="proxy.username" placeholder="customer-USERNAME-cc-us"
+          /></label>
+          <label
+            >{{ getMessage('countryRegionLabel')
+            }}{{ proxy.endpointType === 'country' ? '' : getMessage('optionalSuffix')
             }}<select v-model="proxy.countryCode"
-              ><option v-if="proxy.endpointType === 'reverse'" value="">不指定（保留用户名）</option
-              ><option v-if="proxy.endpointType === 'reverse'" value="random"
-                >随机（移除 cc）</option
+              ><option v-if="proxy.endpointType === 'reverse'" value="">{{
+                getMessage('countryUnsetOption')
+              }}</option
+              ><option v-if="proxy.endpointType === 'reverse'" value="random">{{
+                getMessage('countryRandomOption')
+              }}</option
               ><option v-for="country in PROXY_COUNTRIES" :key="country.code" :value="country.code"
                 >{{ country.name
                 }}{{
@@ -578,15 +616,20 @@
             ></label
           >
           <label
-            >密码<input v-model="proxy.password" type="password" autocomplete="new-password"
+            >{{ getMessage('passwordLabel')
+            }}<input v-model="proxy.password" type="password" autocomplete="new-password"
           /></label>
-          <label>会话 ID（可选）<input v-model="proxy.sessionId" placeholder="0366443321" /></label>
+          <label
+            >{{ getMessage('sessionIdLabel')
+            }}<input v-model="proxy.sessionId" placeholder="0366443321"
+          /></label>
           <label class="proxy-toggle"
-            ><span>页面异常自动轮换 IP（同站点最短 5 分钟，不设每小时次数上限）</span
+            ><span>{{ getMessage('autoRotateLabel') }}</span
             ><input v-model="proxy.rotateOnError" type="checkbox"
           /></label>
           <label
-            >仅对这些网站走代理（留空表示全部网站）<textarea
+            >{{ getMessage('proxyScopeLabel')
+            }}<textarea
               v-model="proxyDomains"
               rows="2"
               placeholder="example.com&#10;*.shop.example"
@@ -600,21 +643,21 @@
             type="button"
             :disabled="proxySaving || !proxy.enabled"
             @click="rotateCurrentProxy"
-            >手动切换 IP</button
+            >{{ getMessage('rotateIpButton') }}</button
           >
           <button
             class="copy-config-button"
             type="button"
             :disabled="proxySaving"
             @click="() => saveProxySettings()"
-            >保存</button
+            >{{ getMessage('saveButton') }}</button
           >
           <button
             class="copy-config-button"
             type="button"
             :disabled="proxySaving"
             @click="testProxyConnection"
-            >测试连接</button
+            >{{ getMessage('testConnectionButton') }}</button
           >
         </footer>
       </section>
@@ -632,46 +675,48 @@
         aria-labelledby="proxy-rotation-result-title"
       >
         <header class="error-log-header">
-          <strong id="proxy-rotation-result-title">IP 切换完成</strong>
-          <button class="copy-config-button" type="button" @click="closeProxyRotationResult"
-            >关闭</button
-          >
+          <strong id="proxy-rotation-result-title">{{ getMessage('ipRotationDoneTitle') }}</strong>
+          <button class="copy-config-button" type="button" @click="closeProxyRotationResult">{{
+            getMessage('closeButton')
+          }}</button>
         </header>
         <div class="proxy-rotation-success" role="status" aria-live="polite">
           <span class="proxy-rotation-icon" aria-hidden="true">✓</span>
           <div class="proxy-rotation-copy">
-            <strong>当前页 IP 已更新</strong>
-            <p>当前 IP 已由以下地址切换为：</p>
+            <strong>{{ getMessage('tabIpUpdatedTitle') }}</strong>
+            <p>{{ getMessage('tabIpUpdatedDesc') }}</p>
           </div>
         </div>
-        <div class="proxy-ip-change" aria-label="IP 切换前后对比">
+        <div class="proxy-ip-change" :aria-label="getMessage('ipComparisonAriaLabel')">
           <div class="proxy-ip-item">
-            <span class="proxy-ip-period">切换前</span>
+            <span class="proxy-ip-period">{{ getMessage('beforeRotationLabel') }}</span>
             <span
               v-if="formatProxyLocation(proxyRotationResult, 'previous')"
               class="proxy-ip-location"
               >{{ formatProxyLocation(proxyRotationResult, 'previous') }}</span
             >
-            <code class="proxy-ip-value">{{ proxyRotationResult?.previousIp || '获取失败' }}</code>
+            <code class="proxy-ip-value">{{
+              proxyRotationResult?.previousIp || getMessage('fetchFailedLabel')
+            }}</code>
           </div>
           <span class="proxy-ip-arrow" aria-hidden="true">→</span>
           <div class="proxy-ip-item">
-            <span class="proxy-ip-period">切换后</span>
+            <span class="proxy-ip-period">{{ getMessage('afterRotationLabel') }}</span>
             <span
               v-if="formatProxyLocation(proxyRotationResult, 'current')"
               class="proxy-ip-location"
               >{{ formatProxyLocation(proxyRotationResult, 'current') }}</span
             >
             <code class="proxy-ip-value proxy-ip-value--current">{{
-              proxyRotationResult?.currentIp || '获取失败'
+              proxyRotationResult?.currentIp || getMessage('fetchFailedLabel')
             }}</code>
           </div>
         </div>
-        <p class="proxy-rotation-note">当前网页正在重新加载，请稍后查看。</p>
+        <p class="proxy-rotation-note">{{ getMessage('pageReloadingNote') }}</p>
         <footer class="error-log-actions">
-          <button class="copy-config-button" type="button" @click="closeProxyRotationResult"
-            >知道了</button
-          >
+          <button class="copy-config-button" type="button" @click="closeProxyRotationResult">{{
+            getMessage('gotItButton')
+          }}</button>
         </footer>
       </section>
     </div>
@@ -684,11 +729,13 @@
         aria-labelledby="unlock-dialog-title"
       >
         <header class="error-log-header">
-          <strong id="unlock-dialog-title">开启隐藏入口</strong>
-          <button class="copy-config-button" type="button" @click="closeUnlockPrompt">取消</button>
+          <strong id="unlock-dialog-title">{{ getMessage('unlockDialogTitle') }}</strong>
+          <button class="copy-config-button" type="button" @click="closeUnlockPrompt">{{
+            getMessage('cancelButton')
+          }}</button>
         </header>
         <p class="unlock-description">
-          {{ unlockStep === 1 ? '请输入第一步授权口令。' : '请输入第二步授权口令。' }}
+          {{ unlockStep === 1 ? getMessage('unlockStep1Prompt') : getMessage('unlockStep2Prompt') }}
         </p>
         <form class="unlock-form" @submit.prevent="unlockHiddenInterface">
           <input
@@ -696,11 +743,19 @@
             type="text"
             autocomplete="off"
             autofocus
-            :placeholder="unlockStep === 1 ? '请输入第一步口令' : '请输入第二步口令'"
-            :aria-label="unlockStep === 1 ? '第一步授权口令' : '第二步授权口令'"
+            :placeholder="
+              unlockStep === 1
+                ? getMessage('unlockStep1Placeholder')
+                : getMessage('unlockStep2Placeholder')
+            "
+            :aria-label="
+              unlockStep === 1
+                ? getMessage('unlockStep1AriaLabel')
+                : getMessage('unlockStep2AriaLabel')
+            "
           />
           <button class="copy-config-button unlock-submit" type="submit">
-            {{ unlockStep === 1 ? '下一步' : '确认开启' }}
+            {{ unlockStep === 1 ? getMessage('nextButton') : getMessage('confirmUnlockButton') }}
           </button>
         </form>
         <p v-if="unlockError" class="unlock-error" role="alert">{{ unlockError }}</p>
@@ -716,58 +771,63 @@
         class="error-log-dialog cookie-dialog"
         role="dialog"
         aria-modal="true"
-        aria-label="所有标签页 Cookie"
+        :aria-label="getMessage('allTabsCookiesTitle')"
       >
         <header class="error-log-header">
-          <strong>所有标签页 Cookie</strong>
-          <button class="copy-config-button" type="button" @click="showCookieModal = false"
-            >关闭</button
-          >
+          <strong>{{ getMessage('allTabsCookiesTitle') }}</strong>
+          <button class="copy-config-button" type="button" @click="showCookieModal = false">{{
+            getMessage('closeButton')
+          }}</button>
         </header>
-        <p class="proxy-description"
-          >选择任意网页标签页，再勾选要清除的 Cookie；未勾选的 Cookie 会保留。仅处理
-          <code>http/https</code> 网页标签，不显示 Cookie 值。</p
-        >
+        <!-- eslint-disable-next-line vue/no-v-html -- static text from our own _locales bundle -->
+        <p class="proxy-description" v-html="getMessage('cookieDialogHint')"></p>
         <div class="cookie-toolbar">
           <button
             class="copy-config-button"
             type="button"
             :disabled="cookieLoading || cookieSaving || !cookieCount"
             @click="selectAllCookies(true)"
-            >全选</button
+            >{{ getMessage('selectAllButton') }}</button
           >
           <button
             class="copy-config-button"
             type="button"
             :disabled="cookieLoading || cookieSaving"
             @click="selectAllCookies(false)"
-            >全不选</button
+            >{{ getMessage('selectNoneButton') }}</button
           >
           <button
             class="copy-config-button"
             type="button"
             :disabled="cookieLoading || cookieSaving || !cookieCount"
             @click="invertAllCookies"
-            >反选</button
+            >{{ getMessage('invertSelectionButton') }}</button
           >
           <button
             class="copy-config-button"
             type="button"
             :disabled="cookieLoading || cookieSaving"
             @click="loadAllCookieTabs"
-            >刷新</button
+            >{{ getMessage('refreshButton') }}</button
           >
-          <span class="cookie-selected-count">已选 {{ selectedCookieCount }} 个</span>
+          <span class="cookie-selected-count">{{
+            getMessage('selectedCountLabel', [String(selectedCookieCount)])
+          }}</span>
         </div>
-        <div v-if="cookieLoading" class="cookie-empty">正在读取所有网页标签页的 Cookie…</div>
-        <div v-else-if="!cookieTabs.length" class="cookie-empty"
-          >当前没有可读取 Cookie 的网页标签页。</div
-        >
+        <div v-if="cookieLoading" class="cookie-empty">{{
+          getMessage('loadingAllCookiesStatus')
+        }}</div>
+        <div v-else-if="!cookieTabs.length" class="cookie-empty">{{
+          getMessage('noCookieTabsMessage')
+        }}</div>
         <div v-else class="cookie-tabs-list">
           <article v-for="tab in cookieTabs" :key="tab.id" class="cookie-tab-card">
             <div class="cookie-tab-header">
               <div class="cookie-tab-title">
-                <strong>{{ tab.active ? '当前' : '标签页' }} · {{ tab.title || tab.url }}</strong>
+                <strong
+                  >{{ tab.active ? getMessage('currentBadge') : getMessage('tabLabel') }} ·
+                  {{ tab.title || tab.url }}</strong
+                >
                 <span>{{ tab.url }}</span>
               </div>
               <div class="cookie-tab-actions">
@@ -776,27 +836,29 @@
                   type="button"
                   :disabled="tab.loading || cookieSaving || !tab.cookies.length"
                   @click="setTabCookiesSelected(tab, true)"
-                  >全选</button
+                  >{{ getMessage('selectAllButton') }}</button
                 >
                 <button
                   class="copy-config-button"
                   type="button"
                   :disabled="tab.loading || cookieSaving || !tab.cookies.length"
                   @click="invertTabCookies(tab)"
-                  >反选</button
+                  >{{ getMessage('invertSelectionButton') }}</button
                 >
                 <button
                   class="copy-config-button"
                   type="button"
                   :disabled="tab.loading || cookieSaving"
                   @click="loadCookiesForTab(tab)"
-                  >刷新</button
+                  >{{ getMessage('refreshButton') }}</button
                 >
               </div>
             </div>
-            <p v-if="tab.loading" class="cookie-empty">正在读取…</p>
+            <p v-if="tab.loading" class="cookie-empty">{{ getMessage('loadingStatus') }}</p>
             <p v-else-if="tab.error" class="cookie-error">{{ tab.error }}</p>
-            <p v-else-if="!tab.cookies.length" class="cookie-empty">没有匹配到 Cookie。</p>
+            <p v-else-if="!tab.cookies.length" class="cookie-empty">{{
+              getMessage('noCookiesMatchedMessage')
+            }}</p>
             <div v-else class="cookie-list">
               <label v-for="entry in tab.cookies" :key="entry.key" class="cookie-row">
                 <input v-model="entry.selected" type="checkbox" :disabled="cookieSaving" />
@@ -804,9 +866,16 @@
                   <strong>{{ entry.cookie.name }}</strong>
                   <small
                     >{{ entry.cookie.domain }}{{ entry.cookie.path }} ·
-                    {{ entry.cookie.secure ? 'Secure' : '普通' }} ·
-                    {{ entry.cookie.httpOnly ? 'HttpOnly' : '脚本可读' }} ·
-                    {{ entry.cookie.session ? '会话' : '持久' }}</small
+                    {{ entry.cookie.secure ? 'Secure' : getMessage('cookiePlainLabel') }} ·
+                    {{
+                      entry.cookie.httpOnly ? 'HttpOnly' : getMessage('cookieScriptReadableLabel')
+                    }}
+                    ·
+                    {{
+                      entry.cookie.session
+                        ? getMessage('cookieSessionLabel')
+                        : getMessage('cookiePersistentLabel')
+                    }}</small
                   >
                 </span>
               </label>
@@ -820,11 +889,15 @@
             type="button"
             :disabled="cookieSaving || !selectedCookieCount"
             @click="clearSelectedCookies"
-            >{{ cookieSaving ? '正在清除…' : `清除已选 ${selectedCookieCount} 个` }}</button
+            >{{
+              cookieSaving
+                ? getMessage('clearingStatus')
+                : getMessage('clearSelectedButton', [String(selectedCookieCount)])
+            }}</button
           >
-          <button class="copy-config-button" type="button" @click="showCookieModal = false"
-            >取消</button
-          >
+          <button class="copy-config-button" type="button" @click="showCookieModal = false">{{
+            getMessage('cancelButton')
+          }}</button>
         </footer>
       </section>
     </div>
@@ -838,17 +911,17 @@
         class="error-log-dialog recent-scripts-dialog"
         role="dialog"
         aria-modal="true"
-        aria-label="最近录制脚本"
+        :aria-label="getMessage('recentScriptsEntryTitle')"
       >
         <header class="error-log-header">
-          <strong>最近录制的页面脚本</strong>
-          <button class="copy-config-button" @click="showRecentRecordedScripts = false"
-            >关闭</button
-          >
+          <strong>{{ getMessage('recentScriptsTitle') }}</strong>
+          <button class="copy-config-button" @click="showRecentRecordedScripts = false">{{
+            getMessage('closeButton')
+          }}</button>
         </header>
-        <p v-if="recentRecordedFlows.length === 0" class="recent-scripts-empty"
-          >暂无页面录制脚本。</p
-        >
+        <p v-if="recentRecordedFlows.length === 0" class="recent-scripts-empty">{{
+          getMessage('noRecordedScriptsMessage')
+        }}</p>
         <div v-else class="recent-scripts-list">
           <article v-for="flow in recentRecordedFlows" :key="flow.id" class="recent-script-item">
             <div class="recent-script-info">
@@ -856,12 +929,16 @@
               <span>{{ formatRecordedFlowTime(flow.updatedAt || flow.createdAt) }}</span>
             </div>
             <div class="recent-script-actions">
-              <button class="copy-config-button" @click="openBuilderWindow(flow.id)">打开</button>
-              <button class="copy-config-button" @click="runRecordedScript(flow.id)">运行</button>
+              <button class="copy-config-button" @click="openBuilderWindow(flow.id)">{{
+                getMessage('openButton')
+              }}</button>
+              <button class="copy-config-button" @click="runRecordedScript(flow.id)">{{
+                getMessage('runButton')
+              }}</button>
               <button
                 class="copy-config-button danger-action"
                 @click="deleteRecordedScript(flow.id)"
-                >删除</button
+                >{{ getMessage('deleteButton') }}</button
               >
             </div>
           </article>
@@ -870,7 +947,7 @@
       </section>
     </div>
 
-    <!-- 本地模型二级页面 -->
+    <!-- Local model subpage -->
     <LocalModelPage
       v-show="currentView === 'local-model'"
       :semantic-engine-status="semanticEngineStatus"
@@ -920,13 +997,13 @@
       @cancel="hideClearDataConfirmation"
     />
 
-    <!-- 侧边栏承担工作流管理；编辑器在独立窗口中打开 -->
+    <!-- The sidepanel owns workflow management; the editor opens in its own window -->
 
     <!-- Coming Soon Toast -->
     <Transition name="toast">
       <div v-if="comingSoonToast.show" class="coming-soon-toast">
         <PopupIcon name="clock" class="toast-icon" />
-        <span>{{ comingSoonToast.feature }} 功能开发中，敬请期待</span>
+        <span>{{ getMessage('comingSoonMessage', [comingSoonToast.feature]) }}</span>
       </div>
     </Transition>
   </div>
@@ -951,11 +1028,11 @@ import ProgressIndicator from './components/ProgressIndicator.vue';
 import ModelCacheManagement from './components/ModelCacheManagement.vue';
 import LocalModelPage from './components/LocalModelPage.vue';
 import McpToolsPage from './components/McpToolsPage.vue';
-// AgentChat theme - 从preload中获取，保持与sidepanel一致
+// AgentChat theme - read from the preload so it matches the sidepanel
 const { theme: agentTheme, initTheme } = useAgentTheme();
 const rrRpc = useRRV3Rpc();
 
-// 当前视图状态：首页 or 本地模型页
+// Current view: home or the local model page
 const currentView = ref<'home' | 'local-model' | 'mcp-tools'>('home');
 const homeContentRef = ref<HTMLElement | null>(null);
 let preservedHomeScrollTop = 0;
@@ -979,7 +1056,7 @@ async function loadHiddenInterfaceState() {
     const stored = await chrome.storage.local.get(STORAGE_KEYS.HIDDEN_INTERFACE_UNLOCKED);
     hiddenInterfaceUnlocked.value = stored[STORAGE_KEYS.HIDDEN_INTERFACE_UNLOCKED] === true;
   } catch (error) {
-    console.warn('加载隐藏界面状态失败:', error);
+    console.warn('Failed to load hidden interface state:', error);
   }
 }
 
@@ -1016,7 +1093,7 @@ async function unlockHiddenInterface() {
 
     if (unlockStep.value === 1) {
       if (!UNLOCK_PRIMARY_DIGESTS.has(phraseDigest)) {
-        unlockError.value = '第一步口令不正确，请重试。';
+        unlockError.value = getMessage('unlockStep1ErrorMessage');
         return;
       }
 
@@ -1027,7 +1104,7 @@ async function unlockHiddenInterface() {
     }
 
     if (phraseDigest !== UNLOCK_SECONDARY_DIGEST) {
-      unlockError.value = '第二步口令不正确，请重试。';
+      unlockError.value = getMessage('unlockStep2ErrorMessage');
       return;
     }
 
@@ -1035,8 +1112,8 @@ async function unlockHiddenInterface() {
     hiddenInterfaceUnlocked.value = true;
     closeUnlockPrompt();
   } catch (error) {
-    console.warn('验证或保存隐藏界面状态失败:', error);
-    unlockError.value = '验证失败，请稍后重试。';
+    console.warn('Failed to verify or save hidden interface state:', error);
+    unlockError.value = getMessage('unlockVerifyFailedMessage');
   }
 }
 
@@ -1137,7 +1214,7 @@ const selectedCookieCount = computed(() =>
   ),
 );
 const isExportingErrorLogs = ref(false);
-const errorLogCopyLabel = ref('复制日志');
+const errorLogCopyLabel = ref(getMessage('copyLogsButton'));
 const errorLogs = ref<Array<{ timestamp: string; type: string; message: string; stack?: string }>>(
   [],
 );
@@ -1149,7 +1226,7 @@ const errorLogText = computed(() =>
             `[${formatRecordedFlowTime(log.timestamp)}] ${log.type}: ${log.message}${log.stack ? `\n${log.stack}` : ''}`,
         )
         .join('\n\n')
-    : '暂无错误日志。',
+    : getMessage('noErrorLogsMessage'),
 );
 
 async function loadErrorLogs() {
@@ -1191,11 +1268,11 @@ async function exportErrorLogs() {
 async function copyErrorLogs() {
   try {
     await navigator.clipboard.writeText(errorLogText.value);
-    errorLogCopyLabel.value = '已复制';
+    errorLogCopyLabel.value = getMessage('copiedLabel');
   } catch {
-    errorLogCopyLabel.value = '复制失败';
+    errorLogCopyLabel.value = getMessage('copyFailedLabel');
   }
-  setTimeout(() => (errorLogCopyLabel.value = '复制日志'), 1500);
+  setTimeout(() => (errorLogCopyLabel.value = getMessage('copyLogsButton')), 1500);
 }
 
 async function clearErrorLogs() {
@@ -1236,6 +1313,8 @@ const currentTabUrl = ref<string>('');
 const recentRecordedFlows = computed(() =>
   rrFlows.value
     .filter(
+      // These two literals are persisted data, not UI: page-recorder.ts writes them
+      // into every recorded flow. Translating them would hide flows already on disk.
       (flow) => flow.meta?.tags?.includes('页面录制') || flow.description?.startsWith('录制自 '),
     )
     .sort(
@@ -1257,7 +1336,7 @@ const filteredRrFlows = computed(() => {
   });
 });
 
-// Flow editor在独立窗口中打开；在popup不再展示繁杂列表
+// The flow editor opens in its own window; the popup no longer shows the long list
 
 const loadFlows = async () => {
   try {
@@ -1278,26 +1357,28 @@ async function runRecordedScript(flowId: string) {
   try {
     await rrRpc.ensureConnected();
     await rrRpc.request('rr_v3.enqueueRun', { flowId });
-    recentScriptsMessage.value = '已开始运行录制脚本。';
+    recentScriptsMessage.value = getMessage('scriptStartedMessage');
   } catch (error) {
-    recentScriptsMessage.value = error instanceof Error ? error.message : '运行脚本失败。';
+    recentScriptsMessage.value =
+      error instanceof Error ? error.message : getMessage('scriptRunFailedMessage');
   }
 }
 
 async function deleteRecordedScript(flowId: string) {
-  if (!window.confirm('确定删除这条录制脚本吗？此操作无法撤销。')) return;
+  if (!window.confirm(getMessage('confirmDeleteScriptMessage'))) return;
   try {
     await rrRpc.ensureConnected();
     await rrRpc.request('rr_v3.deleteFlow', { flowId });
-    recentScriptsMessage.value = '录制脚本已删除。';
+    recentScriptsMessage.value = getMessage('scriptDeletedMessage');
     await loadFlows();
   } catch (error) {
-    recentScriptsMessage.value = error instanceof Error ? error.message : '删除脚本失败。';
+    recentScriptsMessage.value =
+      error instanceof Error ? error.message : getMessage('scriptDeleteFailedMessage');
   }
 }
 
 function formatRecordedFlowTime(value?: string) {
-  return value ? new Date(value).toLocaleString() : '时间未知';
+  return value ? new Date(value).toLocaleString() : getMessage('unknownTimeLabel');
 }
 
 async function startRecording() {
@@ -1306,14 +1387,15 @@ async function startRecording() {
       type: BACKGROUND_MESSAGE_TYPES.RR_START_RECORDING,
     });
     if (!result?.success) {
-      rrError.value = result?.error || '录制操作失败';
+      rrError.value = result?.error || getMessage('recordingActionFailedMessage');
       return;
     }
     rrError.value = '';
     rrRecording.value = true;
     rrPaused.value = false;
   } catch (error) {
-    rrError.value = error instanceof Error ? error.message : '无法连接录制服务';
+    rrError.value =
+      error instanceof Error ? error.message : getMessage('recordingServiceUnavailableMessage');
   }
 }
 
@@ -1323,7 +1405,8 @@ async function togglePauseRecording() {
       ? BACKGROUND_MESSAGE_TYPES.RR_RESUME_RECORDING
       : BACKGROUND_MESSAGE_TYPES.RR_PAUSE_RECORDING,
   });
-  if (!result?.success) return console.warn(result?.error || '录制操作失败');
+  if (!result?.success)
+    return console.warn(result?.error || getMessage('recordingActionFailedMessage'));
   rrPaused.value = !rrPaused.value;
 }
 
@@ -1331,7 +1414,8 @@ async function stopRecording() {
   const result = await chrome.runtime.sendMessage({
     type: BACKGROUND_MESSAGE_TYPES.RR_STOP_RECORDING,
   });
-  if (!result?.success) return console.warn(result?.error || '停止录制失败');
+  if (!result?.success)
+    return console.warn(result?.error || getMessage('stopRecordingFailedMessage'));
   rrRecording.value = false;
   rrPaused.value = false;
   await loadFlows();
@@ -1375,7 +1459,7 @@ const runFlow = async (flowId: string) => {
       options: { ...runOptions, ...ov, returnLogs: true },
     });
     if (!(res && res.success)) {
-      console.warn('回放失败');
+      console.warn('Replay failed');
       return;
     }
     // If failed, open builder and focus the failed node
@@ -1385,7 +1469,7 @@ const runFlow = async (flowId: string) => {
         const logs = result.logs || [];
         const failed = logs.find((l: any) => l.status === 'failed');
         if (failed && failed.stepId) {
-          // 打开独立编辑窗口并定位失败节点
+          // Open the standalone editor window and jump to the failing node
           if (flow) openBuilderWindow(flow.id, String(failed.stepId));
         }
       } else if (result && result.success === true) {
@@ -1396,11 +1480,11 @@ const runFlow = async (flowId: string) => {
       }
     } catch {}
   } catch (e) {
-    console.error('回放失败:', e);
+    console.error('Replay failed:', e);
   }
 };
 
-// 旧的“克隆/发布/定时/覆盖项”在侧边栏或编辑器中处理
+// Clone/publish/schedule/overrides are handled in the sidepanel or the editor
 
 const nativeConnectionStatus = ref<'unknown' | 'connected' | 'disconnected'>('unknown');
 const isConnecting = ref(false);
@@ -1447,9 +1531,9 @@ const mcpTransportOptions = computed<McpTransportOption[]>(() => {
     {
       id: 'streamable-http',
       icon: 'globe',
-      title: 'Streamable HTTP（兼容版）',
+      title: getMessage('transportCompatTitle'),
       endpoint: `${baseUrl}/mcp`,
-      description: '保留会话，兼容现有客户端',
+      description: getMessage('transportCompatDesc'),
       config: {
         mcpServers: {
           'streamable-mcp-server': {
@@ -1462,9 +1546,9 @@ const mcpTransportOptions = computed<McpTransportOption[]>(() => {
     {
       id: 'streamable-http-new',
       icon: 'rocket',
-      title: 'Streamable HTTP（尝鲜版）',
+      title: getMessage('transportPreviewTitle'),
       endpoint: `${baseUrl}/mcp-new`,
-      description: 'MCP 2026-07-28，无会话',
+      description: getMessage('transportPreviewDesc'),
       config: {
         mcpServers: {
           'streamable-mcp-server-new': {
@@ -1477,9 +1561,9 @@ const mcpTransportOptions = computed<McpTransportOption[]>(() => {
     {
       id: 'sse',
       icon: 'share',
-      title: 'SSE（旧版 MCP）',
+      title: getMessage('transportSseTitle'),
       endpoint: `${baseUrl}/sse`,
-      description: '消息地址：/messages?sessionId=…',
+      description: getMessage('transportSseDesc'),
       config: {
         mcpServers: {
           'sse-mcp-server': {
@@ -1492,8 +1576,8 @@ const mcpTransportOptions = computed<McpTransportOption[]>(() => {
       id: 'stdio',
       icon: 'server',
       title: 'STDIO',
-      endpoint: 'mcp-chrome-stdio 或 EXE --stdio',
-      description: '内部优先连接 /mcp-new，失败时回退 /mcp',
+      endpoint: getMessage('transportStdioEndpoint'),
+      description: getMessage('transportStdioDesc'),
       config: {
         mcpServers: {
           'chrome-mcp-stdio': {
@@ -1669,11 +1753,13 @@ async function loadProxySettings() {
     };
   }
   if (test?.pending) {
-    proxyResult.value = '正在测试代理出口…';
+    proxyResult.value = getMessage('testingProxyStatus');
   } else if (test?.success && test.ip) {
-    proxyResult.value = `连接成功，出口 IP：${test.ip}${test.country ? `（国家/地区：${test.country}）` : ''}`;
+    proxyResult.value =
+      getMessage('proxyTestSuccessMessage', [test.ip]) +
+      (test.country ? getMessage('proxyCountrySuffix', [test.country]) : '');
   } else if (test?.error) {
-    proxyResult.value = `错误：${test.error}`;
+    proxyResult.value = getMessage('errorPrefix', [String(test.error)]);
   }
 }
 
@@ -1691,15 +1777,18 @@ async function saveProxySettings(showResult = true): Promise<boolean> {
           .filter(Boolean),
       },
     });
-    if (!response?.success) throw new Error(response?.error || '保存失败');
+    if (!response?.success) throw new Error(response?.error || getMessage('saveFailedMessage'));
     Object.assign(proxy, response.config);
     proxyDomains.value = (response.config.domains || []).join('\n');
-    if (showResult) proxyResult.value = proxy.enabled ? '代理已启用' : '代理已停用';
+    if (showResult)
+      proxyResult.value = proxy.enabled
+        ? getMessage('proxyEnabledMessage')
+        : getMessage('proxyStoppedMessage');
     if (showResult && proxy.enabled) void refreshCurrentProxyInfo();
     else if (showResult) currentProxyInfo.value = null;
     return true;
   } catch (error: any) {
-    proxyResult.value = `错误：${error?.message || String(error)}`;
+    proxyResult.value = getMessage('errorPrefix', [error?.message || String(error)]);
     return false;
   } finally {
     proxySaving.value = false;
@@ -1707,14 +1796,14 @@ async function saveProxySettings(showResult = true): Promise<boolean> {
 }
 
 async function testProxyConnection() {
-  proxyResult.value = '正在测试代理出口…';
+  proxyResult.value = getMessage('testingProxyStatus');
   if (!(await saveProxySettings(false))) return;
   proxySaving.value = true;
-  proxyResult.value = '正在测试代理出口…';
+  proxyResult.value = getMessage('testingProxyStatus');
   try {
     const [tab] = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
     const response = await chrome.runtime.sendMessage({ type: 'proxy_test', tabId: tab?.id });
-    if (!response?.success) throw new Error(response?.error || '测试失败');
+    if (!response?.success) throw new Error(response?.error || getMessage('testFailedMessage'));
     currentProxyInfo.value = {
       ip: response.ip,
       country: response.country,
@@ -1723,9 +1812,11 @@ async function testProxyConnection() {
       location: response.location,
     };
     currentProxyInfoError.value = '';
-    proxyResult.value = `连接成功，出口 IP：${response.ip}${response.country ? `（国家/地区：${response.country}）` : ''}`;
+    proxyResult.value =
+      getMessage('proxyTestSuccessMessage', [response.ip]) +
+      (response.country ? getMessage('proxyCountrySuffix', [response.country]) : '');
   } catch (error: any) {
-    proxyResult.value = `错误：${error?.message || String(error)}`;
+    proxyResult.value = getMessage('errorPrefix', [error?.message || String(error)]);
   } finally {
     proxySaving.value = false;
   }
@@ -1743,9 +1834,10 @@ async function refreshCurrentProxyInfo() {
   currentProxyInfoLoading.value = true;
   try {
     const [tab] = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
-    if (!tab?.id) throw new Error('当前没有可查询的网页标签');
+    if (!tab?.id) throw new Error(getMessage('noQueryableTabMessage'));
     const response = await chrome.runtime.sendMessage({ type: 'proxy_test', tabId: tab.id });
-    if (!response?.success) throw new Error(response?.error || '位置查询失败');
+    if (!response?.success)
+      throw new Error(response?.error || getMessage('locationQueryFailedMessage'));
     if (requestId !== currentProxyInfoRequestId) return;
     currentProxyInfo.value = {
       ip: response.ip,
@@ -1780,12 +1872,14 @@ async function toggleProxy(event: Event) {
           .filter(Boolean),
       },
     });
-    if (!response?.success) throw new Error(response?.error || '切换失败');
+    if (!response?.success) throw new Error(response?.error || getMessage('toggleFailedMessage'));
     Object.assign(proxy, response.config);
-    proxyQuickResult.value = enabled ? '代理已开启' : '代理已关闭';
+    proxyQuickResult.value = enabled
+      ? getMessage('proxyTurnedOnMessage')
+      : getMessage('proxyTurnedOffMessage');
   } catch (error: any) {
     proxy.enabled = previous;
-    proxyQuickResult.value = `错误：${error?.message || String(error)}`;
+    proxyQuickResult.value = getMessage('errorPrefix', [error?.message || String(error)]);
   } finally {
     proxySaving.value = false;
     if (proxy.enabled) void refreshCurrentProxyInfo();
@@ -1808,16 +1902,16 @@ async function rotateCurrentProxy() {
   proxyRotationPending.value = true;
   showProxyRotationResult.value = false;
   proxyRotationResult.value = null;
-  proxyQuickResult.value = '切换中，请稍后…';
+  proxyQuickResult.value = getMessage('rotatingStatus');
   try {
     const [tab] = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
-    if (!tab?.id) throw new Error('当前没有可切换代理的网页标签');
+    if (!tab?.id) throw new Error(getMessage('noRotatableTabMessage'));
     const response = await chrome.runtime.sendMessage({
       type: 'proxy_rotate_current',
       tabId: tab.id,
-      reason: '用户在插件中手动切换 IP',
+      reason: 'User rotated the IP manually from the popup',
     });
-    if (!response?.success) throw new Error(response?.error || '切换 IP 失败');
+    if (!response?.success) throw new Error(response?.error || getMessage('rotateIpFailedMessage'));
     const result = response.result as
       | {
           rotated?: boolean;
@@ -1836,12 +1930,14 @@ async function rotateCurrentProxy() {
       | undefined;
     if (!result?.rotated) {
       const reasons: Record<string, string> = {
-        proxy_disabled: '代理未启用',
-        rotation_in_progress: '该标签页正在切换中',
-        rate_limited: '切换过于频繁，请稍后再试',
-        outside_proxy_scope: '当前网页不在代理网站范围内',
+        proxy_disabled: getMessage('proxyDisabledMessage'),
+        rotation_in_progress: getMessage('rotationInProgressReason'),
+        rate_limited: getMessage('rateLimitedReason'),
+        outside_proxy_scope: getMessage('outsideProxyScopeReason'),
       };
-      throw new Error((result?.skipped ? reasons[result.skipped] : undefined) || '当前未切换 IP');
+      throw new Error(
+        (result?.skipped ? reasons[result.skipped] : undefined) || getMessage('noRotationReason'),
+      );
     }
     proxyRotationResult.value = {
       previousIp: result.previousIp,
@@ -1869,10 +1965,10 @@ async function rotateCurrentProxy() {
     } else {
       void refreshCurrentProxyInfo();
     }
-    proxyQuickResult.value = 'IP 切换完成。';
+    proxyQuickResult.value = getMessage('ipRotationDoneMessage');
     showProxyRotationResult.value = true;
   } catch (error: any) {
-    proxyQuickResult.value = `错误：${error?.message || String(error)}`;
+    proxyQuickResult.value = getMessage('errorPrefix', [error?.message || String(error)]);
   } finally {
     proxyRotationPending.value = false;
     proxySaving.value = false;
@@ -1904,9 +2000,9 @@ function joinProxyLocation(
 ): string {
   if (location) return location;
   return [
-    country ? `国家：${country}` : '',
-    region ? `区域/州/省：${region}` : '',
-    city ? `市：${city}` : '',
+    country ? getMessage('countryPrefix', [country]) : '',
+    region ? getMessage('regionPrefix', [region]) : '',
+    city ? getMessage('cityPrefix', [city]) : '',
   ]
     .filter(Boolean)
     .join(' · ');
@@ -1948,7 +2044,7 @@ async function loadCookiesForTab(tab: CookieTabState, stores?: chrome.cookies.Co
       .map((cookie) => ({ cookie, key: cookieKey(cookie), selected: false }));
   } catch (error: any) {
     tab.cookies = [];
-    tab.error = error?.message || '读取 Cookie 失败';
+    tab.error = error?.message || getMessage('readCookiesFailedMessage');
   } finally {
     tab.loading = false;
   }
@@ -1980,7 +2076,7 @@ async function loadAllCookieTabs() {
     await Promise.all(cookieTabs.value.map((tab) => loadCookiesForTab(tab, stores)));
   } catch (error: any) {
     cookieTabs.value = [];
-    cookieResult.value = `错误：${error?.message || String(error)}`;
+    cookieResult.value = getMessage('errorPrefix', [error?.message || String(error)]);
   } finally {
     cookieLoading.value = false;
   }
@@ -2022,7 +2118,7 @@ async function clearSelectedCookies() {
     tab.cookies.filter((entry) => entry.selected).map((entry) => ({ tab, entry })),
   );
   if (!selected.length || cookieSaving.value) return;
-  if (!window.confirm(`确定清除选中的 ${selected.length} 个 Cookie 吗？未选中的会保留。`)) return;
+  if (!window.confirm(getMessage('confirmClearCookiesMessage', [String(selected.length)]))) return;
 
   cookieSaving.value = true;
   cookieResult.value = '';
@@ -2044,8 +2140,8 @@ async function clearSelectedCookies() {
     }
     await loadAllCookieTabs();
     cookieResult.value = failed
-      ? `已清除 ${removed} 个，${failed} 个清除失败。`
-      : `已清除 ${removed} 个 Cookie，未选中的 Cookie 已保留。`;
+      ? getMessage('cookiesClearedPartialMessage', [String(removed), String(failed)])
+      : getMessage('cookiesClearedMessage', [String(removed)]);
   } finally {
     cookieSaving.value = false;
   }
@@ -2055,26 +2151,26 @@ async function toggleWebEditor() {
   try {
     await chrome.runtime.sendMessage({ type: BACKGROUND_MESSAGE_TYPES.WEB_EDITOR_TOGGLE });
   } catch (error) {
-    console.warn('切换网页编辑模式失败:', error);
+    console.warn('Failed to toggle web editor mode:', error);
   }
 }
 
 async function toggleElementMarker() {
   try {
-    // 获取当前活动tab
+    // Resolve the active tab
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
     if (!tab?.id) {
-      console.warn('无法获取当前tab');
+      console.warn('Could not resolve the active tab');
       return;
     }
 
-    // 向background发送消息，启动元素标注
+    // Ask the background to start element marking
     await chrome.runtime.sendMessage({
       type: BACKGROUND_MESSAGE_TYPES.ELEMENT_MARKER_START,
       tabId: tab.id,
     });
   } catch (error) {
-    console.warn('开启元素标注失败:', error);
+    console.warn('Failed to enable element markers:', error);
   }
 }
 
@@ -2264,7 +2360,7 @@ const saveSemanticEngineState = async () => {
 
     await chrome.storage.local.set({ semanticEngineState });
   } catch (error) {
-    console.error('保存语义引擎状态失败:', error);
+    console.error('Failed to save semantic engine state:', error);
   }
 };
 
@@ -2398,7 +2494,7 @@ const checkNativeConnection = async () => {
     const response = await chrome.runtime.sendMessage({ type: 'ping_native' });
     nativeConnectionStatus.value = response?.connected ? 'connected' : 'disconnected';
   } catch (error) {
-    console.error('检测 Native 连接状态失败:', error);
+    console.error('Failed to probe the native connection state:', error);
     nativeConnectionStatus.value = 'disconnected';
   }
 };
@@ -2417,7 +2513,7 @@ const checkServerStatus = async () => {
       nativeConnectionStatus.value = response.connected ? 'connected' : 'disconnected';
     }
   } catch (error) {
-    console.error('检测服务器状态失败:', error);
+    console.error('Failed to probe the server status:', error);
   }
 };
 
@@ -2435,7 +2531,7 @@ const refreshServerStatus = async () => {
       nativeConnectionStatus.value = response.connected ? 'connected' : 'disconnected';
     }
   } catch (error) {
-    console.error('刷新服务器状态失败:', error);
+    console.error('Failed to refresh the server status:', error);
   }
 };
 
@@ -2468,7 +2564,7 @@ const copyMcpConfig = async () => {
       copyButtonText.value = getMessage('copyConfigButton');
     }, 2000);
   } catch (error) {
-    console.error('复制配置失败:', error);
+    console.error('Failed to copy the configuration:', error);
     copyButtonText.value = '❌' + getMessage('networkErrorMessage');
 
     setTimeout(() => {
@@ -2497,7 +2593,7 @@ const testNativeConnection = async () => {
       await chrome.runtime.sendMessage({ type: 'disconnect_native' });
       nativeConnectionStatus.value = 'disconnected';
     } else {
-      console.log(`尝试连接到端口: ${nativeServerPort.value}`);
+      console.log(`Trying to connect on port: ${nativeServerPort.value}`);
 
       const response = await chrome.runtime.sendMessage({
         type: 'connectNative',
@@ -2505,15 +2601,15 @@ const testNativeConnection = async () => {
       });
       if (response && response.success) {
         nativeConnectionStatus.value = 'connected';
-        console.log('连接成功:', response);
+        console.log('Connected:', response);
         await savePortPreference(nativeServerPort.value);
       } else {
         nativeConnectionStatus.value = 'disconnected';
-        console.error('连接失败:', response);
+        console.error('Connection failed:', response);
       }
     }
   } catch (error) {
-    console.error('测试连接失败:', error);
+    console.error('Connection test failed:', error);
     nativeConnectionStatus.value = 'disconnected';
   } finally {
     isConnecting.value = false;
@@ -2589,7 +2685,7 @@ const loadModelPreference = async () => {
       semanticEngineStatus.value = 'idle';
     }
   } catch (error) {
-    console.error('❌ 加载模型偏好失败:', error);
+    console.error('❌ Failed to load model preferences:', error);
   }
 };
 
@@ -2597,7 +2693,7 @@ const saveModelPreference = async (model: ModelPreset) => {
   try {
     await chrome.storage.local.set({ selectedModel: model });
   } catch (error) {
-    console.error('保存模型偏好失败:', error);
+    console.error('Failed to save model preferences:', error);
   }
 };
 
@@ -2605,16 +2701,16 @@ const saveVersionPreference = async (version: 'full' | 'quantized' | 'compressed
   try {
     await chrome.storage.local.set({ selectedVersion: version });
   } catch (error) {
-    console.error('保存版本偏好失败:', error);
+    console.error('Failed to save version preferences:', error);
   }
 };
 
 const savePortPreference = async (port: number) => {
   try {
     await chrome.storage.local.set({ nativeServerPort: port });
-    console.log(`端口偏好已保存: ${port}`);
+    console.log(`Port preference saved: ${port}`);
   } catch (error) {
-    console.error('保存端口偏好失败:', error);
+    console.error('Failed to save the port preference:', error);
   }
 };
 
@@ -2623,10 +2719,10 @@ const loadPortPreference = async () => {
     const result = await chrome.storage.local.get(['nativeServerPort']);
     if (result.nativeServerPort) {
       nativeServerPort.value = result.nativeServerPort;
-      console.log(`端口偏好已加载: ${result.nativeServerPort}`);
+      console.log(`Port preference loaded: ${result.nativeServerPort}`);
     }
   } catch (error) {
-    console.error('加载端口偏好失败:', error);
+    console.error('Failed to load the port preference:', error);
   }
 };
 
@@ -2697,7 +2793,7 @@ const saveModelState = async () => {
 
     await chrome.storage.local.set({ modelState });
   } catch (error) {
-    console.error('保存模型状态失败:', error);
+    console.error('Failed to save the model state:', error);
   }
 };
 
@@ -2736,7 +2832,7 @@ const startModelStatusMonitoring = () => {
         }
       }
     } catch (error) {
-      console.error('获取模型状态失败:', error);
+      console.error('Failed to read the model state:', error);
     }
   }, 1000);
 };
@@ -2919,7 +3015,7 @@ const switchModel = async (newModel: ModelPreset) => {
       currentModel.value = newModel;
       modelSwitchProgress.value = getMessage('successNotification');
       console.log(
-        '模型切换成功:',
+        'Model switched:',
         newModel,
         'version: quantized',
         'dimension:',
@@ -2937,13 +3033,13 @@ const switchModel = async (newModel: ModelPreset) => {
       throw new Error(response?.error || 'Model switch failed');
     }
   } catch (error: any) {
-    console.error('模型切换失败:', error);
+    console.error('Model switch failed:', error);
     modelSwitchProgress.value = `Model switch failed: ${error?.message || 'Unknown error'}`;
 
     modelInitializationStatus.value = 'error';
     isModelDownloading.value = false;
 
-    const errorMessage = error?.message || '未知错误';
+    const errorMessage = error?.message || getMessage('unknownErrorLabel');
     if (
       errorMessage.includes('network') ||
       errorMessage.includes('fetch') ||
@@ -2993,7 +3089,7 @@ const setupServerStatusListener = () => {
 
 onMounted(async () => {
   await loadHiddenInterfaceState();
-  // 初始化主题
+  // Initialise the theme
   await initTheme();
   await loadPortPreference();
   await loadProxySettings();
@@ -4633,7 +4729,7 @@ onUnmounted(() => {
   }
 }
 
-/* 快捷工具icon按钮样式 */
+/* Quick tool icon buttons */
 .rr-icon-buttons {
   display: flex;
   gap: 12px;
@@ -4683,7 +4779,7 @@ onUnmounted(() => {
   height: 24px;
 }
 
-/* 编辑按钮 - 蓝色 */
+/* Edit button - blue */
 .rr-icon-btn-edit {
   background: rgba(37, 99, 235, 0.1);
   color: #2563eb;
@@ -4694,7 +4790,7 @@ onUnmounted(() => {
   color: #1d4ed8;
 }
 
-/* 标注按钮 - 绿色 */
+/* Marker button - green */
 .rr-icon-btn-marker {
   background: rgba(16, 185, 129, 0.1);
   color: #10b981;
@@ -4792,14 +4888,14 @@ onUnmounted(() => {
   visibility: visible;
 }
 
-/* 首页视图 */
+/* Home view */
 .home-view {
   display: flex;
   flex-direction: column;
   height: 100%;
 }
 
-/* 管理入口卡片样式 */
+/* Management entry card */
 .entry-card {
   background: rgba(255, 255, 255, 0.43);
   border-radius: var(--ac-radius-card, 12px);

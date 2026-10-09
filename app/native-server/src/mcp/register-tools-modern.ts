@@ -4,7 +4,7 @@ import {
   type Tool,
   Server,
 } from '@modelcontextprotocol/server';
-import { TOOL_SCHEMAS } from '@ethanwilkins/chrome-mcp-shared-2026';
+import { TOOL_SCHEMAS_EN } from '@ethanwilkins/chrome-mcp-shared-2026';
 import { filterToolsByPermission, getToolPermissionPolicy } from './permission-policy.js';
 import { getToolDeadlineAt, handleToolCall, listDynamicFlowTools } from './register-tools.js';
 
@@ -16,7 +16,7 @@ export const setupModernTools = (server: Server): void => {
     const dynamicTools = await listDynamicFlowTools();
     const policy = getToolPermissionPolicy();
     return {
-      tools: filterToolsByPermission([...TOOL_SCHEMAS, ...dynamicTools] as Tool[], policy),
+      tools: filterToolsByPermission([...TOOL_SCHEMAS_EN, ...dynamicTools] as Tool[], policy),
     };
   });
 

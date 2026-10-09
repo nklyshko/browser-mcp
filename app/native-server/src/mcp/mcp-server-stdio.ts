@@ -7,7 +7,7 @@ import {
   ListToolsRequestSchema,
 } from '@modelcontextprotocol/sdk/types.js';
 import type { RequestHandlerExtra } from '@modelcontextprotocol/sdk/shared/protocol.js';
-import { TOOL_SCHEMAS } from '@ethanwilkins/chrome-mcp-shared-2026';
+import { TOOL_SCHEMAS_EN } from '@ethanwilkins/chrome-mcp-shared-2026';
 import * as fs from 'fs';
 import * as path from 'path';
 import { spawn, type ChildProcess } from 'node:child_process';
@@ -197,13 +197,13 @@ export const setupTools = (server: Server) => {
   // Mirror the upstream HTTP catalog so dynamic flow tools are discoverable over STDIO.
   server.setRequestHandler(ListToolsRequestSchema, async () => {
     const client = await ensureMcpClient();
-    if (!client) return { tools: filterToolsByPermission(TOOL_SCHEMAS) };
+    if (!client) return { tools: filterToolsByPermission(TOOL_SCHEMAS_EN) };
     try {
       const result = await client.listTools();
       return { ...result, tools: filterToolsByPermission(result.tools) };
     } catch {
       resetMcpClient();
-      return { tools: filterToolsByPermission(TOOL_SCHEMAS) };
+      return { tools: filterToolsByPermission(TOOL_SCHEMAS_EN) };
     }
   });
 

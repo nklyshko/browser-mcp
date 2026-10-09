@@ -9,7 +9,7 @@ import {
   NativeMessageType,
   NativeProtocolError,
   TOOL_NAMES,
-  TOOL_SCHEMAS,
+  TOOL_SCHEMAS_EN,
 } from '@ethanwilkins/chrome-mcp-shared-2026';
 import type { Tool } from '@modelcontextprotocol/sdk/types.js';
 import { randomUUID } from 'node:crypto';
@@ -396,7 +396,7 @@ export const setupTools = (server: Server) => {
     const dynamicTools = await listDynamicFlowTools();
     const policy = getToolPermissionPolicy();
     return {
-      tools: filterToolsByPermission([...TOOL_SCHEMAS, ...dynamicTools], policy),
+      tools: filterToolsByPermission([...TOOL_SCHEMAS_EN, ...dynamicTools], policy),
     };
   });
 

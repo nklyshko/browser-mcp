@@ -622,5 +622,956 @@
   "placeholderDomainHint": {
     "message": "example.com",
     "description": "域名筛选占位符"
+  },
+  "backButton": {
+    "message": "返回",
+    "description": "back button"
+  },
+  "backToHomeTitle": {
+    "message": "返回首页",
+    "description": "back-to-home button title"
+  },
+  "localModelTitle": {
+    "message": "本地模型",
+    "description": "local model page title"
+  },
+  "clearButton": {
+    "message": "清空",
+    "description": "clear button"
+  },
+  "editButton": {
+    "message": "编辑",
+    "description": "edit button"
+  },
+  "validateButton": {
+    "message": "验证",
+    "description": "validate button"
+  },
+  "openButton": {
+    "message": "打开",
+    "description": "open button"
+  },
+  "runButton": {
+    "message": "运行",
+    "description": "run button"
+  },
+  "nextButton": {
+    "message": "下一步",
+    "description": "next step button"
+  },
+  "gotItButton": {
+    "message": "知道了",
+    "description": "dismiss button"
+  },
+  "refreshButton": {
+    "message": "刷新",
+    "description": "refresh button"
+  },
+  "selectAllButton": {
+    "message": "全选",
+    "description": "select all button"
+  },
+  "selectNoneButton": {
+    "message": "全不选",
+    "description": "clear selection button"
+  },
+  "invertSelectionButton": {
+    "message": "反选",
+    "description": "invert selection button"
+  },
+  "testConnectionButton": {
+    "message": "测试连接",
+    "description": "test proxy connection button"
+  },
+  "secondsUnit": {
+    "message": "秒",
+    "description": "seconds unit suffix"
+  },
+  "optionalSuffix": {
+    "message": "（可选）",
+    "description": "optional field suffix"
+  },
+  "currentBadge": {
+    "message": "当前",
+    "description": "badge marking the active item"
+  },
+  "fetchFailedLabel": {
+    "message": "获取失败",
+    "description": "value shown when a lookup failed"
+  },
+  "unknownErrorLabel": {
+    "message": "未知错误",
+    "description": "generic unknown error"
+  },
+  "copiedLabel": {
+    "message": "已复制",
+    "description": "copy succeeded"
+  },
+  "copyFailedLabel": {
+    "message": "复制失败",
+    "description": "copy failed"
+  },
+  "errorPrefix": {
+    "message": "错误：$DETAIL$",
+    "description": "error message prefix",
+    "placeholders": {
+      "detail": {
+        "content": "$1"
+      }
+    }
+  },
+  "elementMarkerTitle": {
+    "message": "元素标注管理",
+    "description": "element marker page title"
+  },
+  "markedElementsLabel": {
+    "message": "已标注元素",
+    "description": "count of marked elements"
+  },
+  "addMarkerLabel": {
+    "message": "新增标注",
+    "description": "add marker section label"
+  },
+  "markerNamePlaceholder": {
+    "message": "名称，如 登录按钮",
+    "description": "marker name input"
+  },
+  "selectorPlaceholder": {
+    "message": "CSS 选择器",
+    "description": "selector input placeholder"
+  },
+  "scopePrefixOption": {
+    "message": "路径前缀",
+    "description": "marker scope option"
+  },
+  "scopeExactOption": {
+    "message": "精确匹配",
+    "description": "marker scope option"
+  },
+  "scopeHostOption": {
+    "message": "域名",
+    "description": "marker scope option"
+  },
+  "scheduleTitle": {
+    "message": "定时执行",
+    "description": "schedule dialog title"
+  },
+  "enableLabel": {
+    "message": "启用",
+    "description": "enable field label"
+  },
+  "enableScheduleLabel": {
+    "message": "启用定时",
+    "description": "enable schedule checkbox"
+  },
+  "scheduleTypeLabel": {
+    "message": "类型",
+    "description": "schedule type label"
+  },
+  "scheduleIntervalOption": {
+    "message": "每隔 N 分钟",
+    "description": "interval schedule option"
+  },
+  "scheduleDailyOption": {
+    "message": "每天固定时间",
+    "description": "daily schedule option"
+  },
+  "scheduleOnceOption": {
+    "message": "只执行一次",
+    "description": "one-off schedule option"
+  },
+  "scheduleIntervalLabel": {
+    "message": "间隔(分钟)",
+    "description": "interval minutes label"
+  },
+  "scheduleTimeLabel": {
+    "message": "时间(HH:mm)",
+    "description": "daily time label"
+  },
+  "scheduleTimePlaceholder": {
+    "message": "例如 09:30",
+    "description": "daily time placeholder"
+  },
+  "scheduleIsoLabel": {
+    "message": "时间(ISO)",
+    "description": "one-off ISO time label"
+  },
+  "scheduleIsoPlaceholder": {
+    "message": "例如 2025-10-05T10:00:00",
+    "description": "ISO time placeholder"
+  },
+  "scheduleParamsLabel": {
+    "message": "参数(JSON)",
+    "description": "schedule params label"
+  },
+  "existingSchedulesLabel": {
+    "message": "已有计划",
+    "description": "existing schedules heading"
+  },
+  "scheduleEveryMinutes": {
+    "message": "每 $MINUTES$ 分钟",
+    "description": "interval summary",
+    "placeholders": {
+      "minutes": {
+        "content": "$1"
+      }
+    }
+  },
+  "scheduleDailyAt": {
+    "message": "每天 $TIME$",
+    "description": "daily summary",
+    "placeholders": {
+      "time": {
+        "content": "$1"
+      }
+    }
+  },
+  "scheduleOnceAt": {
+    "message": "一次 $TIME$",
+    "description": "one-off summary",
+    "placeholders": {
+      "time": {
+        "content": "$1"
+      }
+    }
+  },
+  "openWelcomePageTitle": {
+    "message": "打开欢迎页",
+    "description": "welcome page button title"
+  },
+  "nativeServerConfigDesc": {
+    "message": "快速配置和管理你的本地 MCP 服务器",
+    "description": "native server section description"
+  },
+  "serverHealthyDesc": {
+    "message": "一切正常，正在为客户端提供服务",
+    "description": "server running description"
+  },
+  "serverIdleDesc": {
+    "message": "连接本地服务后即可向客户端提供 MCP 接入",
+    "description": "server not running description"
+  },
+  "mcpTransportHint": {
+    "message": "选择合适的配置链接，在客户端中使用",
+    "description": "transport picker hint"
+  },
+  "copyTransportConfigLabel": {
+    "message": "复制$NAME$配置",
+    "description": "copy transport config aria-label",
+    "placeholders": {
+      "name": {
+        "content": "$1"
+      }
+    }
+  },
+  "mcpTransportGroupLabel": {
+    "message": "MCP 服务入口",
+    "description": "transport radiogroup label"
+  },
+  "transportCompatTitle": {
+    "message": "Streamable HTTP（兼容版）",
+    "description": "transport name"
+  },
+  "transportCompatDesc": {
+    "message": "保留会话，兼容现有客户端",
+    "description": "transport description"
+  },
+  "transportPreviewTitle": {
+    "message": "Streamable HTTP（尝鲜版）",
+    "description": "transport name"
+  },
+  "transportPreviewDesc": {
+    "message": "MCP 2026-07-28，无会话",
+    "description": "transport description"
+  },
+  "transportSseTitle": {
+    "message": "SSE（旧版 MCP）",
+    "description": "transport name"
+  },
+  "transportSseDesc": {
+    "message": "消息地址：/messages?sessionId=…",
+    "description": "transport description"
+  },
+  "transportStdioEndpoint": {
+    "message": "mcp-chrome-stdio 或 EXE --stdio",
+    "description": "stdio transport endpoint"
+  },
+  "transportStdioDesc": {
+    "message": "内部优先连接 /mcp-new，失败时回退 /mcp",
+    "description": "transport description"
+  },
+  "settingsPrefsTitle": {
+    "message": "设置 / 偏好",
+    "description": "settings section title"
+  },
+  "settingsPrefsDesc": {
+    "message": "自定义扩展行为和功能偏好",
+    "description": "settings section description"
+  },
+  "extensionIdLabel": {
+    "message": "扩展 ID:",
+    "description": "extension id label"
+  },
+  "backgroundOperationTitle": {
+    "message": "后台操作",
+    "description": "setting title"
+  },
+  "backgroundOperationDesc": {
+    "message": "打开页面和自动化操作时不抢占前台",
+    "description": "setting description"
+  },
+  "pageMessageTimeoutTitle": {
+    "message": "页面消息超时",
+    "description": "setting title"
+  },
+  "pageMessageTimeoutDesc": {
+    "message": "等待内容脚本响应，默认 30 秒（5–300 秒）",
+    "description": "setting description"
+  },
+  "pageMessageTimeoutAriaLabel": {
+    "message": "页面消息超时（秒）",
+    "description": "timeout input aria-label"
+  },
+  "sendScrollCoordsTitle": {
+    "message": "发送滚动坐标",
+    "description": "setting title"
+  },
+  "sendScrollCoordsDesc": {
+    "message": "在页面编辑器左下角悬浮窗显示页面 X/Y 坐标",
+    "description": "setting description"
+  },
+  "quickToolsLabel": {
+    "message": "快捷工具",
+    "description": "quick tools section"
+  },
+  "pageEditTooltip": {
+    "message": "页面编辑：可视化调整元素，并将选中元素交给助手修改",
+    "description": "quick tool tooltip"
+  },
+  "pageEditLabel": {
+    "message": "页面编辑",
+    "description": "quick tool label"
+  },
+  "elementMarkerTooltip": {
+    "message": "元素标注：保存关键元素，供 MCP 读取与助手定位",
+    "description": "quick tool tooltip"
+  },
+  "elementMarkerLabel": {
+    "message": "元素标注",
+    "description": "quick tool label"
+  },
+  "viewErrorLogsTooltip": {
+    "message": "查看错误日志",
+    "description": "quick tool tooltip"
+  },
+  "errorLogsLabel": {
+    "message": "错误日志",
+    "description": "error log dialog title"
+  },
+  "startRecordingTooltip": {
+    "message": "开始录制（Ctrl+Shift+1）",
+    "description": "tooltip"
+  },
+  "recordLabel": {
+    "message": "录制",
+    "description": "record button label"
+  },
+  "resumeRecordingTooltip": {
+    "message": "继续录制（Ctrl+Shift+2）",
+    "description": "tooltip"
+  },
+  "pauseRecordingTooltip": {
+    "message": "暂停录制（Ctrl+Shift+2）",
+    "description": "tooltip"
+  },
+  "resumeLabel": {
+    "message": "继续",
+    "description": "resume button label"
+  },
+  "pauseLabel": {
+    "message": "暂停",
+    "description": "pause button label"
+  },
+  "stopRecordingTooltip": {
+    "message": "停止录制（Ctrl+Shift+3）",
+    "description": "tooltip"
+  },
+  "stopLabel": {
+    "message": "停止",
+    "description": "stop button label"
+  },
+  "quickToolsHint": {
+    "message": "页面编辑用于可视化调整与精确提问；元素标注用于保存页面关键元素，供 MCP 和助手复用。",
+    "description": "quick tools footnote"
+  },
+  "managementSectionTitle": {
+    "message": "管理入口",
+    "description": "management section title"
+  },
+  "assistantEntryTitle": {
+    "message": "智能助手",
+    "description": "management entry"
+  },
+  "assistantEntryDesc": {
+    "message": "AI Agent 对话与任务",
+    "description": "management entry"
+  },
+  "workflowEntryTitle": {
+    "message": "工作流管理",
+    "description": "management entry"
+  },
+  "workflowEntryDesc": {
+    "message": "录制与回放自动化流程",
+    "description": "management entry"
+  },
+  "elementMarkerEntryTitle": {
+    "message": "元素标注管理",
+    "description": "management entry"
+  },
+  "elementMarkerEntryDesc": {
+    "message": "管理页面元素标注",
+    "description": "management entry"
+  },
+  "localModelEntryTitle": {
+    "message": "本地模型",
+    "description": "management entry"
+  },
+  "localModelEntryDesc": {
+    "message": "语义引擎与模型管理",
+    "description": "management entry"
+  },
+  "mcpToolsEntryTitle": {
+    "message": "MCP 工具一览",
+    "description": "management entry"
+  },
+  "mcpToolsEntryDesc": {
+    "message": "查询可用工具与参数",
+    "description": "management entry"
+  },
+  "proxyEntryTitle": {
+    "message": "住宅代理",
+    "description": "management entry"
+  },
+  "proxyEntryDesc": {
+    "message": "配置代理与页面异常自动轮换",
+    "description": "management entry"
+  },
+  "cookieEntryTitle": {
+    "message": "Cookie 管理",
+    "description": "management entry"
+  },
+  "cookieEntryDesc": {
+    "message": "查看并选择清除所有网页标签页 Cookie",
+    "description": "management entry"
+  },
+  "recentScriptsEntryTitle": {
+    "message": "最近录制脚本",
+    "description": "management entry"
+  },
+  "recentScriptsEntryDesc": {
+    "message": "查询、打开或复制页面录制流程",
+    "description": "management entry"
+  },
+  "exportingStatus": {
+    "message": "正在导出…",
+    "description": "export in progress"
+  },
+  "exportJsonButton": {
+    "message": "导出 JSON",
+    "description": "export button"
+  },
+  "clearLogsButton": {
+    "message": "清空日志",
+    "description": "clear logs button"
+  },
+  "copyLogsButton": {
+    "message": "复制日志",
+    "description": "copy logs button"
+  },
+  "noErrorLogsMessage": {
+    "message": "暂无错误日志。",
+    "description": "empty error log"
+  },
+  "residentialProxyTitle": {
+    "message": "住宅代理",
+    "description": "proxy dialog title"
+  },
+  "proxySettingsTitle": {
+    "message": "代理设置",
+    "description": "proxy settings entry"
+  },
+  "proxySettingsDesc": {
+    "message": "管理网络代理相关配置",
+    "description": "proxy settings description"
+  },
+  "proxyEnabledDesc": {
+    "message": "已启用，当前 Chrome 配置文件流量将走代理",
+    "description": "proxy enabled description"
+  },
+  "proxyOffDesc": {
+    "message": "已关闭",
+    "description": "proxy disabled description"
+  },
+  "proxyDialogHint": {
+    "message": "反向入口使用 <code>pr.oxylabs.io:7777</code> + <code>cc-XX</code>；具体国家入口使用对应国家主机和端口，用户名不带 <code>cc</code>。插件会按站点保持同一出口，未指定 <code>sesstime</code> 时默认约 5 分钟；需要更长粘性时可加 <code>sesstime-60</code>。",
+    "description": "proxy dialog help text, contains inline markup"
+  },
+  "enableProxyLabel": {
+    "message": "启用代理",
+    "description": "proxy toggle label"
+  },
+  "endpointTypeLabel": {
+    "message": "端点类型",
+    "description": "proxy field label"
+  },
+  "endpointReverseOption": {
+    "message": "反向连接入口（7777）",
+    "description": "proxy option"
+  },
+  "endpointCountryOption": {
+    "message": "具体国家/地区入口",
+    "description": "proxy option"
+  },
+  "accessRegionLabel": {
+    "message": "接入地区",
+    "description": "proxy field label"
+  },
+  "regionGlobalOption": {
+    "message": "全球（pr.oxylabs.io:7777）",
+    "description": "proxy option"
+  },
+  "regionBeijingOption": {
+    "message": "北京（cnt9t1is.com:8000）",
+    "description": "proxy option"
+  },
+  "regionHongKongOption": {
+    "message": "香港（a81298871.com:8000）",
+    "description": "proxy option"
+  },
+  "regionCustomOption": {
+    "message": "自定义地址",
+    "description": "proxy option"
+  },
+  "protocolLabel": {
+    "message": "输出格式 / 连接协议",
+    "description": "proxy field label"
+  },
+  "protocolHttpOption": {
+    "message": "端点：端口 / HTTP",
+    "description": "proxy option"
+  },
+  "protocolHttpsOption": {
+    "message": "HTTPS（北京/香港入口必选）",
+    "description": "proxy option"
+  },
+  "protocolSocks5Option": {
+    "message": "SOCKS5（Oxylabs 不支持 Chrome）",
+    "description": "proxy option"
+  },
+  "proxyAddressLabel": {
+    "message": "代理地址或完整连接串",
+    "description": "proxy field label"
+  },
+  "portLabel": {
+    "message": "端口",
+    "description": "proxy field label"
+  },
+  "usernameLabel": {
+    "message": "用户名",
+    "description": "proxy field label"
+  },
+  "countryRegionLabel": {
+    "message": "国家/地区",
+    "description": "proxy field label"
+  },
+  "countryUnsetOption": {
+    "message": "不指定（保留用户名）",
+    "description": "proxy option"
+  },
+  "countryRandomOption": {
+    "message": "随机（移除 cc）",
+    "description": "proxy option"
+  },
+  "passwordLabel": {
+    "message": "密码",
+    "description": "proxy field label"
+  },
+  "sessionIdLabel": {
+    "message": "会话 ID（可选）",
+    "description": "proxy field label"
+  },
+  "autoRotateLabel": {
+    "message": "页面异常自动轮换 IP（同站点最短 5 分钟，不设每小时次数上限）",
+    "description": "proxy toggle label"
+  },
+  "proxyScopeLabel": {
+    "message": "仅对这些网站走代理（留空表示全部网站）",
+    "description": "proxy field label"
+  },
+  "rotateIpButton": {
+    "message": "手动切换 IP",
+    "description": "rotate ip button"
+  },
+  "rotateCurrentTabIpButton": {
+    "message": "手动切换当前页 IP",
+    "description": "rotate ip button"
+  },
+  "rotatingStatus": {
+    "message": "切换中，请稍后…",
+    "description": "rotation in progress"
+  },
+  "currentExitIpTitle": {
+    "message": "当前出口 IP 位置",
+    "description": "proxy panel title"
+  },
+  "fetchingStatus": {
+    "message": "获取中…",
+    "description": "fetch in progress"
+  },
+  "proxyDisabledMessage": {
+    "message": "代理未启用",
+    "description": "proxy disabled notice"
+  },
+  "fetchingLocationStatus": {
+    "message": "正在获取当前位置…",
+    "description": "location lookup"
+  },
+  "noLocationDataMessage": {
+    "message": "接口未返回位置数据",
+    "description": "empty location"
+  },
+  "exitIpUnavailableMessage": {
+    "message": "暂时无法获取出口 IP 位置",
+    "description": "location lookup failed"
+  },
+  "testingProxyStatus": {
+    "message": "正在测试代理出口…",
+    "description": "proxy test in progress"
+  },
+  "proxyTestSuccessMessage": {
+    "message": "连接成功，出口 IP：$IP$",
+    "description": "proxy test success",
+    "placeholders": {
+      "ip": {
+        "content": "$1"
+      }
+    }
+  },
+  "proxyCountrySuffix": {
+    "message": "（国家/地区：$COUNTRY$）",
+    "description": "country suffix appended to the proxy test result",
+    "placeholders": {
+      "country": {
+        "content": "$1"
+      }
+    }
+  },
+  "saveFailedMessage": {
+    "message": "保存失败",
+    "description": "save failed"
+  },
+  "proxyEnabledMessage": {
+    "message": "代理已启用",
+    "description": "proxy enabled"
+  },
+  "proxyStoppedMessage": {
+    "message": "代理已停用",
+    "description": "proxy disabled"
+  },
+  "testFailedMessage": {
+    "message": "测试失败",
+    "description": "test failed"
+  },
+  "proxyTurnedOnMessage": {
+    "message": "代理已开启",
+    "description": "proxy on"
+  },
+  "proxyTurnedOffMessage": {
+    "message": "代理已关闭",
+    "description": "proxy off"
+  },
+  "noQueryableTabMessage": {
+    "message": "当前没有可查询的网页标签",
+    "description": "no tab available"
+  },
+  "locationQueryFailedMessage": {
+    "message": "位置查询失败",
+    "description": "location lookup failed"
+  },
+  "toggleFailedMessage": {
+    "message": "切换失败",
+    "description": "toggle failed"
+  },
+  "noRotatableTabMessage": {
+    "message": "当前没有可切换代理的网页标签",
+    "description": "no tab available"
+  },
+  "rotateIpFailedMessage": {
+    "message": "切换 IP 失败",
+    "description": "rotation failed"
+  },
+  "rotationInProgressReason": {
+    "message": "该标签页正在切换中",
+    "description": "skip reason"
+  },
+  "rateLimitedReason": {
+    "message": "切换过于频繁，请稍后再试",
+    "description": "skip reason"
+  },
+  "outsideProxyScopeReason": {
+    "message": "当前网页不在代理网站范围内",
+    "description": "skip reason"
+  },
+  "noRotationReason": {
+    "message": "当前未切换 IP",
+    "description": "skip reason"
+  },
+  "ipRotationDoneTitle": {
+    "message": "IP 切换完成",
+    "description": "rotation dialog title"
+  },
+  "ipRotationDoneMessage": {
+    "message": "IP 切换完成。",
+    "description": "rotation result"
+  },
+  "tabIpUpdatedTitle": {
+    "message": "当前页 IP 已更新",
+    "description": "rotation result title"
+  },
+  "tabIpUpdatedDesc": {
+    "message": "当前 IP 已由以下地址切换为：",
+    "description": "rotation result description"
+  },
+  "ipComparisonAriaLabel": {
+    "message": "IP 切换前后对比",
+    "description": "aria label"
+  },
+  "beforeRotationLabel": {
+    "message": "切换前",
+    "description": "rotation comparison label"
+  },
+  "afterRotationLabel": {
+    "message": "切换后",
+    "description": "rotation comparison label"
+  },
+  "pageReloadingNote": {
+    "message": "当前网页正在重新加载，请稍后查看。",
+    "description": "rotation note"
+  },
+  "countryPrefix": {
+    "message": "国家：$VALUE$",
+    "description": "location part",
+    "placeholders": {
+      "value": {
+        "content": "$1"
+      }
+    }
+  },
+  "regionPrefix": {
+    "message": "区域/州/省：$VALUE$",
+    "description": "location part",
+    "placeholders": {
+      "value": {
+        "content": "$1"
+      }
+    }
+  },
+  "cityPrefix": {
+    "message": "市：$VALUE$",
+    "description": "location part",
+    "placeholders": {
+      "value": {
+        "content": "$1"
+      }
+    }
+  },
+  "unlockDialogTitle": {
+    "message": "开启隐藏入口",
+    "description": "unlock dialog title"
+  },
+  "unlockStep1Prompt": {
+    "message": "请输入第一步授权口令。",
+    "description": "unlock prompt"
+  },
+  "unlockStep2Prompt": {
+    "message": "请输入第二步授权口令。",
+    "description": "unlock prompt"
+  },
+  "unlockStep1Placeholder": {
+    "message": "请输入第一步口令",
+    "description": "unlock input placeholder"
+  },
+  "unlockStep2Placeholder": {
+    "message": "请输入第二步口令",
+    "description": "unlock input placeholder"
+  },
+  "unlockStep1AriaLabel": {
+    "message": "第一步授权口令",
+    "description": "unlock aria label"
+  },
+  "unlockStep2AriaLabel": {
+    "message": "第二步授权口令",
+    "description": "unlock aria label"
+  },
+  "confirmUnlockButton": {
+    "message": "确认开启",
+    "description": "unlock confirm button"
+  },
+  "unlockStep1ErrorMessage": {
+    "message": "第一步口令不正确，请重试。",
+    "description": "unlock error"
+  },
+  "unlockStep2ErrorMessage": {
+    "message": "第二步口令不正确，请重试。",
+    "description": "unlock error"
+  },
+  "unlockVerifyFailedMessage": {
+    "message": "验证失败，请稍后重试。",
+    "description": "unlock error"
+  },
+  "allTabsCookiesTitle": {
+    "message": "所有标签页 Cookie",
+    "description": "cookie dialog title"
+  },
+  "cookieDialogHint": {
+    "message": "选择任意网页标签页，再勾选要清除的 Cookie；未勾选的 Cookie 会保留。仅处理 <code>http/https</code> 网页标签，不显示 Cookie 值。",
+    "description": "cookie dialog help text, contains inline markup"
+  },
+  "selectedCountLabel": {
+    "message": "已选 $COUNT$ 个",
+    "description": "selected cookie count",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "loadingAllCookiesStatus": {
+    "message": "正在读取所有网页标签页的 Cookie…",
+    "description": "cookie loading"
+  },
+  "noCookieTabsMessage": {
+    "message": "当前没有可读取 Cookie 的网页标签页。",
+    "description": "cookie empty state"
+  },
+  "tabLabel": {
+    "message": "标签页",
+    "description": "tab badge"
+  },
+  "noCookiesMatchedMessage": {
+    "message": "没有匹配到 Cookie。",
+    "description": "cookie empty state"
+  },
+  "cookiePlainLabel": {
+    "message": "普通",
+    "description": "non-secure cookie"
+  },
+  "cookieScriptReadableLabel": {
+    "message": "脚本可读",
+    "description": "non-httpOnly cookie"
+  },
+  "cookieSessionLabel": {
+    "message": "会话",
+    "description": "session cookie"
+  },
+  "cookiePersistentLabel": {
+    "message": "持久",
+    "description": "persistent cookie"
+  },
+  "clearSelectedButton": {
+    "message": "清除已选 $COUNT$ 个",
+    "description": "clear cookies button",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "confirmClearCookiesMessage": {
+    "message": "确定清除选中的 $COUNT$ 个 Cookie 吗？未选中的会保留。",
+    "description": "cookie clear confirmation",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "cookiesClearedPartialMessage": {
+    "message": "已清除 $REMOVED$ 个，$FAILED$ 个清除失败。",
+    "description": "cookie clear partial result",
+    "placeholders": {
+      "removed": {
+        "content": "$1"
+      },
+      "failed": {
+        "content": "$2"
+      }
+    }
+  },
+  "cookiesClearedMessage": {
+    "message": "已清除 $REMOVED$ 个 Cookie，未选中的 Cookie 已保留。",
+    "description": "cookie clear result",
+    "placeholders": {
+      "removed": {
+        "content": "$1"
+      }
+    }
+  },
+  "readCookiesFailedMessage": {
+    "message": "读取 Cookie 失败",
+    "description": "cookie read error"
+  },
+  "recentScriptsTitle": {
+    "message": "最近录制的页面脚本",
+    "description": "dialog title"
+  },
+  "noRecordedScriptsMessage": {
+    "message": "暂无页面录制脚本。",
+    "description": "empty state"
+  },
+  "scriptStartedMessage": {
+    "message": "已开始运行录制脚本。",
+    "description": "run result"
+  },
+  "scriptRunFailedMessage": {
+    "message": "运行脚本失败。",
+    "description": "run error"
+  },
+  "confirmDeleteScriptMessage": {
+    "message": "确定删除这条录制脚本吗？此操作无法撤销。",
+    "description": "delete confirmation"
+  },
+  "scriptDeletedMessage": {
+    "message": "录制脚本已删除。",
+    "description": "delete result"
+  },
+  "scriptDeleteFailedMessage": {
+    "message": "删除脚本失败。",
+    "description": "delete error"
+  },
+  "unknownTimeLabel": {
+    "message": "时间未知",
+    "description": "missing timestamp"
+  },
+  "recordingActionFailedMessage": {
+    "message": "录制操作失败",
+    "description": "recording error"
+  },
+  "recordingServiceUnavailableMessage": {
+    "message": "无法连接录制服务",
+    "description": "recording error"
+  },
+  "stopRecordingFailedMessage": {
+    "message": "停止录制失败",
+    "description": "recording error"
+  },
+  "comingSoonMessage": {
+    "message": "$FEATURE$ 功能开发中，敬请期待",
+    "description": "coming soon toast",
+    "placeholders": {
+      "feature": {
+        "content": "$1"
+      }
+    }
   }
 }
