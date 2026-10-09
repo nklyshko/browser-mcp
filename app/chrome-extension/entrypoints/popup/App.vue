@@ -4857,7 +4857,12 @@ onUnmounted(() => {
   font-size: 12px;
   font-weight: 500;
   line-height: 1.3;
-  white-space: nowrap;
+  /* Tooltip text is translated, so it cannot be assumed to fit on one line:
+     the longest is ~470px against a ~360px row. Wrap it and cap the width. */
+  width: max-content;
+  max-width: 200px;
+  white-space: normal;
+  text-align: center;
   color: var(--ac-text-inverse, #ffffff);
   background-color: var(--ac-text, #1a1a1a);
   border-radius: var(--ac-radius-button, 8px);
@@ -4891,6 +4896,21 @@ onUnmounted(() => {
 .has-tooltip:hover::before {
   opacity: 1;
   visibility: visible;
+}
+
+/* The quick-tools row is a 6-column grid, so a tooltip centred on an outer
+   button hangs past the popup edge and gets clipped by .content's scroll box.
+   Anchor the outer ones to the inside edge of their button instead; the arrow
+   stays centred on the button, so the association is kept. */
+.rr-icon-buttons .has-tooltip:nth-child(-n + 2)::after {
+  left: 0;
+  transform: none;
+}
+
+.rr-icon-buttons .has-tooltip:nth-child(n + 5)::after {
+  right: 0;
+  left: auto;
+  transform: none;
 }
 
 /* Home view */
