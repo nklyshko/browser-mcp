@@ -1,4 +1,5 @@
 import { createErrorResponse, type ToolProgressReporter } from '@/common/tool-handler';
+import { getMessage } from '@/utils/i18n';
 import { ERROR_MESSAGES } from '@/common/constants';
 import type { ToolResult } from '@/common/tool-handler';
 import { resolveActionPolicy, runWithActionPolicy } from './action-policy';
@@ -118,151 +119,232 @@ function isCoordinates(value: unknown): value is { x: number; y: number } {
   );
 }
 
+/** getMessage, but null when the key has no text so callers can fall back. */
+function optionalMessage(key: string, substitutions?: string[]): string | null {
+  const text = getMessage(key, substitutions);
+  return text && text !== key ? text : null;
+}
+
 function duration(value: unknown, fallbackMs: number): string {
   const ms = typeof value === 'number' && value >= 0 ? value : fallbackMs;
-  return `${ms / 1000} 秒`;
+  return getMessage('opSeconds', [String(ms / 1000)]);
 }
 
 function target(args: Record<string, unknown>): string {
   const selector = compact(args.selector);
   if (selector) return selector;
   const ref = compact(args.ref);
-  if (ref) return `元素引用 ${ref}`;
+  if (ref) return getMessage('opElementRef', [ref]);
   const coordinates = args.coordinates as { x?: unknown; y?: unknown } | undefined;
   if (typeof coordinates?.x === 'number' && typeof coordinates.y === 'number')
-    return `坐标 (${coordinates.x}, ${coordinates.y})`;
-  return '当前目标';
+    return getMessage('opCoordinates', [String(coordinates.x), String(coordinates.y)]);
+  return getMessage('opCurrentTarget');
+}
+
+/**
+ * The "wait for ..." clause of chrome_click_and_wait.
+ *
+ * Kept separate from the rest of the detail because the in-page overlay swaps
+ * the click half for a friendlier element name and has to keep this half
+ * intact. It used to slice the formatted string on a full-width semicolon,
+ * which broke on any detail that happened to contain one.
+ */
+function clickWaitTail(args: Record<string, unknown>): string {
+  return getMessage('opWaitTail', [
+    compact(args.waitSelector) || getMessage('opTargetElement'),
+    String(args.waitFor || 'visible'),
+    duration(args.waitTimeout, 10_000),
+  ]);
 }
 
 function operationDetail(param: ToolCallParam): string {
   const args = (param.args || {}) as Record<string, unknown>;
   switch (param.name) {
     case 'get_windows_and_tabs':
-      return '读取所有窗口和标签页';
+      return getMessage('opGetWindowsAndTabs');
     case 'chrome_create_tab':
-      return `新建标签页${compact(args.url) ? `：${compact(args.url)}` : ''}`;
+      return compact(args.url)
+        ? getMessage('opCreateTabUrl', [compact(args.url)])
+        : getMessage('opCreateTab');
     case 'chrome_hover':
-      return `悬停：${target(args)}`;
+      return getMessage('opHover', [target(args)]);
     case 'chrome_get_element_info':
-      return `查询元素：${target(args)}`;
+      return getMessage('opGetElementInfo', [target(args)]);
     case 'chrome_print_to_pdf':
-      return '打印为 PDF';
+      return getMessage('opPrintToPdf');
     case 'chrome_storage_get':
-      return '读取页面存储';
+      return getMessage('opStorageGet');
     case 'chrome_storage_set':
-      return '写入页面存储';
+      return getMessage('opStorageSet');
     case 'chrome_storage_delete':
-      return '删除页面存储';
+      return getMessage('opStorageDelete');
     case 'search_tabs_content':
-      return `搜索：${compact(args.query || args.text) || '标签页内容'}`;
+      return getMessage('opSearch', [
+        compact(args.query || args.text) || getMessage('opTabContents'),
+      ]);
     case 'chrome_screenshot':
-      return args.fullPage ? '截取整页' : `截取：${target(args)}`;
+      return args.fullPage
+        ? getMessage('opScreenshotFullPage')
+        : getMessage('opScreenshotTarget', [target(args)]);
     case 'chrome_close_tabs':
-      return `关闭 ${Array.isArray(args.tabIds) ? args.tabIds.length : 1} 个标签页`;
+      return getMessage('opCloseTabs', [
+        String(Array.isArray(args.tabIds) ? args.tabIds.length : 1),
+      ]);
     case 'chrome_switch_tab':
-      return `切换到标签页 #${args.tabId || '当前'}`;
+      return getMessage('opSwitchTab', [String(args.tabId || getMessage('opCurrentTab'))]);
     case 'chrome_get_web_content':
-      return `读取 ${args.htmlContent ? 'HTML' : '文本'}：${compact(args.url) || target(args)}`;
+      return getMessage('opGetWebContent', [
+        args.htmlContent ? 'HTML' : getMessage('opKindText'),
+        compact(args.url) || target(args),
+      ]);
     case 'chrome_get_interactive_elements':
-      return `搜索可交互元素${compact(args.textQuery) ? `：${compact(args.textQuery)}` : ''}`;
+      return compact(args.textQuery)
+        ? getMessage('opInteractiveElementsQuery', [compact(args.textQuery)])
+        : getMessage('opInteractiveElements');
     case 'chrome_request_element_selection': {
       const names = Array.isArray(args.requests)
         ? args.requests
             .map((request: { name?: unknown }) => compact(request?.name, 30))
             .filter(Boolean)
         : [];
-      return `选择 ${names.slice(0, 3).join('、') || '页面元素'}${names.length > 3 ? ' 等' : ''}（最多 ${duration(args.timeoutMs, 180_000)}）`;
+      const listed = names.slice(0, 3).join(', ') || getMessage('opPageElements');
+      return getMessage('opRequestSelection', [
+        names.length > 3 ? getMessage('opAndMore', [listed]) : listed,
+        duration(args.timeoutMs, 180_000),
+      ]);
     }
     case 'chrome_click_element':
-      return `目标：${target(args)}`;
+      return getMessage('opTargetPrefix', [target(args)]);
     case 'chrome_click_and_wait':
-      return `点击：${target(args)}；等待 ${compact(args.waitSelector) || '目标元素'} ${args.waitFor || 'visible'}（最多 ${duration(args.waitTimeout, 10_000)}）`;
+      return `${getMessage('opClick', [target(args)])}${clickWaitTail(args)}`;
     case 'chrome_wait':
-      return `等待 ${compact(args.jsCondition) || target(args)} ${args.waitFor || 'visible'}（最多 ${duration(args.timeout, 10_000)}）`;
+      return getMessage('opWait', [
+        compact(args.jsCondition) || target(args),
+        String(args.waitFor || 'visible'),
+        duration(args.timeout, 10_000),
+      ]);
     case 'chrome_fill_or_select':
-      return `目标：${target(args)}`;
+      return getMessage('opTargetPrefix', [target(args)]);
     case 'chrome_keyboard':
-      return `向 ${target(args)} 发送键盘输入（内容已隐藏）`;
+      return getMessage('opKeyboard', [target(args)]);
     case 'chrome_upload_file':
-      return `上传文件到：${target(args)}`;
+      return getMessage('opUploadFile', [target(args)]);
     case 'chrome_read_page':
-      return args.filter === 'interactive' ? '读取页面交互元素' : '读取页面可见元素';
+      return args.filter === 'interactive'
+        ? getMessage('opReadPageInteractive')
+        : getMessage('opReadPageVisible');
     case 'chrome_get_page_text':
-      return `读取正文：${target(args)}`;
+      return getMessage('opGetPageText', [target(args)]);
     case 'chrome_spa_fetch':
-      return `SPA 提取：${compact(args.url) || target(args)}（${args.maxScrolls || 5} 次滚动）`;
+      return getMessage('opSpaFetch', [
+        compact(args.url) || target(args),
+        String(args.maxScrolls || 5),
+      ]);
     case 'chrome_extract':
-      return `提取范围：${target(args)}`;
+      return getMessage('opExtract', [target(args)]);
     case 'chrome_scroll': {
       const container = compact(args.containerSelector);
-      return args.toBottom
-        ? `${container ? `在 ${container} 中` : ''}滚动到底部`
-        : args.toTop
-          ? `${container ? `在 ${container} 中` : ''}滚动到顶部`
-          : args.scrollIntoView
-            ? `滚动到：${target(args)}`
-            : `${container ? `在 ${container} 中` : ''}向 ${args.direction || '下'} 滚动 ${args.amount || 300}px`;
+      if (args.toBottom)
+        return container
+          ? getMessage('opScrollBottomIn', [container])
+          : getMessage('opScrollBottom');
+      if (args.toTop)
+        return container ? getMessage('opScrollTopIn', [container]) : getMessage('opScrollTop');
+      if (args.scrollIntoView) return getMessage('opScrollTo', [target(args)]);
+      const direction = String(args.direction || getMessage('opDirectionDown'));
+      const amount = String(args.amount || 300);
+      return container
+        ? getMessage('opScrollByIn', [direction, amount, container])
+        : getMessage('opScrollBy', [direction, amount]);
     }
     case 'chrome_navigate':
-      return `前往：${compact(args.url) || '目标页面'}`;
+      return getMessage('opNavigate', [compact(args.url) || getMessage('opTargetPage')]);
     case 'chrome_network_capture':
-      return `${args.action === 'start' ? '开始' : '停止'}网络抓包`;
+      return args.action === 'start'
+        ? getMessage('opNetworkCaptureStart')
+        : getMessage('opNetworkCaptureStop');
     case 'chrome_block_images':
-      return args.action === 'start' ? '阻止图片网络请求' : '恢复图片网络请求';
+      return args.action === 'start' ? getMessage('opBlockImages') : getMessage('opUnblockImages');
     case 'chrome_network_capture_start':
     case 'chrome_network_debugger_start':
-      return '开始网络抓包';
+      return getMessage('opNetworkCaptureStart');
     case 'chrome_network_capture_stop':
     case 'chrome_network_debugger_stop':
-      return '停止网络抓包';
+      return getMessage('opNetworkCaptureStop');
     case 'chrome_network_request':
-      return `发起 ${args.method || 'GET'} 网络请求`;
+      return getMessage('opNetworkRequest', [String(args.method || 'GET')]);
     case 'chrome_history':
-      return `搜索历史记录${compact(args.text) ? `：${compact(args.text)}` : ''}`;
+      return compact(args.text)
+        ? getMessage('opHistoryQuery', [compact(args.text)])
+        : getMessage('opHistory');
     case 'chrome_bookmark_search':
-      return `搜索书签${compact(args.query) ? `：${compact(args.query)}` : ''}`;
+      return compact(args.query)
+        ? getMessage('opBookmarkSearchQuery', [compact(args.query)])
+        : getMessage('opBookmarkSearch');
     case 'chrome_bookmark_add':
-      return '添加书签';
+      return getMessage('opBookmarkAdd');
     case 'chrome_bookmark_delete':
-      return '删除书签';
+      return getMessage('opBookmarkDelete');
     case 'chrome_handle_dialog':
-      return args.action === 'accept' ? '确认页面对话框' : '关闭页面对话框';
+      return args.action === 'accept'
+        ? getMessage('opDialogAccept')
+        : getMessage('opDialogDismiss');
     case 'chrome_handle_download':
-      return `处理下载${compact(args.action) ? `：${compact(args.action)}` : ''}`;
+      return compact(args.action)
+        ? getMessage('opHandleDownloadAction', [compact(args.action)])
+        : getMessage('opHandleDownload');
     case 'chrome_computer':
-      return `模拟 ${compact(args.action) || '鼠标'} 操作：${target(args)}`;
+      return getMessage('opComputer', [
+        compact(args.action) || getMessage('opComputerMouse'),
+        target(args),
+      ]);
     case 'chrome_post_to_x':
-      return `发布 X 帖子：${compact(args.text, 60) || '正文'}`;
+      return getMessage('opPostToX', [compact(args.text, 60) || getMessage('opPostBody')]);
     case 'chrome_javascript':
-      return '执行页面脚本（内容已隐藏）';
+      return getMessage('opJavascript');
     case 'chrome_paste_text':
-      return `向 ${target(args)} 合成粘贴文本`;
+      return getMessage('opPasteText', [target(args)]);
     case 'chrome_console':
-      return '读取页面控制台';
+      return getMessage('opConsole');
     case 'chrome_userscript':
-      return `管理用户脚本：${compact(args.action) || '操作'}`;
+      return getMessage('opUserscript', [compact(args.action) || getMessage('opActionFallback')]);
     case 'performance_start_trace':
-      return args.reload ? '开始性能追踪并刷新页面' : '开始性能追踪';
+      return args.reload ? getMessage('opTraceStartReload') : getMessage('opTraceStart');
     case 'performance_stop_trace':
-      return '停止性能追踪';
+      return getMessage('opTraceStop');
     case 'performance_analyze_insight':
-      return '分析性能追踪结果';
-    case 'chrome_gif_recorder':
-      return `${compact(args.action) || '开始'} GIF 录制${args.durationMs ? `（${duration(args.durationMs, 0)}）` : ''}`;
+      return getMessage('opTraceAnalyze');
+    case 'chrome_gif_recorder': {
+      const action = compact(args.action) || getMessage('opGifStart');
+      return args.durationMs
+        ? getMessage('opGifRecorderDuration', [action, duration(args.durationMs, 0)])
+        : getMessage('opGifRecorder', [action]);
+    }
     case 'chrome_get_tab_url':
-      return '读取当前标签页地址';
+      return getMessage('opGetTabUrl');
     case 'chrome_proxy_rotate':
-      return `轮换代理并刷新页面${compact(args.reason) ? `：${compact(args.reason)}` : ''}`;
+      return compact(args.reason)
+        ? getMessage('opProxyRotateReason', [compact(args.reason)])
+        : getMessage('opProxyRotate');
     case 'chrome_get_scroll_state':
-      return '读取滚动状态';
+      return getMessage('opGetScrollState');
     case 'chrome_extract_review_summary':
-      return '提取商品评论摘要';
+      return getMessage('opExtractReviewSummary');
     default:
       return '';
   }
 }
 
-async function showOperation(param: ToolCallParam, state: '执行中' | '完成' | '失败') {
+/** Overlay lifecycle state. Resolved to display text before injection. */
+type OperationState = 'running' | 'done' | 'failed';
+
+const STATE_KEYS: Record<OperationState, string> = {
+  running: 'opStateRunning',
+  done: 'opStateDone',
+  failed: 'opStateFailed',
+};
+
+async function showOperation(param: ToolCallParam, state: OperationState) {
   const tabId = param.args?.tabId;
   let tab: chrome.tabs.Tab | undefined;
   try {
@@ -284,6 +366,30 @@ async function showOperation(param: ToolCallParam, state: '执行中' | '完成'
   const safeCoordinates = isCoordinates(coordinates) ? coordinates : null;
   const intent = compact(param.args?.intent, 160) || null;
 
+  // Display text is resolved here rather than in the page: the overlay only
+  // needs the handful of strings below, and chrome.i18n in the background reads
+  // the same _locales. `labels` is built from our own catalogue, not from tool
+  // input, so it does not weaken the primitives-only rule above.
+  const labels = {
+    state: getMessage(STATE_KEYS[state]),
+    action: optionalMessage(`opAction_${param.name}`) || String(param.name).replace(/^chrome_/, ''),
+    intent: getMessage('opIntentPrefix'),
+    click: getMessage('opVerbClick'),
+    expand: getMessage('opVerbExpand'),
+    collapse: getMessage('opVerbCollapse'),
+    // Only set when the tool is scrolling an element into view, so the page no
+    // longer has to sniff the detail string for a "scroll to" prefix.
+    scrollTo:
+      param.name === 'chrome_scroll' && param.args?.scrollIntoView
+        ? getMessage('opScrollToLabel')
+        : null,
+    target: optionalMessage(`opTargetLabel_${param.name}`),
+  };
+  const waitTail =
+    param.name === 'chrome_click_and_wait'
+      ? clickWaitTail((param.args || {}) as Record<string, unknown>)
+      : null;
+
   try {
     await chrome.scripting.executeScript({
       target: {
@@ -295,18 +401,31 @@ async function showOperation(param: ToolCallParam, state: '执行中' | '完成'
         selector,
         compact(param.args?.ref) || null,
         safeCoordinates,
-        state,
+        labels,
         operationDetail(param),
         intent,
+        waitTail,
+        state === 'running',
       ],
       func: (
         name: string,
         selector: string | null,
         ref: string | null,
         coordinates: { x: number; y: number } | null,
-        state: '执行中' | '完成' | '失败',
+        labels: {
+          state: string;
+          action: string;
+          intent: string;
+          click: string;
+          expand: string;
+          collapse: string;
+          scrollTo: string | null;
+          target: string | null;
+        },
         detail: string,
         intent: string | null,
+        waitTail: string | null,
+        isRunning: boolean,
       ) => {
         const statusId = '__mcp_operation_status__';
         const highlightId = '__mcp_operation_highlight__';
@@ -332,61 +451,6 @@ async function showOperation(param: ToolCallParam, state: '执行中' | '完成'
           });
           root.append(status);
         }
-        const actionLabels: Record<string, string> = {
-          chrome_scroll: '滚动',
-          chrome_click_element: '点击',
-          chrome_click_and_wait: '点击并等待',
-          chrome_fill_or_select: '输入或选择',
-          chrome_get_interactive_elements: '搜索元素',
-          chrome_request_element_selection: '选择范围',
-          chrome_wait: '等待',
-          chrome_extract: '提取数据',
-          chrome_navigate: '打开页面',
-          get_windows_and_tabs: '读取标签页',
-          chrome_create_tab: '新建标签页',
-          chrome_hover: '悬停元素',
-          chrome_get_element_info: '查询元素',
-          chrome_print_to_pdf: '打印 PDF',
-          chrome_storage_get: '读取页面存储',
-          chrome_storage_set: '写入页面存储',
-          chrome_storage_delete: '删除页面存储',
-          search_tabs_content: '搜索内容',
-          chrome_screenshot: '截图',
-          chrome_close_tabs: '关闭标签页',
-          chrome_switch_tab: '切换标签页',
-          chrome_get_web_content: '读取网页',
-          chrome_keyboard: '键盘输入',
-          chrome_upload_file: '上传文件',
-          chrome_read_page: '读取页面',
-          chrome_get_page_text: '读取正文',
-          chrome_spa_fetch: 'SPA 提取',
-          chrome_network_capture: '网络抓包',
-          chrome_network_capture_start: '开始抓包',
-          chrome_network_capture_stop: '停止抓包',
-          chrome_network_debugger_start: '开始抓包',
-          chrome_network_debugger_stop: '停止抓包',
-          chrome_network_request: '网络请求',
-          chrome_history: '搜索历史',
-          chrome_bookmark_search: '搜索书签',
-          chrome_bookmark_add: '添加书签',
-          chrome_bookmark_delete: '删除书签',
-          chrome_handle_dialog: '处理对话框',
-          chrome_handle_download: '处理下载',
-          chrome_computer: '模拟操作',
-          chrome_post_to_x: '发布 X 帖子',
-          chrome_javascript: '执行脚本',
-          chrome_paste_text: '合成粘贴',
-          chrome_console: '读取控制台',
-          chrome_userscript: '管理用户脚本',
-          performance_start_trace: '开始性能追踪',
-          performance_stop_trace: '停止性能追踪',
-          performance_analyze_insight: '分析性能',
-          chrome_gif_recorder: 'GIF 录制',
-          chrome_get_tab_url: '读取地址',
-          chrome_proxy_rotate: '轮换 IP',
-          chrome_get_scroll_state: '读取滚动状态',
-          chrome_extract_review_summary: '提取评论摘要',
-        };
         let target: Element | null = null;
         try {
           target = selector ? document.querySelector(String(selector)) : null;
@@ -410,29 +474,24 @@ async function showOperation(param: ToolCallParam, state: '执行中' | '完成'
               .find((value) => value)
               ?.slice(0, 72)
           : '';
+        // Prefer the element's own accessible name over the raw selector.
         if (elementName && (name === 'chrome_click_element' || name === 'chrome_click_and_wait')) {
           const expanded = target?.getAttribute('aria-expanded');
-          const action = expanded === 'false' ? '展开' : expanded === 'true' ? '收起' : '点击';
-          const separator = String(detail).indexOf('；');
-          const wait =
-            name === 'chrome_click_and_wait' && separator >= 0
-              ? String(detail).slice(separator)
-              : '';
-          detail = `${action}：${elementName}${wait}`;
-        } else if (elementName && name === 'chrome_scroll' && String(detail).startsWith('滚动到')) {
-          detail = `滚动到：${elementName}`;
-        } else if (elementName) {
-          const targetLabels: Record<string, string> = {
-            chrome_fill_or_select: '目标',
-            chrome_extract: '提取范围',
-            chrome_get_page_text: '读取正文',
-            chrome_spa_fetch: 'SPA 提取',
-            chrome_screenshot: '截取',
-            chrome_upload_file: '上传到',
-          };
-          if (targetLabels[name]) detail = `${targetLabels[name]}：${elementName}`;
+          const verb =
+            expanded === 'false'
+              ? labels.expand
+              : expanded === 'true'
+                ? labels.collapse
+                : labels.click;
+          detail = `${verb}: ${elementName}${waitTail || ''}`;
+        } else if (elementName && labels.scrollTo) {
+          detail = `${labels.scrollTo}: ${elementName}`;
+        } else if (elementName && labels.target) {
+          detail = `${labels.target}: ${elementName}`;
         }
-        status.textContent = `${state}：${actionLabels[name] || String(name).replace(/^chrome_/, '')}${detail ? `\n${detail}` : ''}${intent ? `\n意图：${intent}` : ''}`;
+        status.textContent = `${labels.state}: ${labels.action}${detail ? `\n${detail}` : ''}${
+          intent ? `\n${labels.intent}: ${intent}` : ''
+        }`;
 
         const rect = target?.getBoundingClientRect();
         const x = rect?.left ?? Number((coordinates as any)?.x);
@@ -470,7 +529,7 @@ async function showOperation(param: ToolCallParam, state: '执行中' | '完成'
             status?.remove();
             highlight?.remove();
           },
-          state === '执行中' ? 120_000 : 1_800,
+          isRunning ? 120_000 : 1_800,
         );
       },
     });
@@ -526,15 +585,15 @@ export const handleCallTool = async (
         pausedTemporaryTabId = targetTabId;
       }
     }
-    if (!isBackgroundOnlyTool) await showOperation(param, '执行中');
+    if (!isBackgroundOnlyTool) await showOperation(param, 'running');
     const actionPolicy = resolveActionPolicy(param.name, args);
     const result = await runWithActionPolicy<ToolResult>(actionPolicy, signal, () =>
       reportProgress ? tool.execute(args, signal, reportProgress) : tool.execute(args, signal),
     );
-    if (!isBackgroundOnlyTool) void showOperation(param, result.isError ? '失败' : '完成');
+    if (!isBackgroundOnlyTool) void showOperation(param, result.isError ? 'failed' : 'done');
     return result;
   } catch (error) {
-    if (!isBackgroundOnlyTool) void showOperation(param, '失败');
+    if (!isBackgroundOnlyTool) void showOperation(param, 'failed');
     console.error(`Tool execution failed for ${param.name}:`, error);
     return createErrorResponse(
       error instanceof Error ? error.message : ERROR_MESSAGES.TOOL_EXECUTION_FAILED,

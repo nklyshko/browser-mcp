@@ -2951,5 +2951,700 @@
   },
   "specFieldWhenIso": {
     "message": "时间(ISO/cron)"
+  },
+  "opSeconds": {
+    "message": "$P1$ 秒",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "opElementRef": {
+    "message": "元素引用 $P1$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "opCoordinates": {
+    "message": "坐标 ($P1$, $P2$)",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      },
+      "p2": {
+        "content": "$2"
+      }
+    }
+  },
+  "opCurrentTarget": {
+    "message": "当前目标"
+  },
+  "opWaitTail": {
+    "message": "；等待 $P1$ $P2$（最多 $P3$）",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      },
+      "p2": {
+        "content": "$2"
+      },
+      "p3": {
+        "content": "$3"
+      }
+    }
+  },
+  "opTargetElement": {
+    "message": "目标元素"
+  },
+  "opGetWindowsAndTabs": {
+    "message": "读取所有窗口和标签页"
+  },
+  "opCreateTab": {
+    "message": "新建标签页"
+  },
+  "opCreateTabUrl": {
+    "message": "新建标签页：$P1$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "opHover": {
+    "message": "悬停：$P1$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "opGetElementInfo": {
+    "message": "查询元素：$P1$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "opPrintToPdf": {
+    "message": "打印为 PDF"
+  },
+  "opStorageGet": {
+    "message": "读取页面存储"
+  },
+  "opStorageSet": {
+    "message": "写入页面存储"
+  },
+  "opStorageDelete": {
+    "message": "删除页面存储"
+  },
+  "opSearch": {
+    "message": "搜索：$P1$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "opTabContents": {
+    "message": "标签页内容"
+  },
+  "opScreenshotFullPage": {
+    "message": "截取整页"
+  },
+  "opScreenshotTarget": {
+    "message": "截取：$P1$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "opCloseTabs": {
+    "message": "关闭 $P1$ 个标签页",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "opSwitchTab": {
+    "message": "切换到标签页 #$P1$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "opCurrentTab": {
+    "message": "当前"
+  },
+  "opKindText": {
+    "message": "文本"
+  },
+  "opGetWebContent": {
+    "message": "读取 $P1$：$P2$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      },
+      "p2": {
+        "content": "$2"
+      }
+    }
+  },
+  "opInteractiveElements": {
+    "message": "搜索可交互元素"
+  },
+  "opInteractiveElementsQuery": {
+    "message": "搜索可交互元素：$P1$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "opPageElements": {
+    "message": "页面元素"
+  },
+  "opAndMore": {
+    "message": "$P1$ 等",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "opRequestSelection": {
+    "message": "选择 $P1$（最多 $P2$）",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      },
+      "p2": {
+        "content": "$2"
+      }
+    }
+  },
+  "opTargetPrefix": {
+    "message": "目标：$P1$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "opClick": {
+    "message": "点击：$P1$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "opWait": {
+    "message": "等待 $P1$ $P2$（最多 $P3$）",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      },
+      "p2": {
+        "content": "$2"
+      },
+      "p3": {
+        "content": "$3"
+      }
+    }
+  },
+  "opKeyboard": {
+    "message": "向 $P1$ 发送键盘输入（内容已隐藏）",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "opUploadFile": {
+    "message": "上传文件到：$P1$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "opReadPageInteractive": {
+    "message": "读取页面交互元素"
+  },
+  "opReadPageVisible": {
+    "message": "读取页面可见元素"
+  },
+  "opGetPageText": {
+    "message": "读取正文：$P1$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "opSpaFetch": {
+    "message": "SPA 提取：$P1$（$P2$ 次滚动）",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      },
+      "p2": {
+        "content": "$2"
+      }
+    }
+  },
+  "opExtract": {
+    "message": "提取范围：$P1$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "opScrollBottom": {
+    "message": "滚动到底部"
+  },
+  "opScrollBottomIn": {
+    "message": "在 $P1$ 中滚动到底部",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "opScrollTop": {
+    "message": "滚动到顶部"
+  },
+  "opScrollTopIn": {
+    "message": "在 $P1$ 中滚动到顶部",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "opScrollTo": {
+    "message": "滚动到：$P1$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "opScrollBy": {
+    "message": "向 $P1$ 滚动 $P2$px",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      },
+      "p2": {
+        "content": "$2"
+      }
+    }
+  },
+  "opScrollByIn": {
+    "message": "在 $P3$ 中向 $P1$ 滚动 $P2$px",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      },
+      "p2": {
+        "content": "$2"
+      },
+      "p3": {
+        "content": "$3"
+      }
+    }
+  },
+  "opDirectionDown": {
+    "message": "下"
+  },
+  "opNavigate": {
+    "message": "前往：$P1$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "opTargetPage": {
+    "message": "目标页面"
+  },
+  "opNetworkCaptureStart": {
+    "message": "开始网络抓包"
+  },
+  "opNetworkCaptureStop": {
+    "message": "停止网络抓包"
+  },
+  "opBlockImages": {
+    "message": "阻止图片网络请求"
+  },
+  "opUnblockImages": {
+    "message": "恢复图片网络请求"
+  },
+  "opNetworkRequest": {
+    "message": "发起 $P1$ 网络请求",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "opHistory": {
+    "message": "搜索历史记录"
+  },
+  "opHistoryQuery": {
+    "message": "搜索历史记录：$P1$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "opBookmarkSearch": {
+    "message": "搜索书签"
+  },
+  "opBookmarkSearchQuery": {
+    "message": "搜索书签：$P1$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "opBookmarkAdd": {
+    "message": "添加书签"
+  },
+  "opBookmarkDelete": {
+    "message": "删除书签"
+  },
+  "opDialogAccept": {
+    "message": "确认页面对话框"
+  },
+  "opDialogDismiss": {
+    "message": "关闭页面对话框"
+  },
+  "opHandleDownload": {
+    "message": "处理下载"
+  },
+  "opHandleDownloadAction": {
+    "message": "处理下载：$P1$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "opComputer": {
+    "message": "模拟 $P1$ 操作：$P2$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      },
+      "p2": {
+        "content": "$2"
+      }
+    }
+  },
+  "opComputerMouse": {
+    "message": "鼠标"
+  },
+  "opPostToX": {
+    "message": "发布 X 帖子：$P1$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "opPostBody": {
+    "message": "正文"
+  },
+  "opJavascript": {
+    "message": "执行页面脚本（内容已隐藏）"
+  },
+  "opPasteText": {
+    "message": "向 $P1$ 合成粘贴文本",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "opConsole": {
+    "message": "读取页面控制台"
+  },
+  "opUserscript": {
+    "message": "管理用户脚本：$P1$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "opActionFallback": {
+    "message": "操作"
+  },
+  "opTraceStartReload": {
+    "message": "开始性能追踪并刷新页面"
+  },
+  "opTraceStart": {
+    "message": "开始性能追踪"
+  },
+  "opTraceStop": {
+    "message": "停止性能追踪"
+  },
+  "opTraceAnalyze": {
+    "message": "分析性能追踪结果"
+  },
+  "opGifRecorder": {
+    "message": "$P1$ GIF 录制",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "opGifRecorderDuration": {
+    "message": "$P1$ GIF 录制（$P2$）",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      },
+      "p2": {
+        "content": "$2"
+      }
+    }
+  },
+  "opGifStart": {
+    "message": "开始"
+  },
+  "opGetTabUrl": {
+    "message": "读取当前标签页地址"
+  },
+  "opProxyRotate": {
+    "message": "轮换代理并刷新页面"
+  },
+  "opProxyRotateReason": {
+    "message": "轮换代理并刷新页面：$P1$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "opGetScrollState": {
+    "message": "读取滚动状态"
+  },
+  "opExtractReviewSummary": {
+    "message": "提取商品评论摘要"
+  },
+  "opStateRunning": {
+    "message": "执行中"
+  },
+  "opStateDone": {
+    "message": "完成"
+  },
+  "opStateFailed": {
+    "message": "失败"
+  },
+  "opIntentPrefix": {
+    "message": "意图"
+  },
+  "opVerbClick": {
+    "message": "点击"
+  },
+  "opVerbExpand": {
+    "message": "展开"
+  },
+  "opVerbCollapse": {
+    "message": "收起"
+  },
+  "opScrollToLabel": {
+    "message": "滚动到"
+  },
+  "opAction_chrome_scroll": {
+    "message": "滚动"
+  },
+  "opAction_chrome_click_element": {
+    "message": "点击"
+  },
+  "opAction_chrome_click_and_wait": {
+    "message": "点击并等待"
+  },
+  "opAction_chrome_fill_or_select": {
+    "message": "输入或选择"
+  },
+  "opAction_chrome_get_interactive_elements": {
+    "message": "搜索元素"
+  },
+  "opAction_chrome_request_element_selection": {
+    "message": "选择范围"
+  },
+  "opAction_chrome_wait": {
+    "message": "等待"
+  },
+  "opAction_chrome_extract": {
+    "message": "提取数据"
+  },
+  "opAction_chrome_navigate": {
+    "message": "打开页面"
+  },
+  "opAction_get_windows_and_tabs": {
+    "message": "读取标签页"
+  },
+  "opAction_chrome_create_tab": {
+    "message": "新建标签页"
+  },
+  "opAction_chrome_hover": {
+    "message": "悬停元素"
+  },
+  "opAction_chrome_get_element_info": {
+    "message": "查询元素"
+  },
+  "opAction_chrome_print_to_pdf": {
+    "message": "打印 PDF"
+  },
+  "opAction_chrome_storage_get": {
+    "message": "读取页面存储"
+  },
+  "opAction_chrome_storage_set": {
+    "message": "写入页面存储"
+  },
+  "opAction_chrome_storage_delete": {
+    "message": "删除页面存储"
+  },
+  "opAction_search_tabs_content": {
+    "message": "搜索内容"
+  },
+  "opAction_chrome_screenshot": {
+    "message": "截图"
+  },
+  "opAction_chrome_close_tabs": {
+    "message": "关闭标签页"
+  },
+  "opAction_chrome_switch_tab": {
+    "message": "切换标签页"
+  },
+  "opAction_chrome_get_web_content": {
+    "message": "读取网页"
+  },
+  "opAction_chrome_keyboard": {
+    "message": "键盘输入"
+  },
+  "opAction_chrome_upload_file": {
+    "message": "上传文件"
+  },
+  "opAction_chrome_read_page": {
+    "message": "读取页面"
+  },
+  "opAction_chrome_get_page_text": {
+    "message": "读取正文"
+  },
+  "opAction_chrome_spa_fetch": {
+    "message": "SPA 提取"
+  },
+  "opAction_chrome_network_capture": {
+    "message": "网络抓包"
+  },
+  "opAction_chrome_network_capture_start": {
+    "message": "开始抓包"
+  },
+  "opAction_chrome_network_capture_stop": {
+    "message": "停止抓包"
+  },
+  "opAction_chrome_network_debugger_start": {
+    "message": "开始抓包"
+  },
+  "opAction_chrome_network_debugger_stop": {
+    "message": "停止抓包"
+  },
+  "opAction_chrome_network_request": {
+    "message": "网络请求"
+  },
+  "opAction_chrome_history": {
+    "message": "搜索历史"
+  },
+  "opAction_chrome_bookmark_search": {
+    "message": "搜索书签"
+  },
+  "opAction_chrome_bookmark_add": {
+    "message": "添加书签"
+  },
+  "opAction_chrome_bookmark_delete": {
+    "message": "删除书签"
+  },
+  "opAction_chrome_handle_dialog": {
+    "message": "处理对话框"
+  },
+  "opAction_chrome_handle_download": {
+    "message": "处理下载"
+  },
+  "opAction_chrome_computer": {
+    "message": "模拟操作"
+  },
+  "opAction_chrome_post_to_x": {
+    "message": "发布 X 帖子"
+  },
+  "opAction_chrome_javascript": {
+    "message": "执行脚本"
+  },
+  "opAction_chrome_paste_text": {
+    "message": "合成粘贴"
+  },
+  "opAction_chrome_console": {
+    "message": "读取控制台"
+  },
+  "opAction_chrome_userscript": {
+    "message": "管理用户脚本"
+  },
+  "opAction_performance_start_trace": {
+    "message": "开始性能追踪"
+  },
+  "opAction_performance_stop_trace": {
+    "message": "停止性能追踪"
+  },
+  "opAction_performance_analyze_insight": {
+    "message": "分析性能"
+  },
+  "opAction_chrome_gif_recorder": {
+    "message": "GIF 录制"
+  },
+  "opAction_chrome_get_tab_url": {
+    "message": "读取地址"
+  },
+  "opAction_chrome_proxy_rotate": {
+    "message": "轮换 IP"
+  },
+  "opAction_chrome_get_scroll_state": {
+    "message": "读取滚动状态"
+  },
+  "opAction_chrome_extract_review_summary": {
+    "message": "提取评论摘要"
+  },
+  "opTargetLabel_chrome_fill_or_select": {
+    "message": "目标"
+  },
+  "opTargetLabel_chrome_extract": {
+    "message": "提取范围"
+  },
+  "opTargetLabel_chrome_get_page_text": {
+    "message": "读取正文"
+  },
+  "opTargetLabel_chrome_spa_fetch": {
+    "message": "SPA 提取"
+  },
+  "opTargetLabel_chrome_screenshot": {
+    "message": "截取"
+  },
+  "opTargetLabel_chrome_upload_file": {
+    "message": "上传到"
   }
 }

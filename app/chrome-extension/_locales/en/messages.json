@@ -2951,5 +2951,700 @@
   },
   "specFieldWhenIso": {
     "message": "Time (ISO / cron)"
+  },
+  "opSeconds": {
+    "message": "$P1$s",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "opElementRef": {
+    "message": "element ref $P1$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "opCoordinates": {
+    "message": "coordinates ($P1$, $P2$)",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      },
+      "p2": {
+        "content": "$2"
+      }
+    }
+  },
+  "opCurrentTarget": {
+    "message": "the current target"
+  },
+  "opWaitTail": {
+    "message": "; wait for $P1$ $P2$ (up to $P3$)",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      },
+      "p2": {
+        "content": "$2"
+      },
+      "p3": {
+        "content": "$3"
+      }
+    }
+  },
+  "opTargetElement": {
+    "message": "the target element"
+  },
+  "opGetWindowsAndTabs": {
+    "message": "Read all windows and tabs"
+  },
+  "opCreateTab": {
+    "message": "New tab"
+  },
+  "opCreateTabUrl": {
+    "message": "New tab: $P1$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "opHover": {
+    "message": "Hover: $P1$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "opGetElementInfo": {
+    "message": "Inspect element: $P1$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "opPrintToPdf": {
+    "message": "Print to PDF"
+  },
+  "opStorageGet": {
+    "message": "Read page storage"
+  },
+  "opStorageSet": {
+    "message": "Write page storage"
+  },
+  "opStorageDelete": {
+    "message": "Delete page storage"
+  },
+  "opSearch": {
+    "message": "Search: $P1$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "opTabContents": {
+    "message": "tab contents"
+  },
+  "opScreenshotFullPage": {
+    "message": "Capture the full page"
+  },
+  "opScreenshotTarget": {
+    "message": "Capture: $P1$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "opCloseTabs": {
+    "message": "Close $P1$ tab(s)",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "opSwitchTab": {
+    "message": "Switch to tab #$P1$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "opCurrentTab": {
+    "message": "current"
+  },
+  "opKindText": {
+    "message": "text"
+  },
+  "opGetWebContent": {
+    "message": "Read $P1$: $P2$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      },
+      "p2": {
+        "content": "$2"
+      }
+    }
+  },
+  "opInteractiveElements": {
+    "message": "Find interactive elements"
+  },
+  "opInteractiveElementsQuery": {
+    "message": "Find interactive elements: $P1$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "opPageElements": {
+    "message": "page elements"
+  },
+  "opAndMore": {
+    "message": "$P1$ and more",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "opRequestSelection": {
+    "message": "Select $P1$ (up to $P2$)",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      },
+      "p2": {
+        "content": "$2"
+      }
+    }
+  },
+  "opTargetPrefix": {
+    "message": "Target: $P1$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "opClick": {
+    "message": "Click: $P1$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "opWait": {
+    "message": "Wait for $P1$ $P2$ (up to $P3$)",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      },
+      "p2": {
+        "content": "$2"
+      },
+      "p3": {
+        "content": "$3"
+      }
+    }
+  },
+  "opKeyboard": {
+    "message": "Send keyboard input to $P1$ (contents hidden)",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "opUploadFile": {
+    "message": "Upload a file to: $P1$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "opReadPageInteractive": {
+    "message": "Read the page's interactive elements"
+  },
+  "opReadPageVisible": {
+    "message": "Read the page's visible elements"
+  },
+  "opGetPageText": {
+    "message": "Read body text: $P1$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "opSpaFetch": {
+    "message": "SPA extract: $P1$ ($P2$ scrolls)",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      },
+      "p2": {
+        "content": "$2"
+      }
+    }
+  },
+  "opExtract": {
+    "message": "Extract from: $P1$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "opScrollBottom": {
+    "message": "Scroll to the bottom"
+  },
+  "opScrollBottomIn": {
+    "message": "Scroll to the bottom of $P1$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "opScrollTop": {
+    "message": "Scroll to the top"
+  },
+  "opScrollTopIn": {
+    "message": "Scroll to the top of $P1$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "opScrollTo": {
+    "message": "Scroll to: $P1$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "opScrollBy": {
+    "message": "Scroll $P1$ by $P2$px",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      },
+      "p2": {
+        "content": "$2"
+      }
+    }
+  },
+  "opScrollByIn": {
+    "message": "Scroll $P1$ by $P2$px in $P3$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      },
+      "p2": {
+        "content": "$2"
+      },
+      "p3": {
+        "content": "$3"
+      }
+    }
+  },
+  "opDirectionDown": {
+    "message": "down"
+  },
+  "opNavigate": {
+    "message": "Go to: $P1$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "opTargetPage": {
+    "message": "the target page"
+  },
+  "opNetworkCaptureStart": {
+    "message": "Start network capture"
+  },
+  "opNetworkCaptureStop": {
+    "message": "Stop network capture"
+  },
+  "opBlockImages": {
+    "message": "Block image requests"
+  },
+  "opUnblockImages": {
+    "message": "Restore image requests"
+  },
+  "opNetworkRequest": {
+    "message": "Send a $P1$ request",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "opHistory": {
+    "message": "Search history"
+  },
+  "opHistoryQuery": {
+    "message": "Search history: $P1$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "opBookmarkSearch": {
+    "message": "Search bookmarks"
+  },
+  "opBookmarkSearchQuery": {
+    "message": "Search bookmarks: $P1$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "opBookmarkAdd": {
+    "message": "Add a bookmark"
+  },
+  "opBookmarkDelete": {
+    "message": "Delete a bookmark"
+  },
+  "opDialogAccept": {
+    "message": "Accept the page dialog"
+  },
+  "opDialogDismiss": {
+    "message": "Dismiss the page dialog"
+  },
+  "opHandleDownload": {
+    "message": "Handle the download"
+  },
+  "opHandleDownloadAction": {
+    "message": "Handle the download: $P1$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "opComputer": {
+    "message": "Simulate $P1$: $P2$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      },
+      "p2": {
+        "content": "$2"
+      }
+    }
+  },
+  "opComputerMouse": {
+    "message": "mouse"
+  },
+  "opPostToX": {
+    "message": "Post to X: $P1$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "opPostBody": {
+    "message": "the post body"
+  },
+  "opJavascript": {
+    "message": "Run a page script (contents hidden)"
+  },
+  "opPasteText": {
+    "message": "Synthesize a paste into $P1$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "opConsole": {
+    "message": "Read the page console"
+  },
+  "opUserscript": {
+    "message": "Manage user scripts: $P1$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "opActionFallback": {
+    "message": "action"
+  },
+  "opTraceStartReload": {
+    "message": "Start a performance trace and reload"
+  },
+  "opTraceStart": {
+    "message": "Start a performance trace"
+  },
+  "opTraceStop": {
+    "message": "Stop the performance trace"
+  },
+  "opTraceAnalyze": {
+    "message": "Analyse the performance trace"
+  },
+  "opGifRecorder": {
+    "message": "$P1$ GIF recording",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "opGifRecorderDuration": {
+    "message": "$P1$ GIF recording ($P2$)",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      },
+      "p2": {
+        "content": "$2"
+      }
+    }
+  },
+  "opGifStart": {
+    "message": "Start"
+  },
+  "opGetTabUrl": {
+    "message": "Read the current tab URL"
+  },
+  "opProxyRotate": {
+    "message": "Rotate the proxy and reload"
+  },
+  "opProxyRotateReason": {
+    "message": "Rotate the proxy and reload: $P1$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "opGetScrollState": {
+    "message": "Read the scroll state"
+  },
+  "opExtractReviewSummary": {
+    "message": "Extract the review summary"
+  },
+  "opStateRunning": {
+    "message": "Running"
+  },
+  "opStateDone": {
+    "message": "Done"
+  },
+  "opStateFailed": {
+    "message": "Failed"
+  },
+  "opIntentPrefix": {
+    "message": "Intent"
+  },
+  "opVerbClick": {
+    "message": "Click"
+  },
+  "opVerbExpand": {
+    "message": "Expand"
+  },
+  "opVerbCollapse": {
+    "message": "Collapse"
+  },
+  "opScrollToLabel": {
+    "message": "Scroll to"
+  },
+  "opAction_chrome_scroll": {
+    "message": "Scroll"
+  },
+  "opAction_chrome_click_element": {
+    "message": "Click"
+  },
+  "opAction_chrome_click_and_wait": {
+    "message": "Click and wait"
+  },
+  "opAction_chrome_fill_or_select": {
+    "message": "Fill or select"
+  },
+  "opAction_chrome_get_interactive_elements": {
+    "message": "Find elements"
+  },
+  "opAction_chrome_request_element_selection": {
+    "message": "Select region"
+  },
+  "opAction_chrome_wait": {
+    "message": "Wait"
+  },
+  "opAction_chrome_extract": {
+    "message": "Extract data"
+  },
+  "opAction_chrome_navigate": {
+    "message": "Open page"
+  },
+  "opAction_get_windows_and_tabs": {
+    "message": "Read tabs"
+  },
+  "opAction_chrome_create_tab": {
+    "message": "New tab"
+  },
+  "opAction_chrome_hover": {
+    "message": "Hover element"
+  },
+  "opAction_chrome_get_element_info": {
+    "message": "Inspect element"
+  },
+  "opAction_chrome_print_to_pdf": {
+    "message": "Print PDF"
+  },
+  "opAction_chrome_storage_get": {
+    "message": "Read page storage"
+  },
+  "opAction_chrome_storage_set": {
+    "message": "Write page storage"
+  },
+  "opAction_chrome_storage_delete": {
+    "message": "Delete page storage"
+  },
+  "opAction_search_tabs_content": {
+    "message": "Search content"
+  },
+  "opAction_chrome_screenshot": {
+    "message": "Screenshot"
+  },
+  "opAction_chrome_close_tabs": {
+    "message": "Close tabs"
+  },
+  "opAction_chrome_switch_tab": {
+    "message": "Switch tab"
+  },
+  "opAction_chrome_get_web_content": {
+    "message": "Read page"
+  },
+  "opAction_chrome_keyboard": {
+    "message": "Keyboard input"
+  },
+  "opAction_chrome_upload_file": {
+    "message": "Upload file"
+  },
+  "opAction_chrome_read_page": {
+    "message": "Read page"
+  },
+  "opAction_chrome_get_page_text": {
+    "message": "Read body text"
+  },
+  "opAction_chrome_spa_fetch": {
+    "message": "SPA extract"
+  },
+  "opAction_chrome_network_capture": {
+    "message": "Network capture"
+  },
+  "opAction_chrome_network_capture_start": {
+    "message": "Start capture"
+  },
+  "opAction_chrome_network_capture_stop": {
+    "message": "Stop capture"
+  },
+  "opAction_chrome_network_debugger_start": {
+    "message": "Start capture"
+  },
+  "opAction_chrome_network_debugger_stop": {
+    "message": "Stop capture"
+  },
+  "opAction_chrome_network_request": {
+    "message": "Network request"
+  },
+  "opAction_chrome_history": {
+    "message": "Search history"
+  },
+  "opAction_chrome_bookmark_search": {
+    "message": "Search bookmarks"
+  },
+  "opAction_chrome_bookmark_add": {
+    "message": "Add bookmark"
+  },
+  "opAction_chrome_bookmark_delete": {
+    "message": "Delete bookmark"
+  },
+  "opAction_chrome_handle_dialog": {
+    "message": "Handle dialog"
+  },
+  "opAction_chrome_handle_download": {
+    "message": "Handle download"
+  },
+  "opAction_chrome_computer": {
+    "message": "Simulate input"
+  },
+  "opAction_chrome_post_to_x": {
+    "message": "Post to X"
+  },
+  "opAction_chrome_javascript": {
+    "message": "Run script"
+  },
+  "opAction_chrome_paste_text": {
+    "message": "Synthetic paste"
+  },
+  "opAction_chrome_console": {
+    "message": "Read console"
+  },
+  "opAction_chrome_userscript": {
+    "message": "Manage user scripts"
+  },
+  "opAction_performance_start_trace": {
+    "message": "Start trace"
+  },
+  "opAction_performance_stop_trace": {
+    "message": "Stop trace"
+  },
+  "opAction_performance_analyze_insight": {
+    "message": "Analyse performance"
+  },
+  "opAction_chrome_gif_recorder": {
+    "message": "GIF recording"
+  },
+  "opAction_chrome_get_tab_url": {
+    "message": "Read URL"
+  },
+  "opAction_chrome_proxy_rotate": {
+    "message": "Rotate IP"
+  },
+  "opAction_chrome_get_scroll_state": {
+    "message": "Read scroll state"
+  },
+  "opAction_chrome_extract_review_summary": {
+    "message": "Extract review summary"
+  },
+  "opTargetLabel_chrome_fill_or_select": {
+    "message": "Target"
+  },
+  "opTargetLabel_chrome_extract": {
+    "message": "Extract from"
+  },
+  "opTargetLabel_chrome_get_page_text": {
+    "message": "Read body text"
+  },
+  "opTargetLabel_chrome_spa_fetch": {
+    "message": "SPA extract"
+  },
+  "opTargetLabel_chrome_screenshot": {
+    "message": "Capture"
+  },
+  "opTargetLabel_chrome_upload_file": {
+    "message": "Upload to"
   }
 }

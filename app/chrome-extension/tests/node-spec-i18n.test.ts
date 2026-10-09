@@ -8,6 +8,7 @@
  * in sync so a key added to one is never forgotten in the other.
  */
 import { describe, expect, it } from 'vitest';
+import { execFileSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
@@ -73,5 +74,31 @@ describe('_locales', () => {
       .map(([key]) => key)
       .sort();
     expect(withHan).toEqual([]);
+  });
+
+  it('defines every key the source asks for by name', () => {
+    // A missing key is not an error at runtime: getMessage returns the key
+    // itself, so the UI quietly renders "opStateRunning" instead of "Running".
+    // Only literal call sites are checked — keys built by template literal
+    // (opAction_${tool}) fall back to a derived label on purpose.
+    const root = resolve(__dirname, '..');
+    const sources = execFileSync(
+      'git',
+      ['grep', '-lz', '--', 'getMessage', ':(exclude)tests', ':(exclude)_locales'],
+      { cwd: root, encoding: 'utf8' },
+    )
+      .split('\0')
+      .filter(Boolean);
+    expect(sources.length).toBeGreaterThan(0);
+
+    const missing = new Map<string, string[]>();
+    for (const file of sources) {
+      const text = readFileSync(resolve(root, file), 'utf8');
+      for (const [, key] of text.matchAll(/\bgetMessage\(\s*'([A-Za-z0-9_@]+)'/g)) {
+        if (key in en) continue;
+        missing.set(key, [...(missing.get(key) ?? []), file]);
+      }
+    }
+    expect(Object.fromEntries(missing)).toEqual({});
   });
 });
