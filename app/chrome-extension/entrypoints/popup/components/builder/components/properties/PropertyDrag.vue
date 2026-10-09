@@ -1,14 +1,25 @@
 <template>
   <div>
-    <SelectorEditor :node="node" :allowPick="true" title="起点选择器" targetKey="start" />
-    <SelectorEditor :node="node" :allowPick="true" title="终点选择器" targetKey="end" />
+    <SelectorEditor
+      :node="node"
+      :allowPick="true"
+      :title="getMessage('builderStartSelectorTitle')"
+      targetKey="start"
+    />
+    <SelectorEditor
+      :node="node"
+      :allowPick="true"
+      :title="getMessage('builderEndSelectorTitle')"
+      targetKey="end"
+    />
     <div class="hint">
-      <small>提示：路径（path）通常在录制时自动生成，手动创建时可留空。</small>
+      <small>{{ getMessage('builderDragPathHint') }}</small>
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
+import { getMessage } from '@/utils/i18n';
 
 import type { NodeBase } from '@/entrypoints/background/record-replay-v3/builder-types';
 import SelectorEditor from './SelectorEditor.vue';

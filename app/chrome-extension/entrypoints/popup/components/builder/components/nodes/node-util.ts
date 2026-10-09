@@ -1,3 +1,4 @@
+import { getMessage } from '@/utils/i18n';
 // node-util.ts - shared UI helpers for node components
 // Note: comments in English
 
@@ -93,31 +94,31 @@ export function iconComp(t?: string) {
 
 export function getTypeLabel(type?: string) {
   const labels: Record<string, string> = {
-    trigger: '触发器',
-    click: '点击',
-    fill: '填充',
-    navigate: '导航',
-    wait: '等待',
-    extract: '提取',
+    trigger: getMessage('builderNodeTrigger'),
+    click: getMessage('builderNodeClick'),
+    fill: getMessage('builderNodeFill'),
+    navigate: getMessage('builderNodeNavigate'),
+    wait: getMessage('builderNodeWait'),
+    extract: getMessage('builderNodeExtract'),
     http: 'HTTP',
-    getTabUrl: '获取标签信息',
-    readPage: '获取页面元素',
-    getWebContent: '获取网页内容',
-    script: '脚本',
-    if: '条件',
-    foreach: '循环',
-    assert: '断言',
-    key: '键盘',
-    drag: '拖拽',
-    dblclick: '双击',
-    openTab: '打开标签',
-    switchTab: '切换标签',
-    closeTab: '关闭标签',
-    delay: '延迟',
-    scroll: '滚动',
-    while: '循环',
-    loopElements: '循环元素',
-    executeFlow: '执行子流程',
+    getTabUrl: getMessage('builderNodeGetTabUrl'),
+    readPage: getMessage('builderNodeReadPage'),
+    getWebContent: getMessage('builderNodeGetWebContent'),
+    script: getMessage('builderNodeScript'),
+    if: getMessage('builderNodeIf'),
+    foreach: getMessage('builderNodeForeach'),
+    assert: getMessage('builderNodeAssert'),
+    key: getMessage('builderNodeKey'),
+    drag: getMessage('builderNodeDrag'),
+    dblclick: getMessage('builderNodeDblclick'),
+    openTab: getMessage('builderNodeOpenTab'),
+    switchTab: getMessage('builderNodeSwitchTab'),
+    closeTab: getMessage('builderNodeCloseTab'),
+    delay: getMessage('builderNodeDelay'),
+    scroll: getMessage('builderNodeScroll'),
+    while: getMessage('builderNodeWhile'),
+    loopElements: getMessage('builderNodeLoopElements'),
+    executeFlow: getMessage('builderNodeExecuteFlow'),
   };
   return labels[String(type || '')] || type || '';
 }

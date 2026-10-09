@@ -1,7 +1,7 @@
 <template>
   <div class="form-section">
     <div class="form-group">
-      <label class="form-label">请求方法</label>
+      <label class="form-label">{{ getMessage('builderRequestMethodLabel') }}</label>
       <select class="form-select" v-model="(node as any).config.method">
         <option>GET</option>
         <option>POST</option>
@@ -11,7 +11,7 @@
       </select>
     </div>
     <div class="form-group" :class="{ invalid: !(node as any).config?.url }" data-field="http.url">
-      <label class="form-label">URL 地址</label>
+      <label class="form-label">{{ getMessage('builderUrlLabel') }}</label>
       <input
         class="form-input"
         v-model="(node as any).config.url"
@@ -37,21 +37,22 @@
       ></textarea>
     </div>
     <div class="form-group">
-      <label class="form-label">FormData (JSON，可选，提供时覆盖 Body)</label>
+      <label class="form-label">{{ getMessage('builderFormDataLabel') }}</label>
       <textarea
         class="form-textarea"
         v-model="formDataJson"
         rows="3"
         placeholder='{"fields":{"k":"v"},"files":[{"name":"file","fileUrl":"https://...","filename":"a.png"}]}'
       ></textarea>
-      <div class="text-xs text-slate-500" style="margin-top: 6px"
-        >支持简洁数组形式：[["file","url:https://...","a.png"],["metadata","value"]]</div
-      >
+      <div class="text-xs text-slate-500" style="margin-top: 6px">{{
+        getMessage('builderFormDataHint')
+      }}</div>
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
+import { getMessage } from '@/utils/i18n';
 
 import { computed } from 'vue';
 import type { NodeBase } from '@/entrypoints/background/record-replay-v3/builder-types';

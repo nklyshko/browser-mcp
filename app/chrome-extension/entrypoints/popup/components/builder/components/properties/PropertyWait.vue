@@ -1,7 +1,7 @@
 <template>
   <div class="form-section">
     <div class="form-group">
-      <label class="form-label">等待条件 (JSON)</label>
+      <label class="form-label">{{ getMessage('builderWaitConditionLabel') }}</label>
       <textarea
         class="form-textarea"
         v-model="waitJson"
@@ -13,6 +13,7 @@
 </template>
 
 <script lang="ts" setup>
+import { getMessage } from '@/utils/i18n';
 
 import { computed } from 'vue';
 import type { NodeBase } from '@/entrypoints/background/record-replay-v3/builder-types';

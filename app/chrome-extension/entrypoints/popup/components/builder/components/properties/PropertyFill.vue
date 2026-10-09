@@ -3,14 +3,19 @@
     <SelectorEditor :node="node" :allowPick="true" />
     <div class="form-section">
       <div class="form-group" data-field="fill.value">
-        <label class="form-label">输入值</label>
-        <VarInput v-model="value" :variables="variables" placeholder="支持 {变量名} 格式" />
+        <label class="form-label">{{ getMessage('builderInputValueLabel') }}</label>
+        <VarInput
+          v-model="value"
+          :variables="variables"
+          :placeholder="getMessage('builderVarInterpolationPlaceholder')"
+        />
       </div>
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
+import { getMessage } from '@/utils/i18n';
 
 import { computed } from 'vue';
 import type { NodeBase } from '@/entrypoints/background/record-replay-v3/builder-types';

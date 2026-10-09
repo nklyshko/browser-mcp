@@ -1,10 +1,16 @@
 <template>
   <div class="form-section">
     <div class="section-header">
-      <span class="section-title">{{ title || '选择器' }}</span>
-      <button v-if="allowPick" class="btn-sm btn-primary" @click="pickFromPage">从页面选择</button>
+      <span class="section-title">{{ title || getMessage('builderSelectorTitle') }}</span>
+      <button v-if="allowPick" class="btn-sm btn-primary" @click="pickFromPage">{{
+        getMessage('builderPickFromPageButton')
+      }}</button>
       <button class="btn-sm" :disabled="validating" @click="validateLocator">
-        {{ validating ? '验证中…' : '验证定位' }}
+        {{
+          validating
+            ? getMessage('builderValidatingStatus')
+            : getMessage('builderValidateLocatorButton')
+        }}
       </button>
     </div>
     <div class="selector-list" data-field="target.candidates">
@@ -16,12 +22,16 @@
           <option value="text">Text</option>
           <option value="xpath">XPath</option>
         </select>
-        <input class="form-input-sm flex-1" v-model="c.value" placeholder="选择器值" />
+        <input
+          class="form-input-sm flex-1"
+          v-model="c.value"
+          :placeholder="getMessage('builderSelectorValuePlaceholder')"
+        />
         <button class="btn-icon-sm" @click="move(i, -1)" :disabled="i === 0">↑</button>
         <button class="btn-icon-sm" @click="move(i, 1)" :disabled="i === list.length - 1">↓</button>
         <button class="btn-icon-sm danger" @click="remove(i)">×</button>
       </div>
-      <button class="btn-sm" @click="add">+ 添加选择器</button>
+      <button class="btn-sm" @click="add">{{ getMessage('builderAddSelectorButton') }}</button>
     </div>
     <div
       v-if="validationMessage"
@@ -33,6 +43,7 @@
 </template>
 
 <script lang="ts" setup>
+import { getMessage } from '@/utils/i18n';
 
 import type { NodeBase } from '@/entrypoints/background/record-replay-v3/builder-types';
 import { ref } from 'vue';
@@ -104,7 +115,8 @@ async function pickFromPage() {
     n.config[key].candidates = merged;
   } catch (e) {
     validationOk.value = false;
-    validationMessage.value = e instanceof Error ? e.message : '拾取失败。';
+    validationMessage.value =
+      e instanceof Error ? e.message : getMessage('builderPickFailedMessage');
   }
 }
 
@@ -119,10 +131,11 @@ async function validateLocator() {
   try {
     await validatePageSelector(String(candidate?.value || ''), String(candidate?.type || 'css'));
     validationOk.value = true;
-    validationMessage.value = '定位成功。';
+    validationMessage.value = getMessage('builderLocateOkMessage');
   } catch (e) {
     validationOk.value = false;
-    validationMessage.value = e instanceof Error ? e.message : '定位失败。';
+    validationMessage.value =
+      e instanceof Error ? e.message : getMessage('builderLocateFailedMessage');
   } finally {
     validating.value = false;
   }

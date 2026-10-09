@@ -1573,5 +1573,927 @@
         "content": "$1"
       }
     }
+  },
+  "builderSelectorTitle": {
+    "message": "Selector",
+    "description": "workflow builder"
+  },
+  "builderCssSelectorPlaceholder": {
+    "message": "CSS selector",
+    "description": "workflow builder"
+  },
+  "builderVarNamePlaceholder": {
+    "message": "Variable name",
+    "description": "workflow builder"
+  },
+  "builderSubflowIdLabel": {
+    "message": "Subflow ID",
+    "description": "workflow builder"
+  },
+  "builderSubflowPlaceholder": {
+    "message": "Select or create a subflow",
+    "description": "workflow builder"
+  },
+  "builderNewSubflowButton": {
+    "message": "New subflow",
+    "description": "workflow builder"
+  },
+  "builderNewSubflowPrompt": {
+    "message": "Enter the new subflow ID",
+    "description": "workflow builder"
+  },
+  "builderItemVarLabel": {
+    "message": "Loop item variable",
+    "description": "workflow builder"
+  },
+  "builderDefaultItemPlaceholder": {
+    "message": "Defaults to item",
+    "description": "workflow builder"
+  },
+  "builderSaveAsLabel": {
+    "message": "Save as variable",
+    "description": "workflow builder"
+  },
+  "builderSaveAsOptionalLabel": {
+    "message": "Save as variable (optional)",
+    "description": "workflow builder"
+  },
+  "builderUrlLabel": {
+    "message": "URL",
+    "description": "workflow builder"
+  },
+  "builderConfigErrorTitle": {
+    "message": "⚠️ Configuration error",
+    "description": "workflow builder"
+  },
+  "builderValidatingStatus": {
+    "message": "Validating…",
+    "description": "workflow builder"
+  },
+  "builderValidateLocatorButton": {
+    "message": "Validate locator",
+    "description": "workflow builder"
+  },
+  "builderPickFailedMessage": {
+    "message": "Pick failed.",
+    "description": "workflow builder"
+  },
+  "builderLocateOkMessage": {
+    "message": "Element located.",
+    "description": "workflow builder"
+  },
+  "builderLocateFailedMessage": {
+    "message": "Could not locate the element.",
+    "description": "workflow builder"
+  },
+  "builderMissingSelectorCandidate": {
+    "message": "Missing a target selector candidate",
+    "description": "workflow builder"
+  },
+  "builderDeleteEdgeTitle": {
+    "message": "Delete edge",
+    "description": "workflow builder"
+  },
+  "builderNoEdgeSelected": {
+    "message": "No edge selected",
+    "description": "workflow builder"
+  },
+  "builderMappingKeyPlaceholder": {
+    "message": "Variable name",
+    "description": "workflow builder"
+  },
+  "builderMappingValuePlaceholder": {
+    "message": "Result path, e.g. data.items[0].id",
+    "description": "workflow builder"
+  },
+  "builderRemoveShort": {
+    "message": "Del",
+    "description": "workflow builder"
+  },
+  "builderAddMapping": {
+    "message": "Add mapping",
+    "description": "workflow builder"
+  },
+  "builderNodeTrigger": {
+    "message": "Trigger",
+    "description": "workflow builder"
+  },
+  "builderNodeClick": {
+    "message": "Click",
+    "description": "workflow builder"
+  },
+  "builderNodeFill": {
+    "message": "Fill",
+    "description": "workflow builder"
+  },
+  "builderNodeNavigate": {
+    "message": "Navigate",
+    "description": "workflow builder"
+  },
+  "builderNodeWait": {
+    "message": "Wait",
+    "description": "workflow builder"
+  },
+  "builderNodeExtract": {
+    "message": "Extract",
+    "description": "workflow builder"
+  },
+  "builderNodeGetTabUrl": {
+    "message": "Get tab info",
+    "description": "workflow builder"
+  },
+  "builderNodeReadPage": {
+    "message": "Read page elements",
+    "description": "workflow builder"
+  },
+  "builderNodeGetWebContent": {
+    "message": "Get page content",
+    "description": "workflow builder"
+  },
+  "builderNodeScript": {
+    "message": "Script",
+    "description": "workflow builder"
+  },
+  "builderNodeIf": {
+    "message": "Condition",
+    "description": "workflow builder"
+  },
+  "builderNodeForeach": {
+    "message": "Loop",
+    "description": "workflow builder"
+  },
+  "builderNodeAssert": {
+    "message": "Assert",
+    "description": "workflow builder"
+  },
+  "builderNodeKey": {
+    "message": "Keyboard",
+    "description": "workflow builder"
+  },
+  "builderNodeDrag": {
+    "message": "Drag",
+    "description": "workflow builder"
+  },
+  "builderNodeDblclick": {
+    "message": "Double click",
+    "description": "workflow builder"
+  },
+  "builderNodeOpenTab": {
+    "message": "Open tab",
+    "description": "workflow builder"
+  },
+  "builderNodeSwitchTab": {
+    "message": "Switch tab",
+    "description": "workflow builder"
+  },
+  "builderNodeCloseTab": {
+    "message": "Close tab",
+    "description": "workflow builder"
+  },
+  "builderNodeDelay": {
+    "message": "Delay",
+    "description": "workflow builder"
+  },
+  "builderNodeScroll": {
+    "message": "Scroll",
+    "description": "workflow builder"
+  },
+  "builderNodeWhile": {
+    "message": "While loop",
+    "description": "workflow builder"
+  },
+  "builderNodeLoopElements": {
+    "message": "Loop elements",
+    "description": "workflow builder"
+  },
+  "builderNodeExecuteFlow": {
+    "message": "Run subflow",
+    "description": "workflow builder"
+  },
+  "builderOpenNormalTabFirst": {
+    "message": "Open a normal web tab first.",
+    "description": "workflow builder"
+  },
+  "builderFillSelectorFirst": {
+    "message": "Fill in the selector first.",
+    "description": "workflow builder"
+  },
+  "builderUseCssAttrXpath": {
+    "message": "Use a CSS, Attr or XPath locator.",
+    "description": "workflow builder"
+  },
+  "builderElementNotFound": {
+    "message": "No element matched.",
+    "description": "workflow builder"
+  },
+  "builderAssertConditionLabel": {
+    "message": "Assert condition (JSON)",
+    "description": "workflow builder"
+  },
+  "builderFailurePolicyLabel": {
+    "message": "Failure policy",
+    "description": "workflow builder"
+  },
+  "builderCloseByUrlLabel": {
+    "message": "Close by URL (optional)",
+    "description": "workflow builder"
+  },
+  "builderSubstringUrlPlaceholder": {
+    "message": "Substring match on the URL",
+    "description": "workflow builder"
+  },
+  "builderTabIdsLabel": {
+    "message": "Tab IDs (JSON array, optional)",
+    "description": "workflow builder"
+  },
+  "builderDelayMsLabel": {
+    "message": "Delay (ms)",
+    "description": "workflow builder"
+  },
+  "builderStartSelectorTitle": {
+    "message": "Start selector",
+    "description": "workflow builder"
+  },
+  "builderEndSelectorTitle": {
+    "message": "End selector",
+    "description": "workflow builder"
+  },
+  "builderDragPathHint": {
+    "message": "Tip: the path is normally generated during recording; leave it blank when creating by hand.",
+    "description": "workflow builder"
+  },
+  "builderTargetFlowLabel": {
+    "message": "Target workflow",
+    "description": "workflow builder"
+  },
+  "builderPleaseSelect": {
+    "message": "Please select",
+    "description": "workflow builder"
+  },
+  "builderInlineExecution": {
+    "message": "Run inline (shares context variables)",
+    "description": "workflow builder"
+  },
+  "builderFlowArgsLabel": {
+    "message": "Arguments (JSON)",
+    "description": "workflow builder"
+  },
+  "builderElementSelectorOptionalLabel": {
+    "message": "Element selector (optional)",
+    "description": "workflow builder"
+  },
+  "builderAttributeLabel": {
+    "message": "Attribute",
+    "description": "workflow builder"
+  },
+  "builderAttributePlaceholder": {
+    "message": "text/textContent or an attribute name",
+    "description": "workflow builder"
+  },
+  "builderCustomJsLabel": {
+    "message": "Custom JS (return value)",
+    "description": "workflow builder"
+  },
+  "builderInputValueLabel": {
+    "message": "Input value",
+    "description": "workflow builder"
+  },
+  "builderVarInterpolationPlaceholder": {
+    "message": "Supports the {variableName} form",
+    "description": "workflow builder"
+  },
+  "builderListVarLabel": {
+    "message": "List variable",
+    "description": "workflow builder"
+  },
+  "builderConfigSectionTitle": {
+    "message": "Configuration",
+    "description": "workflow builder"
+  },
+  "builderFieldRequiredSuffix": {
+    "message": "is required",
+    "description": "workflow builder"
+  },
+  "builderInvalidJsonMessage": {
+    "message": "Invalid JSON",
+    "description": "workflow builder"
+  },
+  "builderEnterJsonPlaceholder": {
+    "message": "Enter JSON",
+    "description": "workflow builder"
+  },
+  "builderRemoveButton": {
+    "message": "Remove",
+    "description": "workflow builder"
+  },
+  "builderAddButton": {
+    "message": "Add",
+    "description": "workflow builder"
+  },
+  "builderNoNodeSpecTitle": {
+    "message": "No node spec found",
+    "description": "workflow builder"
+  },
+  "builderNoNodeSpecHelp": {
+    "message": "This node has no NodeSpec yet, so the default property panel is shown.",
+    "description": "workflow builder"
+  },
+  "builderFilenameContainsLabel": {
+    "message": "Filename contains (optional)",
+    "description": "workflow builder"
+  },
+  "builderFilenameSubstringPlaceholder": {
+    "message": "Substring match on the filename or URL",
+    "description": "workflow builder"
+  },
+  "builderTimeoutMsLabel": {
+    "message": "Timeout (ms)",
+    "description": "workflow builder"
+  },
+  "builderDefault60000Placeholder": {
+    "message": "Defaults to 60000",
+    "description": "workflow builder"
+  },
+  "builderWaitForDownload": {
+    "message": "Wait for the download to finish",
+    "description": "workflow builder"
+  },
+  "builderSaveToVarLabel": {
+    "message": "Save to variable",
+    "description": "workflow builder"
+  },
+  "builderDefaultDownloadPlaceholder": {
+    "message": "Defaults to download",
+    "description": "workflow builder"
+  },
+  "builderRequestMethodLabel": {
+    "message": "Request method",
+    "description": "workflow builder"
+  },
+  "builderFormDataLabel": {
+    "message": "FormData (JSON, optional; overrides Body when set)",
+    "description": "workflow builder"
+  },
+  "builderFormDataHint": {
+    "message": "A compact array form is supported: [[\"file\",\"url:https://...\",\"a.png\"],[\"metadata\",\"value\"]]",
+    "description": "workflow builder"
+  },
+  "builderIfHint": {
+    "message": "Define branches with expressions; variables and the usual comparison operators are supported.",
+    "description": "workflow builder"
+  },
+  "builderBranchNamePlaceholder": {
+    "message": "Branch name (optional)",
+    "description": "workflow builder"
+  },
+  "builderDeleteTitle": {
+    "message": "Delete",
+    "description": "workflow builder"
+  },
+  "builderInsertVariable": {
+    "message": "Insert variable",
+    "description": "workflow builder"
+  },
+  "builderOperator": {
+    "message": "Operator",
+    "description": "workflow builder"
+  },
+  "builderElseBranchHint": {
+    "message": "Else branch (no expression; matches when none of the above hold)",
+    "description": "workflow builder"
+  },
+  "builderCaseFallbackName": {
+    "message": "Condition",
+    "description": "workflow builder"
+  },
+  "builderKeySequenceLabel": {
+    "message": "Key sequence",
+    "description": "workflow builder"
+  },
+  "builderKeySequencePlaceholder": {
+    "message": "e.g. Backspace Enter or cmd+a",
+    "description": "workflow builder"
+  },
+  "builderKeySequenceExample": {
+    "message": "Example: Backspace Enter or cmd+a",
+    "description": "workflow builder"
+  },
+  "builderKeySequenceDefault": {
+    "message": "Backspace Enter or cmd+a",
+    "description": "workflow builder"
+  },
+  "builderElementSelectorLabel": {
+    "message": "Element selector",
+    "description": "workflow builder"
+  },
+  "builderListVarNameLabel": {
+    "message": "List variable name",
+    "description": "workflow builder"
+  },
+  "builderDefaultElementsPlaceholder": {
+    "message": "Defaults to elements",
+    "description": "workflow builder"
+  },
+  "builderMaxIterationsLabel": {
+    "message": "Max iterations (optional)",
+    "description": "workflow builder"
+  },
+  "builderUrlOptionalLabel": {
+    "message": "URL (optional)",
+    "description": "workflow builder"
+  },
+  "builderNewWindow": {
+    "message": "New window",
+    "description": "workflow builder"
+  },
+  "builderScreenshotSelectorPlaceholder": {
+    "message": "Leave blank to capture the viewport or full page",
+    "description": "workflow builder"
+  },
+  "builderFullPageScreenshot": {
+    "message": "Full-page screenshot",
+    "description": "workflow builder"
+  },
+  "builderShotVarPlaceholder": {
+    "message": "Variable name, e.g. shot",
+    "description": "workflow builder"
+  },
+  "builderCodeLabel": {
+    "message": "Code",
+    "description": "workflow builder"
+  },
+  "builderRuntimeLabel": {
+    "message": "Runtime",
+    "description": "workflow builder"
+  },
+  "builderTimingLabel": {
+    "message": "When to run",
+    "description": "workflow builder"
+  },
+  "builderResultMappingLabel": {
+    "message": "Result field mapping",
+    "description": "workflow builder"
+  },
+  "builderModeLabel": {
+    "message": "Mode",
+    "description": "workflow builder"
+  },
+  "builderScrollToElement": {
+    "message": "Scroll to element",
+    "description": "workflow builder"
+  },
+  "builderWindowOffset": {
+    "message": "Window offset",
+    "description": "workflow builder"
+  },
+  "builderContainerOffset": {
+    "message": "Container offset",
+    "description": "workflow builder"
+  },
+  "builderTargetElementTitle": {
+    "message": "Target element",
+    "description": "workflow builder"
+  },
+  "builderOffsetXLabel": {
+    "message": "Offset X",
+    "description": "workflow builder"
+  },
+  "builderOffsetYLabel": {
+    "message": "Offset Y",
+    "description": "workflow builder"
+  },
+  "builderContainerSelectorTitle": {
+    "message": "Container selector",
+    "description": "workflow builder"
+  },
+  "builderContainerScrollHint": {
+    "message": "The container must support scrollTo(top, left)",
+    "description": "workflow builder"
+  },
+  "builderAttrNameLabel": {
+    "message": "Attribute name",
+    "description": "workflow builder"
+  },
+  "builderAttrNamePlaceholder": {
+    "message": "e.g. value / src / disabled",
+    "description": "workflow builder"
+  },
+  "builderAttrValueLabel": {
+    "message": "Attribute value (leave blank and tick remove to delete it)",
+    "description": "workflow builder"
+  },
+  "builderAttrValuePlaceholder": {
+    "message": "Attribute value",
+    "description": "workflow builder"
+  },
+  "builderRemoveAttribute": {
+    "message": "Remove attribute",
+    "description": "workflow builder"
+  },
+  "builderFrameUrlContainsLabel": {
+    "message": "Match by URL substring (preferred)",
+    "description": "workflow builder"
+  },
+  "builderFrameUrlContainsPlaceholder": {
+    "message": "Substring contained in the frame URL",
+    "description": "workflow builder"
+  },
+  "builderFrameIndexLabel": {
+    "message": "Match by index (0-based, child frames only)",
+    "description": "workflow builder"
+  },
+  "builderFrameIndexPlaceholder": {
+    "message": "Index number",
+    "description": "workflow builder"
+  },
+  "builderFrameHint": {
+    "message": "Works for same-origin / injectable frames; leave blank to return to the top-level page",
+    "description": "workflow builder"
+  },
+  "builderTabIdOptionalLabel": {
+    "message": "Tab ID (optional)",
+    "description": "workflow builder"
+  },
+  "builderNumberPlaceholder": {
+    "message": "Number",
+    "description": "workflow builder"
+  },
+  "builderUrlContainsOptionalLabel": {
+    "message": "URL contains (optional)",
+    "description": "workflow builder"
+  },
+  "builderSubstringPlaceholder": {
+    "message": "Substring match",
+    "description": "workflow builder"
+  },
+  "builderTitleContainsOptionalLabel": {
+    "message": "Title contains (optional)",
+    "description": "workflow builder"
+  },
+  "builderSwitchTabHint": {
+    "message": "Provide a tabId, or a URL/title substring",
+    "description": "workflow builder"
+  },
+  "builderEnableTrigger": {
+    "message": "Enable trigger",
+    "description": "workflow builder"
+  },
+  "builderDescriptionOptionalLabel": {
+    "message": "Description (optional)",
+    "description": "workflow builder"
+  },
+  "builderTriggerPurposePlaceholder": {
+    "message": "Describe what this trigger is for",
+    "description": "workflow builder"
+  },
+  "builderTriggerModesTitle": {
+    "message": "Trigger modes",
+    "description": "workflow builder"
+  },
+  "builderModeManual": {
+    "message": "Manual",
+    "description": "workflow builder"
+  },
+  "builderModeUrl": {
+    "message": "Visit URL",
+    "description": "workflow builder"
+  },
+  "builderModeContextMenu": {
+    "message": "Context menu",
+    "description": "workflow builder"
+  },
+  "builderModeCommand": {
+    "message": "Keyboard shortcut",
+    "description": "workflow builder"
+  },
+  "builderModeDom": {
+    "message": "DOM change",
+    "description": "workflow builder"
+  },
+  "builderModeSchedule": {
+    "message": "Schedule",
+    "description": "workflow builder"
+  },
+  "builderUrlMatchTitle": {
+    "message": "Visit URL matching",
+    "description": "workflow builder"
+  },
+  "builderMatchUrlPrefix": {
+    "message": "URL prefix",
+    "description": "workflow builder"
+  },
+  "builderMatchDomain": {
+    "message": "Domain contains",
+    "description": "workflow builder"
+  },
+  "builderMatchPath": {
+    "message": "Path prefix",
+    "description": "workflow builder"
+  },
+  "builderUrlExamplePlaceholder": {
+    "message": "e.g. https://example.com/app",
+    "description": "workflow builder"
+  },
+  "builderAddMatchButton": {
+    "message": "+ Add match",
+    "description": "workflow builder"
+  },
+  "builderContextMenuTitle": {
+    "message": "Context menu",
+    "description": "workflow builder"
+  },
+  "builderTitleLabel": {
+    "message": "Title",
+    "description": "workflow builder"
+  },
+  "builderMenuTitlePlaceholder": {
+    "message": "Menu title",
+    "description": "workflow builder"
+  },
+  "builderScopeLabel": {
+    "message": "Scope",
+    "description": "workflow builder"
+  },
+  "builderShortcutTitle": {
+    "message": "Keyboard shortcut",
+    "description": "workflow builder"
+  },
+  "builderCommandKeyLabel": {
+    "message": "Command key (must be declared in manifest commands)",
+    "description": "workflow builder"
+  },
+  "builderCommandKeyPlaceholder": {
+    "message": "e.g. run_quick_trigger_1",
+    "description": "workflow builder"
+  },
+  "builderShortcutHint": {
+    "message": "Tip: Chrome extension shortcuts must be declared in the manifest and cannot be added at runtime.",
+    "description": "workflow builder"
+  },
+  "builderDomChangeTitle": {
+    "message": "DOM change",
+    "description": "workflow builder"
+  },
+  "builderSelectorLabel": {
+    "message": "Selector",
+    "description": "workflow builder"
+  },
+  "builderTriggerOnAppear": {
+    "message": "Trigger when it appears",
+    "description": "workflow builder"
+  },
+  "builderTriggerOnce": {
+    "message": "Trigger only once",
+    "description": "workflow builder"
+  },
+  "builderPickFromPageButton": {
+    "message": "Pick from page",
+    "description": "workflow builder"
+  },
+  "builderSelectorValuePlaceholder": {
+    "message": "Selector value",
+    "description": "workflow builder"
+  },
+  "builderAddSelectorButton": {
+    "message": "+ Add selector",
+    "description": "workflow builder"
+  },
+  "builderNodePropertiesTitle": {
+    "message": "Node properties",
+    "description": "workflow builder"
+  },
+  "builderDeleteNodeTitle": {
+    "message": "Delete node",
+    "description": "workflow builder"
+  },
+  "builderNodeNameLabel": {
+    "message": "Node name",
+    "description": "workflow builder"
+  },
+  "builderNodeNamePlaceholder": {
+    "message": "Enter a node name",
+    "description": "workflow builder"
+  },
+  "builderCommonSettingsTitle": {
+    "message": "Common settings",
+    "description": "workflow builder"
+  },
+  "builderGlobalTimeoutPlaceholder": {
+    "message": "Uses the global timeout by default",
+    "description": "workflow builder"
+  },
+  "builderScreenshotOnFailure": {
+    "message": "Screenshot on failure",
+    "description": "workflow builder"
+  },
+  "builderSelectNodeEmpty": {
+    "message": "Select a node<br />to view and edit its properties",
+    "description": "workflow builder"
+  },
+  "builderNeedSaveAs": {
+    "message": "A save variable name is required",
+    "description": "workflow builder"
+  },
+  "builderNeedSelectorOrJs": {
+    "message": "Provide either selector or js",
+    "description": "workflow builder"
+  },
+  "builderNoSelectorConfigured": {
+    "message": "No selector configured",
+    "description": "workflow builder"
+  },
+  "builderPageFallback": {
+    "message": "page",
+    "description": "workflow builder"
+  },
+  "builderIfBranchCount": {
+    "message": "if/else branches: ",
+    "description": "workflow builder"
+  },
+  "builderMissingInputValue": {
+    "message": "Missing input value",
+    "description": "workflow builder"
+  },
+  "builderMissingWaitCondition": {
+    "message": "Missing wait condition",
+    "description": "workflow builder"
+  },
+  "builderMissingAssertCondition": {
+    "message": "Missing assert condition",
+    "description": "workflow builder"
+  },
+  "builderMissingUrl": {
+    "message": "Missing URL",
+    "description": "workflow builder"
+  },
+  "builderHttpMissingUrl": {
+    "message": "HTTP: missing URL",
+    "description": "workflow builder"
+  },
+  "builderAssignInvalidPath": {
+    "message": "Assign: invalid path ",
+    "description": "workflow builder"
+  },
+  "builderExtractNeedSaveAs": {
+    "message": "Extract: a save variable name is required",
+    "description": "workflow builder"
+  },
+  "builderExtractNeedSelectorOrJs": {
+    "message": "Extract: provide either selector or js",
+    "description": "workflow builder"
+  },
+  "builderSwitchTabNeedTarget": {
+    "message": "SwitchTab: provide a tabId, or a URL/title substring",
+    "description": "workflow builder"
+  },
+  "builderNeedEventType": {
+    "message": "An event type is required",
+    "description": "workflow builder"
+  },
+  "builderNeedOneBranch": {
+    "message": "At least one conditional branch is required",
+    "description": "workflow builder"
+  },
+  "builderBranchNeedExpr": {
+    "message": "needs a condition expression",
+    "description": "workflow builder"
+  },
+  "builderBranchPrefix": {
+    "message": "Branch",
+    "description": "workflow builder"
+  },
+  "builderNeedAttrName": {
+    "message": "An attribute name is required",
+    "description": "workflow builder"
+  },
+  "builderNeedElementSelector": {
+    "message": "An element selector is required",
+    "description": "workflow builder"
+  },
+  "builderNeedSubflowId": {
+    "message": "A subflow ID is required",
+    "description": "workflow builder"
+  },
+  "builderNeedTargetFlow": {
+    "message": "Select the workflow to run",
+    "description": "workflow builder"
+  },
+  "builderScriptMissingCode": {
+    "message": "Script: save/mapping configured but no code",
+    "description": "workflow builder"
+  },
+  "builderCannotConnectSelf": {
+    "message": "Cannot connect a node to itself",
+    "description": "workflow builder"
+  },
+  "builderMaxInEdges": {
+    "message": "This node allows at most $P0$ incoming edges",
+    "placeholders": {
+      "p0": {
+        "content": "$1"
+      }
+    },
+    "description": "workflow builder"
+  },
+  "builderMaxOutEdges": {
+    "message": "This node allows at most $P0$ outgoing edges",
+    "placeholders": {
+      "p0": {
+        "content": "$1"
+      }
+    },
+    "description": "workflow builder"
+  },
+  "builderElkUnavailable": {
+    "message": "ELK auto-layout is unavailable; used the fallback layout",
+    "description": "workflow builder"
+  },
+  "builderExpressionParseError": {
+    "message": "Expression parse error",
+    "description": "workflow builder"
+  },
+  "builderPickFromPageTitle": {
+    "message": "Pick from page",
+    "description": "workflow builder"
+  },
+  "builderPickButton": {
+    "message": "Pick",
+    "description": "workflow builder"
+  },
+  "builderFieldSelectorHelp": {
+    "message": "Enter a CSS selector, or click Pick to choose an element on the page",
+    "description": "workflow builder"
+  },
+  "builderPickFailedShort": {
+    "message": "Pick failed",
+    "description": "workflow builder"
+  },
+  "builderNoValidSelector": {
+    "message": "No valid selector was produced; enter one manually",
+    "description": "workflow builder"
+  },
+  "builderDebounceMsLabel": {
+    "message": "Debounce (ms)",
+    "description": "workflow builder"
+  },
+  "builderScheduleSectionTitle": {
+    "message": "Schedule",
+    "description": "workflow builder"
+  },
+  "builderScheduleDailyOpt": {
+    "message": "Daily (HH:mm)",
+    "description": "workflow builder"
+  },
+  "builderScheduleOnceOpt": {
+    "message": "Once (ISO time)",
+    "description": "workflow builder"
+  },
+  "builderScheduleIntervalOpt": {
+    "message": "Interval (minutes)",
+    "description": "workflow builder"
+  },
+  "builderSchedulePlaceholder": {
+    "message": "5, or 09:00, or 2025-01-01T10:00:00",
+    "description": "workflow builder"
+  },
+  "builderAddScheduleButton": {
+    "message": "+ Add schedule",
+    "description": "workflow builder"
+  },
+  "builderTriggerSyncNote": {
+    "message": "Note: triggers are synced to the background trigger table (URL / context menu / shortcut / DOM) and to scheduled tasks (interval / daily / once) when the workflow is saved.",
+    "description": "workflow builder"
+  },
+  "builderRunWorkflowMenuTitle": {
+    "message": "Run workflow",
+    "description": "workflow builder"
+  },
+  "builderEventTypeLabel": {
+    "message": "Event type",
+    "description": "workflow builder"
+  },
+  "builderEventTypePlaceholder": {
+    "message": "e.g. input / change / mouseover",
+    "description": "workflow builder"
+  },
+  "builderBubbles": {
+    "message": "Bubbles",
+    "description": "workflow builder"
+  },
+  "builderCancelable": {
+    "message": "Cancelable",
+    "description": "workflow builder"
+  },
+  "builderWaitConditionLabel": {
+    "message": "Wait condition (JSON)",
+    "description": "workflow builder"
+  },
+  "builderWhileConditionLabel": {
+    "message": "Condition (JSON)",
+    "description": "workflow builder"
+  },
+  "builderEnableLabel": {
+    "message": "Enable",
+    "description": "workflow builder"
   }
 }

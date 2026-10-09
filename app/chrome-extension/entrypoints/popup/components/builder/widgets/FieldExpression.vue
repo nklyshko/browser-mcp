@@ -6,6 +6,7 @@
 </template>
 
 <script lang="ts" setup>
+import { getMessage } from '@/utils/i18n';
 import { ref, watchEffect } from 'vue';
 import { evalExpression } from '@/entrypoints/background/record-replay-v3/utils/expression';
 
@@ -25,7 +26,7 @@ function onInput(ev: any) {
     }
     err.value = '';
   } catch (e: any) {
-    err.value = '表达式解析错误';
+    err.value = getMessage('builderExpressionParseError');
   }
   emit('update:modelValue', v);
 }

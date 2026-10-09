@@ -1,6 +1,6 @@
 <template>
   <div class="form-section">
-    <div class="section-title">配置</div>
+    <div class="section-title">{{ getMessage('builderConfigSectionTitle') }}</div>
     <div v-for="field in schema" :key="field.key" class="form-group" :data-field="field.key">
       <label class="form-label">{{ field.label }}</label>
       <component
@@ -13,13 +13,14 @@
     </div>
 
     <div v-if="errors.length" class="error-box">
-      <div class="error-title">⚠️ 配置错误</div>
+      <div class="error-title">{{ getMessage('builderConfigErrorTitle') }}</div>
       <div v-for="e in errors" :key="e" class="error-item">{{ e }}</div>
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
+import { getMessage } from '@/utils/i18n';
 /* eslint-disable vue/no-mutating-props -- Node is a reactive builder-store object; edits must persist in-place. */
 import { computed, onMounted, reactive, watch, defineComponent, h, ref, type Component } from 'vue';
 import type { FieldSpec, NodeSpec } from '@/entrypoints/popup/components/builder/model/node-spec';
@@ -71,7 +72,8 @@ const errors = computed(() => {
   const cfg = props.node?.config || {};
   const out: string[] = [];
   for (const f of schema.value)
-    if (f.required && (cfg[f.key] === undefined || cfg[f.key] === '')) out.push(`${f.label} 必填`);
+    if (f.required && (cfg[f.key] === undefined || cfg[f.key] === ''))
+      out.push(`${f.label} ${getMessage('builderFieldRequiredSuffix')}`);
   try {
     const more = spec.value?.validate?.(cfg) || [];
     out.push(...more);
@@ -193,7 +195,7 @@ const JsonField = defineComponent({
         err.value = '';
         emit('update:modelValue', v);
       } catch (e) {
-        err.value = 'JSON 格式错误';
+        err.value = getMessage('builderInvalidJsonMessage');
       }
     });
     return () =>
@@ -201,7 +203,7 @@ const JsonField = defineComponent({
         h('textarea', {
           class: 'form-input',
           rows: 6,
-          placeholder: '输入 JSON',
+          placeholder: getMessage('builderEnterJsonPlaceholder'),
           value: text.value,
           onInput: (e: any) => (text.value = String(e?.target?.value ?? '')),
         }),
@@ -301,10 +303,14 @@ const ArrayField: Component = defineComponent({
               },
               variables: props.variables || [],
             }),
-            h('button', { class: 'btn-mini', type: 'button', onClick: () => remove(i) }, '删除'),
+            h(
+              'button',
+              { class: 'btn-mini', type: 'button', onClick: () => remove(i) },
+              getMessage('builderRemoveButton'),
+            ),
           ]),
         ),
-        h('button', { class: 'btn', type: 'button', onClick: add }, '新增'),
+        h('button', { class: 'btn', type: 'button', onClick: add }, getMessage('builderAddButton')),
       ]);
   },
 });

@@ -21,7 +21,9 @@
 
     <div class="if-cases">
       <div v-for="(b, idx) in branches" :key="b.id" class="case-row">
-        <div class="case-label">{{ b.name || `条件${idx + 1}` }}</div>
+        <div class="case-label">{{
+          b.name || `${getMessage('builderCaseFallbackName')}${idx + 1}`
+        }}</div>
         <Handle
           type="source"
           :position="Position.Right"
@@ -49,8 +51,12 @@
 </template>
 
 <script lang="ts" setup>
+import { getMessage } from '@/utils/i18n';
 import { computed } from 'vue';
-import type { NodeBase, Edge as BuilderEdge } from '@/entrypoints/background/record-replay-v3/builder-types';
+import type {
+  NodeBase,
+  Edge as BuilderEdge,
+} from '@/entrypoints/background/record-replay-v3/builder-types';
 import { Handle, Position } from '@vue-flow/core';
 import { iconComp, getTypeLabel, nodeSubtitle } from './node-util';
 import ILucideShieldX from '~icons/lucide/shield-x';

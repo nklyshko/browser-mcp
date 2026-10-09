@@ -2,17 +2,28 @@
   <div class="selector">
     <div class="row">
       <input class="form-input" :placeholder="placeholder" :value="text" @input="onInput" />
-      <button class="btn-mini" type="button" title="从页面拾取" @click="onPick">拾取</button>
+      <button
+        class="btn-mini"
+        type="button"
+        :title="getMessage('builderPickFromPageTitle')"
+        @click="onPick"
+        >{{ getMessage('builderPickButton') }}</button
+      >
       <button class="btn-mini" type="button" :disabled="validating" @click="onValidate">
-        {{ validating ? '验证中…' : '验证定位' }}
+        {{
+          validating
+            ? getMessage('builderValidatingStatus')
+            : getMessage('builderValidateLocatorButton')
+        }}
       </button>
     </div>
-    <div class="help">可输入 CSS 选择器，或点击“拾取”在页面中选择元素</div>
+    <div class="help">{{ getMessage('builderFieldSelectorHelp') }}</div>
     <div v-if="message" :class="validationOk ? 'success-item' : 'error-item'">{{ message }}</div>
   </div>
 </template>
 
 <script lang="ts" setup>
+import { getMessage } from '@/utils/i18n';
 import { ref, watchEffect } from 'vue';
 import { pickElementFromPage, validatePageSelector } from '../components/page-picker';
 const props = defineProps<{ modelValue?: string; field?: any }>();
@@ -36,7 +47,7 @@ async function onPick() {
     const res: any = await pickElementFromPage();
     if (!res || !res.success) {
       if (res?.cancelled) return;
-      throw new Error(res?.error || '拾取失败');
+      throw new Error(res?.error || getMessage('builderPickFailedShort'));
     }
     const candidates = Array.isArray(res.candidates) ? res.candidates : [];
     const prefer = ['css', 'attr', 'aria', 'text'];
@@ -54,7 +65,7 @@ async function onPick() {
       emit('update:modelValue', sel);
     } else {
       validationOk.value = false;
-      message.value = '未生成有效选择器，请手动输入';
+      message.value = getMessage('builderNoValidSelector');
     }
   } catch (e: any) {
     validationOk.value = false;
@@ -67,7 +78,7 @@ async function onValidate() {
   try {
     await validatePageSelector(text.value);
     validationOk.value = true;
-    message.value = '定位成功。';
+    message.value = getMessage('builderLocateOkMessage');
   } catch (e: any) {
     validationOk.value = false;
     message.value = e?.message || String(e);

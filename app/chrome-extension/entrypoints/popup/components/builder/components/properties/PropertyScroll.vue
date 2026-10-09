@@ -1,25 +1,30 @@
 <template>
   <div>
     <div class="form-row">
-      <label class="form-label">模式</label>
+      <label class="form-label">{{ getMessage('builderModeLabel') }}</label>
       <select v-model="cfg.mode" class="form-select-sm">
-        <option value="element">滚动到元素</option>
-        <option value="offset">窗口偏移</option>
-        <option value="container">容器偏移</option>
+        <option value="element">{{ getMessage('builderScrollToElement') }}</option>
+        <option value="offset">{{ getMessage('builderWindowOffset') }}</option>
+        <option value="container">{{ getMessage('builderContainerOffset') }}</option>
       </select>
     </div>
 
     <div v-if="cfg.mode === 'element'" class="mt-2">
-      <SelectorEditor :node="node" :allowPick="true" title="目标元素" targetKey="target" />
+      <SelectorEditor
+        :node="node"
+        :allowPick="true"
+        :title="getMessage('builderTargetElementTitle')"
+        targetKey="target"
+      />
     </div>
 
     <div v-if="cfg.mode !== 'element'" class="mt-2">
       <div class="form-row">
-        <label class="form-label">偏移 X</label>
+        <label class="form-label">{{ getMessage('builderOffsetXLabel') }}</label>
         <input type="number" class="form-input-sm" v-model.number="cfg.offset.x" placeholder="0" />
       </div>
       <div class="form-row">
-        <label class="form-label">偏移 Y</label>
+        <label class="form-label">{{ getMessage('builderOffsetYLabel') }}</label>
         <input
           type="number"
           class="form-input-sm"
@@ -28,14 +33,22 @@
         />
       </div>
       <div v-if="cfg.mode === 'container'" class="mt-2">
-        <SelectorEditor :node="node" :allowPick="true" title="容器选择器" targetKey="target" />
-        <div class="hint"><small>容器需支持 scrollTo(top,left)</small></div>
+        <SelectorEditor
+          :node="node"
+          :allowPick="true"
+          :title="getMessage('builderContainerSelectorTitle')"
+          targetKey="target"
+        />
+        <div class="hint"
+          ><small>{{ getMessage('builderContainerScrollHint') }}</small></div
+        >
       </div>
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
+import { getMessage } from '@/utils/i18n';
 
 import type { NodeBase } from '@/entrypoints/background/record-replay-v3/builder-types';
 import SelectorEditor from './SelectorEditor.vue';

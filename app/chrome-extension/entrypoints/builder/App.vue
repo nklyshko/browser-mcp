@@ -329,7 +329,7 @@ import TriggerPanel from '@/entrypoints/popup/components/builder/components/Trig
 
 type Locale = 'zh' | 'en';
 const savedLocale = localStorage.getItem('rr-builder-locale');
-const locale = ref<Locale>(savedLocale === 'en' ? 'en' : 'zh');
+const locale = ref<Locale>(savedLocale === 'zh' ? 'zh' : 'en');
 const messages = {
   zh: {
     fallback: '已应用回退建议：提升',
@@ -370,6 +370,23 @@ const messages = {
     delete: '删除',
     deleteTitle: '删除当前工作流',
     deleteConfirm: '确定删除当前工作流吗？此操作无法撤销。',
+    flowNotFound: '工作流 "{0}" 未找到，已创建新工作流',
+    loadFailed: '加载工作流失败：{0}',
+    nodeRunFailed: '节点「{0}」执行失败：{1}',
+    flowRunFailed: '工作流执行失败：{0}',
+    flowDeleted: '工作流已删除',
+    deleteFailed: '删除失败：{0}',
+    saveFailed: '保存失败：{0}',
+    scheduleOnceUnsupported: '节点 {0} 的定时 #{1}: V3 暂不支持一次性定时（once），已跳过',
+    scheduleCronUnsupported: '节点 {0} 的定时 #{1}: 无法转换为 cron（type={2}），已跳过',
+    exportFailed: '导出失败：{0}',
+    jsonCopied: '工作流 JSON 已复制，可直接交给 AI',
+    copyFailed: '复制失败：{0}',
+    importNoData: '导入失败：未找到工作流数据',
+    importFailed: '导入失败：{0}',
+    onlyV3: '仅支持 V3 工作流文件',
+    runFailed: '运行失败：{0}',
+    queuedRuns: '已加入 {0} 次运行队列',
   },
   en: {
     fallback: 'Fallback applied: raised',
@@ -410,9 +427,34 @@ const messages = {
     delete: 'Delete',
     deleteTitle: 'Delete current workflow',
     deleteConfirm: 'Delete this workflow? This cannot be undone.',
+    flowNotFound: 'Workflow "{0}" was not found, so a new one was created',
+    loadFailed: 'Failed to load the workflow: {0}',
+    nodeRunFailed: 'Node \u201c{0}\u201d failed: {1}',
+    flowRunFailed: 'Workflow execution failed: {0}',
+    flowDeleted: 'Workflow deleted',
+    deleteFailed: 'Delete failed: {0}',
+    saveFailed: 'Save failed: {0}',
+    scheduleOnceUnsupported:
+      'Node {0} schedule #{1}: V3 does not support one-off schedules yet, skipped',
+    scheduleCronUnsupported:
+      'Node {0} schedule #{1}: cannot be converted to cron (type={2}), skipped',
+    exportFailed: 'Export failed: {0}',
+    jsonCopied: 'Workflow JSON copied, ready to hand to an AI',
+    copyFailed: 'Copy failed: {0}',
+    importNoData: 'Import failed: no workflow data found',
+    importFailed: 'Import failed: {0}',
+    onlyV3: 'Only V3 workflow files are supported',
+    runFailed: 'Run failed: {0}',
+    queuedRuns: 'Queued {0} runs',
   },
 } as const;
 const t = (key: keyof typeof messages.zh) => messages[locale.value][key];
+/** t() with positional {0}, {1}… substitution. */
+const tf = (key: keyof typeof messages.zh, ...args: Array<string | number>) =>
+  args.reduce<string>(
+    (text, value, index) => text.replaceAll(`{${index}}`, String(value)),
+    t(key) as string,
+  );
 const flowTitle = ref('');
 const runCount = ref(1);
 const title = computed(() => (flowTitle.value ? `${t('edit')}: ${flowTitle.value}` : t('editor')));
@@ -503,11 +545,11 @@ async function bootstrap() {
         }
       } else {
         // Flow not found - notify user and initialize empty flow
-        pushToast(`工作流 "${q.flowId}" 未找到，已创建新工作流`, 'warn');
+        pushToast(tf('flowNotFound', q.flowId), 'warn');
         initEmptyFlow();
       }
     } catch (e) {
-      pushToast(`加载工作流失败：${e instanceof Error ? e.message : String(e)}`, 'error');
+      pushToast(tf('loadFailed', e instanceof Error ? e.message : String(e)), 'error');
       initEmptyFlow();
     }
   } else if (q.new === '1') {
@@ -516,7 +558,7 @@ async function bootstrap() {
 }
 
 /**
- * 初始化一个空的工作流
+ * Initialise an empty workflow
  */
 function initEmptyFlow() {
   const now = Date.now();
@@ -573,9 +615,9 @@ function handleRunEvent(event: RunEvent) {
   if (nodeId) {
     runtimeNodeErrors.value[nodeId] = [message];
     focusNode(nodeId);
-    lastRunError.value = `节点「${nodeLabel(nodeId)}」执行失败：${message}`;
+    lastRunError.value = tf('nodeRunFailed', nodeLabel(nodeId), message);
   } else {
-    lastRunError.value = `工作流执行失败：${message}`;
+    lastRunError.value = tf('flowRunFailed', message);
   }
   pushToast(lastRunError.value, 'error');
 }
@@ -666,17 +708,17 @@ async function deleteFlow() {
     isDeletingFlow = true;
     await rpc.ensureConnected();
     await rpc.request('rr_v3.deleteFlow', { flowId });
-    pushToast('工作流已删除', 'info');
+    pushToast(t('flowDeleted'), 'info');
     window.close();
   } catch (e) {
     isDeletingFlow = false;
-    pushToast(`删除失败：${e instanceof Error ? e.message : String(e)}`, 'error');
+    pushToast(tf('deleteFailed', e instanceof Error ? e.message : String(e)), 'error');
   }
 }
 
 /**
- * 保存 Flow 到 V3 RPC
- * @returns 保存成功返回 FlowV3，失败返回 null
+ * Save the flow over V3 RPC.
+ * @returns the FlowV3 on success, null on failure
  */
 async function save(): Promise<FlowV3 | null> {
   if (isDeletingFlow) return null;
@@ -711,7 +753,7 @@ async function save(): Promise<FlowV3 | null> {
 
     return saved;
   } catch (e) {
-    pushToast(`保存失败：${e instanceof Error ? e.message : String(e)}`, 'error');
+    pushToast(tf('saveFailed', e instanceof Error ? e.message : String(e)), 'error');
     return null;
   }
 }
@@ -727,8 +769,8 @@ function schId(flowId: string, nodeId: string, idx: number): TriggerId {
 }
 
 /**
- * 将计划配置转换为 cron 表达式
- * @returns cron 表达式或 null（如果无法转换）
+ * Convert a schedule config into a cron expression.
+ * @returns the cron expression, or null when it cannot be converted
  */
 function scheduleToCron(schedule: { type?: string; when?: string }): string | null {
   if (!schedule) return null;
@@ -755,13 +797,13 @@ function scheduleToCron(schedule: { type?: string; when?: string }): string | nu
     return `${minute} ${hour} * * *`;
   }
 
-  // V3 cron 不支持 'once' 一次性定时
+  // V3 cron has no equivalent for a one-off 'once' schedule
   return null;
 }
 
 /**
- * 从 trigger 节点配置同步触发器到 V3 存储
- * @description 计划配置会转换为 V3 cron triggers
+ * Sync triggers from the trigger node config into V3 storage.
+ * @description schedule configs are converted into V3 cron triggers
  */
 async function syncTriggersAndSchedules(flowId: string, nodes: unknown[]) {
   const triggersNeeded: TriggerSpec[] = [];
@@ -830,15 +872,9 @@ async function syncTriggersAndSchedules(flowId: string, nodes: unknown[]) {
         if (!cron) {
           const scheduleType = String(s?.type || 'unknown');
           if (scheduleType === 'once') {
-            pushToast(
-              `节点 ${n.id} 的定时 #${i + 1}: V3 暂不支持一次性定时（once），已跳过`,
-              'warn',
-            );
+            pushToast(tf('scheduleOnceUnsupported', n.id, i + 1), 'warn');
           } else {
-            pushToast(
-              `节点 ${n.id} 的定时 #${i + 1}: 无法转换为 cron（type=${scheduleType}），已跳过`,
-              'warn',
-            );
+            pushToast(tf('scheduleCronUnsupported', n.id, i + 1, String(scheduleType)), 'warn');
           }
           return;
         }
@@ -910,7 +946,7 @@ async function exportFlow() {
     } as chrome.downloads.DownloadOptions);
     URL.revokeObjectURL(url);
   } catch (e) {
-    pushToast(`导出失败：${e instanceof Error ? e.message : String(e)}`, 'error');
+    pushToast(tf('exportFailed', e instanceof Error ? e.message : String(e)), 'error');
   }
 }
 
@@ -919,9 +955,9 @@ async function copyFlow() {
   if (!saved) return;
   try {
     await navigator.clipboard.writeText(JSON.stringify(saved, null, 2));
-    pushToast('工作流 JSON 已复制，可直接交给 AI', 'info');
+    pushToast(t('jsonCopied'), 'info');
   } catch (e) {
-    pushToast(`复制失败：${e instanceof Error ? e.message : String(e)}`, 'error');
+    pushToast(tf('copyFailed', e instanceof Error ? e.message : String(e)), 'error');
   }
 }
 
@@ -936,7 +972,7 @@ async function onImport(e: Event) {
     const candidates = extractFlowCandidates(parsed);
 
     if (!candidates.length) {
-      pushToast('导入失败：未找到工作流数据', 'error');
+      pushToast(t('importNoData'), 'error');
       return;
     }
 
@@ -959,10 +995,10 @@ async function onImport(e: Event) {
         await syncTriggersAndSchedules(builderFlow.id, builderFlow.nodes || []);
       } catch {}
     } else {
-      throw new Error('仅支持 V3 工作流文件');
+      throw new Error(t('onlyV3'));
     }
   } catch (e) {
-    pushToast(`导入失败：${e instanceof Error ? e.message : String(e)}`, 'error');
+    pushToast(tf('importFailed', e instanceof Error ? e.message : String(e)), 'error');
   } finally {
     input.value = '';
   }
@@ -983,7 +1019,7 @@ async function runFromSelected() {
 
     await enqueueRuns(saved.id as FlowId, startNodeId as NodeId | undefined);
   } catch (e) {
-    pushToast(`运行失败：${e instanceof Error ? e.message : String(e)}`, 'error');
+    pushToast(tf('runFailed', e instanceof Error ? e.message : String(e)), 'error');
   }
 }
 
@@ -997,7 +1033,7 @@ async function runAll() {
     await rpc.ensureConnected();
     await enqueueRuns(saved.id as FlowId);
   } catch (e) {
-    pushToast(`运行失败：${e instanceof Error ? e.message : String(e)}`, 'error');
+    pushToast(tf('runFailed', e instanceof Error ? e.message : String(e)), 'error');
   }
 }
 
@@ -1015,7 +1051,7 @@ async function enqueueRuns(flowId: FlowId, startNodeId?: NodeId) {
     ),
   );
   await trackRun(results.at(-1)!.runId);
-  if (count > 1) pushToast(`已加入 ${count} 次运行队列`, 'info');
+  if (count > 1) pushToast(tf('queuedRuns', count), 'info');
 }
 
 // Hotkeys
