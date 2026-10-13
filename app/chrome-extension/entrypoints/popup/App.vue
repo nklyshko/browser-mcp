@@ -86,14 +86,22 @@
               </div>
               <div class="service-warning-body">
                 <div class="service-warning-title">{{
-                  getMessage('connectedServiceNotStartedStatus')
+                  portOwnedByOtherBrowser
+                    ? getMessage('portOwnedByOtherBrowserTitle')
+                    : getMessage('connectedServiceNotStartedStatus')
                 }}</div>
-                <div class="service-warning-desc">{{ getMessage('serviceNotStartedTip') }}</div>
+                <div class="service-warning-desc">{{
+                  portOwnedByOtherBrowser
+                    ? getMessage('portOwnedByOtherBrowserTip')
+                    : getMessage('serviceNotStartedTip')
+                }}</div>
                 <div class="service-warning-actions">
                   <button class="service-warning-btn" @click="refreshServerStatus">
                     {{ getMessage('refreshStatusButton') }}
                   </button>
+                  <!-- Starting cannot succeed while another browser holds the port. -->
                   <button
+                    v-if="!portOwnedByOtherBrowser"
                     class="service-warning-btn service-warning-btn-primary"
                     @click="startService"
                   >
@@ -1493,6 +1501,11 @@ const runFlow = async (flowId: string) => {
 // Clone/publish/schedule/overrides are handled in the sidepanel or the editor
 
 const nativeConnectionStatus = ref<'unknown' | 'connected' | 'disconnected'>('unknown');
+/** Reason the bridge is degraded, e.g. another browser owns the HTTP port. */
+const nativeConnectionReason = ref<string>('');
+const portOwnedByOtherBrowser = computed(
+  () => nativeConnectionReason.value === 'http_port_owned_by_other_process',
+);
 const isConnecting = ref(false);
 const nativeServerPort = ref<number>(12306);
 const backgroundOperations = ref(true);
@@ -2495,6 +2508,18 @@ const updatePort = async (event: Event) => {
   await savePortPreference(newPort);
 };
 
+/** The degraded reason lives only in storage; nothing broadcasts it. */
+const loadNativeConnectionReason = async () => {
+  try {
+    const stored = await chrome.storage.local.get([STORAGE_KEYS.NATIVE_CONNECTION_STATE]);
+    const snapshot = stored[STORAGE_KEYS.NATIVE_CONNECTION_STATE] as
+      { state?: string; lastError?: string } | undefined;
+    nativeConnectionReason.value = snapshot?.state === 'degraded' ? (snapshot.lastError ?? '') : '';
+  } catch {
+    nativeConnectionReason.value = '';
+  }
+};
+
 const checkNativeConnection = async () => {
   try {
     const response = await chrome.runtime.sendMessage({ type: 'ping_native' });
@@ -2518,6 +2543,7 @@ const checkServerStatus = async () => {
     if (response?.connected !== undefined) {
       nativeConnectionStatus.value = response.connected ? 'connected' : 'disconnected';
     }
+    await loadNativeConnectionReason();
   } catch (error) {
     console.error('Failed to probe the server status:', error);
   }
@@ -2536,6 +2562,7 @@ const refreshServerStatus = async () => {
     if (response?.connected !== undefined) {
       nativeConnectionStatus.value = response.connected ? 'connected' : 'disconnected';
     }
+    await loadNativeConnectionReason();
   } catch (error) {
     console.error('Failed to refresh the server status:', error);
   }

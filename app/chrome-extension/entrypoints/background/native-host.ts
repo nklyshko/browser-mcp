@@ -25,6 +25,7 @@ let negotiatedVersion: number | undefined;
 let nativeCapabilities: NativeConnectionSnapshot['capabilities'];
 let eventSocket: WebSocket | null = null;
 let eventHeartbeat: ReturnType<typeof setInterval> | null = null;
+let portReclaimTimer: ReturnType<typeof setInterval> | null = null;
 let eventKeepaliveRelease: (() => void) | null = null;
 const activeToolCalls = new Map<string, AbortController>();
 const respondedProtocolRequests = new Set<string>();
@@ -38,6 +39,8 @@ const RECONNECT_BASE_DELAY_MS = 500;
 const RECONNECT_MAX_DELAY_MS = 60_000;
 const RECONNECT_MAX_FAST_ATTEMPTS = 8;
 const RECONNECT_COOLDOWN_DELAY_MS = 5 * 60_000;
+/** How often a browser that lost the HTTP port re-tries binding it. */
+const PORT_RECLAIM_INTERVAL_MS = 20_000;
 
 // ==================== Auto-connect State ====================
 
@@ -87,6 +90,9 @@ function persistNativeConnectionState(lastError?: string): void {
 
 function setNativeConnectionState(state: NativeConnectionState, lastError?: string): void {
   if (nativeConnectionState === state && !lastError) return;
+  // Warn rather than debug: this used to be invisible without switching DevTools to
+  // Verbose, which is why a bridge stuck in `degraded` looked like silence.
+  if (state === 'degraded') console.warn(`${LOG_PREFIX} Degraded: ${lastError ?? 'unknown'}`);
   nativeConnectionState = state;
   persistNativeConnectionState(lastError);
 }
@@ -204,6 +210,58 @@ function clearReconnectTimer(): void {
 function resetReconnectState(): void {
   reconnectAttempts = 0;
   clearReconnectTimer();
+}
+
+/**
+ * Ask the native host to bind the HTTP server on `port`.
+ *
+ * Split out of the connect path so the port-reclaim retry can re-issue it
+ * without reconnecting the native channel, which is healthy throughout.
+ */
+function requestServerStart(port: number): void {
+  if (!nativePort) return;
+  nativePort.postMessage({
+    version: NATIVE_PROTOCOL_VERSION,
+    type: 'request',
+    requestId: crypto.randomUUID(),
+    traceId: crypto.randomUUID(),
+    method: 'native.start',
+    deadlineAt: Date.now() + 15_000,
+    params: { port },
+  });
+}
+
+function clearPortReclaimTimer(): void {
+  if (!portReclaimTimer) return;
+  clearInterval(portReclaimTimer);
+  portReclaimTimer = null;
+}
+
+/**
+ * Retry binding the HTTP port while another browser's bridge owns it.
+ *
+ * Losing the port is not a connection failure: the native channel stays up, so
+ * nothing ever fires `onDisconnect` and the normal reconnect path is never
+ * entered. Without this, a browser that lost the race stayed degraded forever —
+ * closing the winner left MCP dead until the loser's browser was restarted.
+ *
+ * A plain interval rather than backoff: the wait is for an external event (the
+ * other browser exiting) whose timing carries no information, and the cost of a
+ * tick is one message to an already-open port.
+ */
+function startPortReclaim(port: number): void {
+  if (portReclaimTimer) return;
+  portReclaimTimer = setInterval(() => {
+    if (!nativePort || manualDisconnect || !autoConnectEnabled) {
+      clearPortReclaimTimer();
+      return;
+    }
+    if (currentServerStatus.isRunning) {
+      clearPortReclaimTimer();
+      return;
+    }
+    requestServerStart(port);
+  }, PORT_RECLAIM_INTERVAL_MS);
 }
 
 function postProtocolResponseOnce(request: NativeRequest, response: Record<string, unknown>): void {
@@ -842,9 +900,11 @@ export function connectNativeHost(port: number = NATIVE_HOST.DEFAULT_PORT): bool
                 // Reporting "running" here is what made a dead bridge look healthy.
                 await markServerStopped('http_port_owned_by_other_process');
                 setNativeConnectionState('degraded', 'http_port_owned_by_other_process');
-                // The native channel itself is fine, so stop the reconnect backoff;
-                // retrying cannot free a port another browser is using.
+                // The native channel is fine, so the reconnect backoff has nothing to
+                // do — but keep retrying the bind, because the port frees the moment
+                // the other browser exits and nothing else would notice.
                 resetReconnectState();
+                startPortReclaim(normalizePort(data?.port) ?? (await getPreferredPort()));
                 return;
               }
               currentServerStatus = {
@@ -854,6 +914,7 @@ export function connectNativeHost(port: number = NATIVE_HOST.DEFAULT_PORT): bool
               };
               await saveServerStatus(currentServerStatus);
               broadcastServerStatusChange(currentServerStatus);
+              clearPortReclaimTimer();
               resetReconnectState();
             } else if (protocolMessage.event === 'native.serverStopped') {
               await markServerStopped('native_protocol_event');
@@ -928,15 +989,7 @@ export function connectNativeHost(port: number = NATIVE_HOST.DEFAULT_PORT): bool
     nativePort.postMessage(
       createNativeHello('extension-background', { name: 'chrome-mcp-extension', version: '2' }),
     );
-    nativePort.postMessage({
-      version: NATIVE_PROTOCOL_VERSION,
-      type: 'request',
-      requestId: crypto.randomUUID(),
-      traceId: crypto.randomUUID(),
-      method: 'native.start',
-      deadlineAt: Date.now() + 15_000,
-      params: { port },
-    });
+    requestServerStart(port);
     // Note: Don't reset reconnect state here. Wait for native.serverStarted confirmation.
     // Chrome may return a Port but disconnect immediately if native host is missing.
     return true;
@@ -1056,6 +1109,7 @@ export const initNativeHostListener = () => {
         // Explicit user disconnect: disable auto-connect and stop reconnect loop
         await setNativeAutoConnectEnabled(false);
         clearReconnectTimer();
+        clearPortReclaimTimer();
         reconnectAttempts = 0;
         syncKeepaliveHold();
 

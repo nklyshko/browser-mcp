@@ -71,7 +71,9 @@ function requestPortTakeover(port: number): Promise<boolean> {
         port,
         path: '/__chrome_mcp_bridge/takeover',
         method: 'POST',
-        headers: { Connection: 'close' },
+        // /takeover is an Origin-protected route; a loopback Origin satisfies it and
+        // keeps the standalone-server handoff working.
+        headers: { Connection: 'close', Origin: 'http://127.0.0.1' },
         timeout: 2_000,
       },
       (response) => {

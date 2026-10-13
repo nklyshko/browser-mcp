@@ -332,6 +332,10 @@ export class Server {
         pathname.startsWith('/agent/') ||
         pathname.startsWith('/artifacts/') ||
         pathname === '/__chrome_mcp_bridge/start' ||
+        // Unauthenticated, this lets any web page POST here and call process.exit(0)
+        // on the bridge. A browser forces a cross-origin Origin header, so the check
+        // blocks a drive-by page; a local process could always kill us directly.
+        pathname === '/__chrome_mcp_bridge/takeover' ||
         pathname === '/__chrome_mcp_bridge/stop' ||
         pathname.startsWith('/__chrome_mcp_bridge/requests/') ||
         pathname.startsWith('/__chrome_mcp_bridge/mcp-new/requests/');
@@ -571,12 +575,10 @@ export class Server {
       if (['success', 'error', 'cancelled', 'unknown'].includes(task.summary.status)) {
         return action === 'cancel'
           ? reply.status(HTTP_STATUS.OK).send({ taskId: id, status: task.summary.status })
-          : reply
-              .status(HTTP_STATUS.CONFLICT)
-              .send({
-                error: 'The task has already finished, so this operation is not possible.',
-                taskId: id,
-              });
+          : reply.status(HTTP_STATUS.CONFLICT).send({
+              error: 'The task has already finished, so this operation is not possible.',
+              taskId: id,
+            });
       }
       if (action === 'pause' && !task.summary.pausable) {
         return reply

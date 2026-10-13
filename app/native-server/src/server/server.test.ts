@@ -631,6 +631,21 @@ describe('server', () => {
     }
   });
 
+  test('takeover rejects a cross-origin caller so a web page cannot stop the bridge', async () => {
+    // Unprotected, any page could POST here and trigger process.exit(0). A browser
+    // forces the Origin header on a cross-origin request, so the check is what
+    // actually stops a drive-by page.
+    const response = await supertest(Server.getInstance().server)
+      .post('/__chrome_mcp_bridge/takeover')
+      .set('Origin', 'https://evil.example')
+      .expect(403);
+    expect(response.body.error).toBe(ERROR_MESSAGES.ORIGIN_NOT_ALLOWED);
+  });
+
+  test('takeover rejects a caller with neither Origin nor API key', async () => {
+    await supertest(Server.getInstance().server).post('/__chrome_mcp_bridge/takeover').expect(403);
+  });
+
   test('the agent settings accept a cross-origin PUT to save', async () => {
     const response = await supertest(Server.getInstance().server)
       .options('/agent/settings/deepseek')
