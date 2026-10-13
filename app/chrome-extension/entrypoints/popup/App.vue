@@ -1535,7 +1535,11 @@ type McpTransportOption = {
   config: Record<string, unknown>;
 };
 
-const selectedMcpTransport = ref<McpTransportId>('streamable-http-new');
+// Default to the compatibility endpoint. The preview one only accepts MCP
+// 2026-07-28 and refuses to negotiate down, so clients on 2025-x revisions --
+// Claude Code among them -- fail with "Unsupported protocol version" against the
+// URL this popup hands them. Preview stays one click away for clients that speak it.
+const selectedMcpTransport = ref<McpTransportId>('streamable-http');
 const hoveredMcpTransport = ref<McpTransportId | null>(null);
 const focusedMcpTransport = ref<McpTransportId | null>(null);
 const expandedMcpTransport = computed(
