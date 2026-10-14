@@ -59,9 +59,7 @@ describe('ClaudeEngine SDK lifecycle', () => {
       { emit, persistClaudeSessionId, persistManagementInfo },
     );
 
-    expect(query).toHaveBeenCalledWith(
-      expect.objectContaining({ prompt: 'hello' }),
-    );
+    expect(query).toHaveBeenCalledWith(expect.objectContaining({ prompt: 'hello' }));
     expect(query.mock.calls[0]?.[0].options).toEqual(
       expect.objectContaining({ resume: 'old-session', permissionMode: 'default' }),
     );
@@ -76,7 +74,10 @@ describe('ClaudeEngine SDK lifecycle', () => {
       }),
     );
     expect(emit).toHaveBeenCalledWith(
-      expect.objectContaining({ type: 'usage', data: expect.objectContaining({ outputTokens: 3 }) }),
+      expect.objectContaining({
+        type: 'usage',
+        data: expect.objectContaining({ outputTokens: 3 }),
+      }),
     );
   });
 

@@ -332,6 +332,9 @@ export class Server {
         pathname.startsWith('/agent/') ||
         pathname.startsWith('/artifacts/') ||
         pathname === '/__chrome_mcp_bridge/start' ||
+        // Mints a WS token, so it must not be reachable from a page. A browser forces
+        // a cross-origin Origin header; P6 tightens this to require the API key.
+        pathname === '/__chrome_mcp_bridge/bootstrap' ||
         // Unauthenticated, this lets any web page POST here and call process.exit(0)
         // on the bridge. A browser forces a cross-origin Origin header, so the check
         // blocks a drive-by page; a local process could always kill us directly.
@@ -783,6 +786,28 @@ export class Server {
     // A user may have opened the EXE before Chrome launches the Native
     // Messaging host. The latter must be able to take over the HTTP port so
     // the MCP server and the extension connection live in the same process.
+    // A second browser's host cannot bind the port, so it asks the incumbent for a
+    // channel and forwards it to its own extension. That browser then becomes another
+    // socket on this server rather than a rival for the port.
+    this.fastify.post('/__chrome_mcp_bridge/bootstrap', async (_request, reply) => {
+      if (!this.isRunning || this.takeoverRequested) {
+        return reply.status(404).send({ status: 'not_available' });
+      }
+      const channel = this.nativeHost?.getEventChannel();
+      if (!channel) {
+        return reply.status(HTTP_STATUS.SERVICE_UNAVAILABLE).send({ status: 'no_channel' });
+      }
+      try {
+        const info = await channel.start();
+        return reply.status(HTTP_STATUS.OK).send({ status: 'ok', channel: info });
+      } catch (error) {
+        return reply.status(HTTP_STATUS.SERVICE_UNAVAILABLE).send({
+          status: 'channel_unavailable',
+          message: error instanceof Error ? error.message : String(error),
+        });
+      }
+    });
+
     this.fastify.post('/__chrome_mcp_bridge/takeover', async (_request, reply) => {
       if (!this.isRunning || this.takeoverRequested) {
         return reply.status(404).send({ status: 'not_available' });

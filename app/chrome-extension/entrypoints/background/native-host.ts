@@ -990,7 +990,23 @@ async function handleNativeProtocolMessage(message: any): Promise<void> {
       if (protocolMessage.event === 'tool.progress' && protocolMessage.requestId) {
         // Progress is consumed by the native request callback; no local action is needed.
       } else if (protocolMessage.event === 'native.serverStarted') {
-        const data = protocolMessage.data as { port?: unknown; reused?: unknown } | undefined;
+        const data = protocolMessage.data as
+          { port?: unknown; reused?: unknown; viaIncumbent?: unknown } | undefined;
+        if (data?.viaIncumbent === true) {
+          // Another browser's server owns the port, and we are now a second connection
+          // on it. MCP tool calls reach this browser over that socket, so the service
+          // genuinely is running — unlike the `reused` case below, which predates it.
+          currentServerStatus = {
+            isRunning: true,
+            port: normalizePort(data?.port) ?? currentServerStatus.port,
+            lastUpdated: Date.now(),
+          };
+          await saveServerStatus(currentServerStatus);
+          broadcastServerStatusChange(currentServerStatus);
+          clearPortReclaimTimer();
+          resetReconnectState();
+          return;
+        }
         if (data?.reused === true) {
           // Another process already owns the HTTP port, so this host cannot
           // serve MCP requests: they arrive at the other process instead.

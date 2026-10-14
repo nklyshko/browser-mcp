@@ -83,6 +83,57 @@ function isAddressInUse(error: any): boolean {
   return error?.code === 'EADDRINUSE' || String(error?.message || '').includes('EADDRINUSE');
 }
 
+/**
+ * Ask whoever owns the port for a channel on their server. Returns null when there is
+ * no incumbent, it is shutting down, or it is too old to know this route.
+ */
+function requestIncumbentChannel(port: number): Promise<EventChannelInfo | null> {
+  return new Promise((resolve) => {
+    const request = httpRequest(
+      {
+        hostname: '127.0.0.1',
+        port,
+        path: '/__chrome_mcp_bridge/bootstrap',
+        method: 'POST',
+        headers: { Connection: 'close', Origin: 'http://127.0.0.1' },
+        timeout: 3_000,
+      },
+      (response) => {
+        if (response.statusCode !== 200) {
+          response.resume();
+          resolve(null);
+          return;
+        }
+        let body = '';
+        response.setEncoding('utf8');
+        response.on('data', (chunk) => {
+          // A truthful peer sends a few hundred bytes; stop reading past that.
+          if (body.length < 4096) body += chunk;
+        });
+        response.on('end', () => {
+          try {
+            const parsed = JSON.parse(body) as { channel?: EventChannelInfo };
+            const channel = parsed.channel;
+            resolve(
+              channel &&
+                typeof channel.port === 'number' &&
+                typeof channel.token === 'string' &&
+                typeof channel.expiresAt === 'number'
+                ? channel
+                : null,
+            );
+          } catch {
+            resolve(null);
+          }
+        });
+      },
+    );
+    request.on('timeout', () => request.destroy());
+    request.on('error', () => resolve(null));
+    request.end();
+  });
+}
+
 function requestPortTakeover(port: number): Promise<boolean> {
   return new Promise((resolve) => {
     const request = httpRequest(
@@ -745,6 +796,30 @@ export class NativeMessagingHost {
         data: { port },
       });
     } catch (error: any) {
+      // Someone else owns the port. Under one-server-many-browsers the right move is
+      // to join them: ask for a channel and hand it to our extension, which then dials
+      // their WS and becomes a second instance there. No port changes hands.
+      if (isAddressInUse(error)) {
+        const channel = await requestIncumbentChannel(port);
+        if (channel) {
+          this.eventChannelInfo = channel;
+          structuredLog('native.joined_incumbent', { port, wsPort: channel.port });
+          this.sendMessage({
+            version: NATIVE_PROTOCOL_VERSION,
+            type: 'event',
+            event: 'native.eventChannelReady',
+            data: channel,
+          });
+          this.sendMessage({
+            version: NATIVE_PROTOCOL_VERSION,
+            type: 'event',
+            event: 'native.serverStarted',
+            data: { port, viaIncumbent: true },
+          });
+          return;
+        }
+      }
+
       // A manually opened service instance may already own the port. Ask that
       // instance to stop, then let the Chrome-launched Native Messaging host
       // take over so HTTP requests and the native connection share one process.

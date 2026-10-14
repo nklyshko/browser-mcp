@@ -52,7 +52,8 @@ export class ExtensionRegistry {
     return [...this.connections.values()][0].host;
   }
 
-  private attach(instance: ExtensionInstance): void {
+  /** Called when a socket completes its hello. */
+  attach(instance: ExtensionInstance): void {
     const channel = this.eventChannel;
     if (!channel) return;
     const transport = new WebSocketNativeTransport((payload) =>

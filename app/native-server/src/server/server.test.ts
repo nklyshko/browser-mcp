@@ -600,6 +600,53 @@ describe('server', () => {
     }
   });
 
+  test('the bootstrap route hands a joining browser a channel on this server', async () => {
+    const server = Server as any;
+    const wasRunning = server.isRunning;
+    const previousNativeHost = server.nativeHost;
+    server.nativeHost = nativeMessagingHostInstance;
+    server.isRunning = true;
+    server.takeoverRequested = false;
+    try {
+      const response = await supertest(Server.getInstance().server)
+        .post('/__chrome_mcp_bridge/bootstrap')
+        .set('Origin', 'http://127.0.0.1:1420')
+        .expect(200);
+      expect(response.body.status).toBe('ok');
+      expect(response.body.channel).toMatchObject({
+        port: expect.any(Number),
+        token: expect.any(String),
+        expiresAt: expect.any(Number),
+      });
+
+      // A second ask mints a different token: they are single-use on upgrade.
+      const again = await supertest(Server.getInstance().server)
+        .post('/__chrome_mcp_bridge/bootstrap')
+        .set('Origin', 'http://127.0.0.1:1420')
+        .expect(200);
+      expect(again.body.channel.token).not.toBe(response.body.channel.token);
+      expect(again.body.channel.port).toBe(response.body.channel.port);
+    } finally {
+      await nativeMessagingHostInstance.getEventChannel().stop();
+      server.isRunning = wasRunning;
+      server.nativeHost = previousNativeHost;
+    }
+  });
+
+  test('the bootstrap route refuses a request with no Origin and no key', async () => {
+    const server = Server as any;
+    const wasRunning = server.isRunning;
+    server.isRunning = true;
+    try {
+      // It mints a WS token, so an unauthenticated caller must not reach it.
+      await supertest(Server.getInstance().server)
+        .post('/__chrome_mcp_bridge/bootstrap')
+        .expect(403);
+    } finally {
+      server.isRunning = wasRunning;
+    }
+  });
+
   test('a bridge driving a browser refuses to hand over its port', async () => {
     // The accept path calls process.exit(0), which would take the test runner with
     // it, so only the refusal branch is exercised here.
