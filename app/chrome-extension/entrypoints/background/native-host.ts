@@ -396,6 +396,30 @@ function hasNativeChannel(): boolean {
   return Boolean(nativePort) || eventChannelReady;
 }
 
+/**
+ * Having no channel is the normal state, not an exception, so the way out of it is the
+ * same bootstrap that runs every time a browser opens: drop the port and reconnect.
+ *
+ * First launch, a crashed server, an idle-TTL exit, laptop wake and an extension reload
+ * then all take one path, instead of a rare recovery branch that rots unexercised.
+ * Bootstrap is cheap and idempotent — a localhost ping short-circuits when a server is
+ * already up — so running it again costs a round trip and no extra process.
+ */
+function rebootstrapChannel(reason: string): void {
+  if (manualDisconnect || !autoConnectEnabled) return;
+  if (nativePort) {
+    try {
+      // Calling disconnect() does not fire our own onDisconnect listener, so this
+      // cannot double-schedule; scheduleReconnect also refuses while a timer is live.
+      nativePort.disconnect();
+    } catch {
+      // The port may already be gone.
+    }
+    nativePort = null;
+  }
+  scheduleReconnect(reason);
+}
+
 function connectEventChannel(data: unknown): void {
   const info = data as { port?: unknown; token?: unknown; expiresAt?: unknown };
   if (
@@ -445,7 +469,9 @@ function connectEventChannel(data: unknown): void {
     if (eventSocket === socket) closeEventChannel();
   };
   socket.onclose = () => {
-    if (eventSocket === socket) closeEventChannel();
+    if (eventSocket !== socket) return;
+    closeEventChannel();
+    rebootstrapChannel('event_channel_closed');
   };
 }
 
