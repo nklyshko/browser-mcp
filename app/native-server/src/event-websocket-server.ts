@@ -9,10 +9,34 @@ export interface EventChannelInfo {
   expiresAt: number;
 }
 
+/**
+ * Identity an extension declares in its hello frame. The instanceId is minted by the
+ * extension into chrome.storage.local, so it survives socket, service-worker and server
+ * restarts alike; the label is a human- or launcher-supplied name for it.
+ */
+export interface ExtensionInstance {
+  instanceId: string;
+  label: string;
+  browser: string;
+  protocolVersion: number | null;
+  extensionVersion: string | null;
+  connectedAt: string;
+}
+
+interface Connection {
+  socket: net.Socket;
+  buffer: Buffer;
+  instance: ExtensionInstance | null;
+  helloTimer: ReturnType<typeof setTimeout> | null;
+}
+
 const MAX_FRAME_BYTES = 1 * 1024 * 1024;
-const MAX_CONNECTIONS = 1;
+const MAX_CONNECTIONS = 8;
 const IDLE_TIMEOUT_MS = 90_000;
+const HELLO_TIMEOUT_MS = 10_000;
 const TOKEN_TTL_MS = 5 * 60_000;
+const MAX_LABEL_BYTES = 64;
+const INSTANCE_ID_PATTERN = /^[A-Za-z0-9_-]{8,64}$/;
 
 function allowedOrigins(): string[] {
   return (process.env.CHROME_MCP_WS_ALLOWED_ORIGINS || process.env[MCP_ALLOWED_ORIGINS_ENV] || '')
@@ -43,29 +67,78 @@ function closeSocket(socket: net.Socket, code = 1008): void {
   socket.destroy();
 }
 
+function frameText(payload: Buffer): Buffer {
+  const header =
+    payload.length < 126
+      ? Buffer.from([0x81, payload.length])
+      : payload.length < 65_536
+        ? Buffer.from([0x81, 126, payload.length >> 8, payload.length & 0xff])
+        : Buffer.from([
+            0x81,
+            127,
+            0,
+            0,
+            0,
+            0,
+            payload.length >>> 24,
+            (payload.length >>> 16) & 0xff,
+            (payload.length >>> 8) & 0xff,
+            payload.length & 0xff,
+          ]);
+  return Buffer.concat([header, payload]);
+}
+
+/** Labels reach error messages and /status, so strip control characters and bound them. */
+export function sanitizeLabel(value: unknown): string | null {
+  if (typeof value !== 'string') return null;
+  // eslint-disable-next-line no-control-regex
+  const trimmed = value.replace(/[\u0000-\u001f\u007f]/g, '').trim();
+  if (!trimmed || Buffer.byteLength(trimmed) > MAX_LABEL_BYTES) return null;
+  return trimmed;
+}
+
+export function parseHello(message: unknown): ExtensionInstance | null {
+  const hello = message as Record<string, unknown> | null;
+  if (!hello || hello.type !== 'hello') return null;
+  if (typeof hello.instanceId !== 'string' || !INSTANCE_ID_PATTERN.test(hello.instanceId))
+    return null;
+  const label = sanitizeLabel(hello.label);
+  if (!label) return null;
+  return {
+    instanceId: hello.instanceId,
+    label,
+    browser: sanitizeLabel(hello.browser) ?? 'unknown',
+    protocolVersion: typeof hello.protocolVersion === 'number' ? hello.protocolVersion : null,
+    extensionVersion:
+      typeof hello.extensionVersion === 'string' ? hello.extensionVersion.slice(0, 32) : null,
+    connectedAt: new Date().toISOString(),
+  };
+}
+
 export class LocalEventWebSocketServer {
   private readonly server = http.createServer((_request, response) => {
     response.writeHead(404).end();
   });
-  private socket: net.Socket | null = null;
-  private buffer: Buffer<ArrayBufferLike> = Buffer.alloc(0);
-  private token = '';
-  private tokenExpiresAt = 0;
-  private tokenUsed = false;
-  private channelInfo: EventChannelInfo | null = null;
-  private readonly onMessage: (message: unknown) => void;
+  private readonly connections = new Set<Connection>();
+  /** token -> expiresAt. One token is minted per bootstrap and consumed on upgrade. */
+  private readonly pendingTokens = new Map<string, number>();
+  private readonly onMessage: (message: unknown, instance: ExtensionInstance) => void;
+  private readonly onHello: (instance: ExtensionInstance) => void;
 
-  constructor(onMessage: (message: unknown) => void = () => undefined) {
+  constructor(
+    onMessage: (message: unknown, instance: ExtensionInstance) => void = () => undefined,
+    onHello: (instance: ExtensionInstance) => void = () => undefined,
+  ) {
     this.onMessage = onMessage;
+    this.onHello = onHello;
     this.server.maxConnections = MAX_CONNECTIONS;
     this.server.on('upgrade', (request, socket, head) =>
       this.handleUpgrade(request, socket as net.Socket, head),
     );
   }
 
+  /** Binds on first call, then mints a fresh single-use token for this bootstrap. */
   async start(): Promise<EventChannelInfo> {
-    if (this.channelInfo && Date.now() < this.tokenExpiresAt && !this.tokenUsed)
-      return this.channelInfo;
     if (!this.server.listening) {
       await new Promise<void>((resolve, reject) => {
         const onError = (error: Error) => {
@@ -83,90 +156,118 @@ export class LocalEventWebSocketServer {
     }
     const address = this.server.address();
     if (!address || typeof address === 'string') throw new Error('Event channel failed to bind');
-    this.token = crypto.randomBytes(32).toString('base64url');
-    this.tokenExpiresAt = Date.now() + TOKEN_TTL_MS;
-    this.tokenUsed = false;
-    this.channelInfo = { port: address.port, token: this.token, expiresAt: this.tokenExpiresAt };
-    return this.channelInfo;
+    this.pruneTokens();
+    const token = crypto.randomBytes(32).toString('base64url');
+    const expiresAt = Date.now() + TOKEN_TTL_MS;
+    this.pendingTokens.set(token, expiresAt);
+    return { port: address.port, token, expiresAt };
   }
 
-  publish(message: unknown): boolean {
-    if (!this.socket || this.socket.destroyed) return false;
+  /** Every instance that has completed a hello. */
+  instances(): ExtensionInstance[] {
+    return [...this.connections]
+      .map((connection) => connection.instance)
+      .filter((instance): instance is ExtensionInstance => instance !== null);
+  }
+
+  publishTo(instanceId: string, message: unknown): boolean {
+    for (const connection of this.connections) {
+      if (connection.instance?.instanceId === instanceId) return this.send(connection, message);
+    }
+    return false;
+  }
+
+  broadcast(message: unknown): number {
+    let delivered = 0;
+    for (const connection of this.connections) {
+      if (connection.instance && this.send(connection, message)) delivered += 1;
+    }
+    return delivered;
+  }
+
+  async stop(): Promise<void> {
+    for (const connection of [...this.connections]) {
+      closeSocket(connection.socket, 1001);
+      this.dropConnection(connection);
+    }
+    this.pendingTokens.clear();
+    await new Promise<void>((resolve) => this.server.close(() => resolve()));
+  }
+
+  private send(connection: Connection, message: unknown): boolean {
+    if (connection.socket.destroyed) return false;
     const payload = Buffer.from(JSON.stringify(message));
     if (payload.length > MAX_FRAME_BYTES) return false;
-    const header =
-      payload.length < 126
-        ? Buffer.from([0x81, payload.length])
-        : payload.length < 65_536
-          ? Buffer.from([0x81, 126, payload.length >> 8, payload.length & 0xff])
-          : Buffer.from([
-              0x81,
-              127,
-              0,
-              0,
-              0,
-              0,
-              payload.length >>> 24,
-              (payload.length >>> 16) & 0xff,
-              (payload.length >>> 8) & 0xff,
-              payload.length & 0xff,
-            ]);
     try {
-      this.socket.write(Buffer.concat([header, payload]));
+      connection.socket.write(frameText(payload));
       return true;
     } catch {
       return false;
     }
   }
 
-  async stop(): Promise<void> {
-    if (this.socket) closeSocket(this.socket, 1001);
-    this.socket = null;
-    this.channelInfo = null;
-    await new Promise<void>((resolve) => this.server.close(() => resolve()));
+  private pruneTokens(): void {
+    const now = Date.now();
+    for (const [token, expiresAt] of this.pendingTokens) {
+      if (now >= expiresAt) this.pendingTokens.delete(token);
+    }
+  }
+
+  private consumeToken(provided: string): boolean {
+    if (!provided) return false;
+    this.pruneTokens();
+    const candidate = Buffer.from(provided);
+    for (const token of this.pendingTokens.keys()) {
+      const known = Buffer.from(token);
+      if (known.length !== candidate.length) continue;
+      if (!crypto.timingSafeEqual(known, candidate)) continue;
+      this.pendingTokens.delete(token);
+      return true;
+    }
+    return false;
+  }
+
+  private dropConnection(connection: Connection): void {
+    if (!this.connections.delete(connection)) return;
+    if (connection.helloTimer) clearTimeout(connection.helloTimer);
+    connection.helloTimer = null;
   }
 
   private handleUpgrade(request: http.IncomingMessage, socket: net.Socket, head: Buffer): void {
     const url = new URL(request.url || '/', 'http://127.0.0.1');
-    const providedToken = url.searchParams.get('token') || '';
+    const key = request.headers['sec-websocket-key'];
+    const origin = typeof request.headers.origin === 'string' ? request.headers.origin : undefined;
     if (
       url.pathname !== '/events' ||
-      !this.channelInfo ||
-      this.tokenUsed ||
-      Date.now() >= this.tokenExpiresAt ||
-      !providedToken ||
-      providedToken.length !== this.token.length ||
-      !crypto.timingSafeEqual(Buffer.from(providedToken), Buffer.from(this.token)) ||
-      !isAllowedOrigin(
-        typeof request.headers.origin === 'string' ? request.headers.origin : undefined,
-      ) ||
-      this.socket
+      typeof key !== 'string' ||
+      !isAllowedOrigin(origin) ||
+      this.connections.size >= MAX_CONNECTIONS
     ) {
       socket.destroy();
       return;
     }
-
-    const key = request.headers['sec-websocket-key'];
-    if (typeof key !== 'string') {
+    // Checked last so a rejected upgrade cannot burn a live token.
+    if (!this.consumeToken(url.searchParams.get('token') || '')) {
       socket.destroy();
       return;
     }
-    this.tokenUsed = true;
-    this.socket = socket;
-    this.buffer = head;
+
+    const connection: Connection = { socket, buffer: head, instance: null, helloTimer: null };
+    this.connections.add(connection);
     socket.setNoDelay(true);
     socket.setTimeout(IDLE_TIMEOUT_MS, () => closeSocket(socket, 1001));
+    connection.helloTimer = setTimeout(() => {
+      if (!connection.instance) closeSocket(socket, 1008);
+    }, HELLO_TIMEOUT_MS);
     socket.on('data', (chunk) => {
       socket.setTimeout(IDLE_TIMEOUT_MS);
-      this.buffer = Buffer.concat([this.buffer, chunk]);
-      this.processFrames(socket);
+      connection.buffer = Buffer.concat([connection.buffer, chunk]);
+      this.processFrames(connection);
     });
-    socket.on('close', () => {
-      if (this.socket === socket) this.socket = null;
-    });
-    socket.on('error', () => {
-      if (this.socket === socket) this.socket = null;
-    });
+    const drop = () => this.dropConnection(connection);
+    socket.on('close', drop);
+    socket.on('error', drop);
+
     const accept = crypto
       .createHash('sha1')
       .update(`${key}258EAFA5-E914-47DA-95CA-C5AB0DC85B11`)
@@ -174,34 +275,59 @@ export class LocalEventWebSocketServer {
     socket.write(
       `HTTP/1.1 101 Switching Protocols\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: ${accept}\r\n\r\n`,
     );
-    if (this.buffer.length) this.processFrames(socket);
+    if (connection.buffer.length) this.processFrames(connection);
   }
 
-  private processFrames(socket: net.Socket): void {
-    while (this.buffer.length >= 2) {
-      const first = this.buffer[0];
-      const second = this.buffer[1];
+  private acceptHello(connection: Connection, message: unknown): void {
+    const instance = parseHello(message);
+    if (!instance) {
+      closeSocket(connection.socket, 1008);
+      return;
+    }
+    if (connection.helloTimer) {
+      clearTimeout(connection.helloTimer);
+      connection.helloTimer = null;
+    }
+    // An extension reload can leave the previous socket half-open. Newest wins, so the
+    // same instance never appears twice and turns its own label ambiguous.
+    for (const existing of [...this.connections]) {
+      if (existing === connection) continue;
+      if (existing.instance?.instanceId !== instance.instanceId) continue;
+      closeSocket(existing.socket, 1001);
+      this.dropConnection(existing);
+    }
+    connection.instance = instance;
+    this.send(connection, { type: 'hello-ack', instanceId: instance.instanceId });
+    this.onHello(instance);
+  }
+
+  private processFrames(connection: Connection): void {
+    const socket = connection.socket;
+    while (connection.buffer.length >= 2) {
+      const first = connection.buffer[0];
+      const second = connection.buffer[1];
       const masked = (second & 0x80) !== 0;
       let length = second & 0x7f;
       let offset = 2;
       if (!masked) return closeSocket(socket, 1002);
       if (length === 126) {
-        if (this.buffer.length < 4) return;
-        length = this.buffer.readUInt16BE(2);
+        if (connection.buffer.length < 4) return;
+        length = connection.buffer.readUInt16BE(2);
         offset = 4;
       } else if (length === 127) {
-        if (this.buffer.length < 10 || this.buffer.readUInt32BE(2) !== 0)
+        if (connection.buffer.length < 10 || connection.buffer.readUInt32BE(2) !== 0)
           return closeSocket(socket, 1009);
-        length = this.buffer.readUInt32BE(6);
+        length = connection.buffer.readUInt32BE(6);
         offset = 10;
       }
       if (length > MAX_FRAME_BYTES) return closeSocket(socket, 1009);
       const frameSize = offset + 4 + length;
-      if (this.buffer.length < frameSize) return;
-      const mask = this.buffer.subarray(offset, offset + 4);
+      if (connection.buffer.length < frameSize) return;
+      const mask = connection.buffer.subarray(offset, offset + 4);
       const payload = Buffer.alloc(length);
-      for (let i = 0; i < length; i += 1) payload[i] = this.buffer[offset + 4 + i] ^ mask[i % 4];
-      this.buffer = this.buffer.subarray(frameSize);
+      for (let i = 0; i < length; i += 1)
+        payload[i] = connection.buffer[offset + 4 + i] ^ mask[i % 4];
+      connection.buffer = connection.buffer.subarray(frameSize);
       const opcode = first & 0x0f;
       if (opcode === 0x8) return closeSocket(socket, 1000);
       if (opcode === 0x9) {
@@ -209,13 +335,22 @@ export class LocalEventWebSocketServer {
         continue;
       }
       if (opcode !== 0x1) return closeSocket(socket, 1003);
+      let message: unknown;
       try {
-        const message = JSON.parse(payload.toString('utf8'));
-        if ((message as any)?.type === 'ping') this.publish({ type: 'pong', at: Date.now() });
-        else this.onMessage(message);
+        message = JSON.parse(payload.toString('utf8'));
       } catch {
         return closeSocket(socket, 1007);
       }
+      // Pings are allowed before hello so a heartbeat timer cannot race the handshake.
+      if ((message as { type?: unknown } | null)?.type === 'ping') {
+        this.send(connection, { type: 'pong', at: Date.now() });
+        continue;
+      }
+      if (!connection.instance) {
+        this.acceptHello(connection, message);
+        continue;
+      }
+      this.onMessage(message, connection.instance);
     }
   }
 }

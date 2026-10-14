@@ -303,6 +303,73 @@ function closeEventChannel(): void {
   }
 }
 
+// ==================== Instance Identity ====================
+
+/**
+ * A browser instance is one extension installation, so the UUID lives in storage.local
+ * and survives socket, service-worker and server restarts alike. The label is only a
+ * human-readable name for it: editable in the popup, and settable at launch by whoever
+ * started the browser.
+ */
+interface InstanceIdentity {
+  instanceId: string;
+  label: string;
+}
+
+let instanceIdentity: InstanceIdentity | null = null;
+
+/** Chrome exposes neither the profile name nor the channel, so the UA major is all we get. */
+function browserTag(): string {
+  return `Chrome/${/Chrome\/(\d+)/.exec(navigator.userAgent)?.[1] ?? 'unknown'}`;
+}
+
+async function getInstanceIdentity(): Promise<InstanceIdentity> {
+  if (instanceIdentity) return instanceIdentity;
+  try {
+    const stored = (await chrome.storage.local.get([STORAGE_KEYS.NATIVE_INSTANCE_IDENTITY]))[
+      STORAGE_KEYS.NATIVE_INSTANCE_IDENTITY
+    ] as Partial<InstanceIdentity> | undefined;
+    if (typeof stored?.instanceId === 'string' && typeof stored.label === 'string') {
+      instanceIdentity = { instanceId: stored.instanceId, label: stored.label };
+      return instanceIdentity;
+    }
+  } catch {
+    // Unreadable storage is not a reason to refuse a channel; mint a fresh identity.
+  }
+  const instanceId = crypto.randomUUID();
+  const identity: InstanceIdentity = {
+    instanceId,
+    label: `${browserTag().replace('/', ' ')} (${instanceId.slice(0, 4)})`,
+  };
+  instanceIdentity = identity;
+  try {
+    await chrome.storage.local.set({ [STORAGE_KEYS.NATIVE_INSTANCE_IDENTITY]: identity });
+  } catch {
+    // The identity still works for this session; it just will not be stable across one.
+  }
+  return identity;
+}
+
+/** The server closes any connection that does not identify itself within 10s. */
+async function sendInstanceHello(socket: WebSocket): Promise<void> {
+  const identity = await getInstanceIdentity();
+  if (eventSocket !== socket || socket.readyState !== WebSocket.OPEN) return;
+  try {
+    socket.send(
+      JSON.stringify({
+        type: 'hello',
+        instanceId: identity.instanceId,
+        label: identity.label,
+        browser: browserTag(),
+        protocolVersion: NATIVE_PROTOCOL_VERSION,
+        extensionVersion: chrome.runtime.getManifest().version,
+      }),
+    );
+  } catch {
+    closeEventChannel();
+  }
+}
+
 function connectEventChannel(data: unknown): void {
   const info = data as { port?: unknown; token?: unknown; expiresAt?: unknown };
   if (
@@ -319,6 +386,7 @@ function connectEventChannel(data: unknown): void {
   eventSocket = socket;
   socket.onopen = () => {
     if (eventSocket !== socket) return;
+    void sendInstanceHello(socket);
     eventKeepaliveRelease = acquireKeepalive('native-event-channel');
     eventHeartbeat = setInterval(() => {
       if (eventSocket !== socket || socket.readyState !== WebSocket.OPEN) return;
@@ -332,7 +400,7 @@ function connectEventChannel(data: unknown): void {
   socket.onmessage = (event) => {
     try {
       const message = JSON.parse(String(event.data));
-      if (message?.type === 'pong') return;
+      if (message?.type === 'pong' || message?.type === 'hello-ack') return;
       chrome.runtime.sendMessage({ type: 'native_event', event: message }).catch(() => undefined);
     } catch {
       // The event channel only accepts JSON messages.

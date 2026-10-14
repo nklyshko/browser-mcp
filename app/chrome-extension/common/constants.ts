@@ -248,6 +248,7 @@ export const STORAGE_KEYS = {
   NATIVE_SERVER_PORT: 'nativeServerPort',
   NATIVE_AUTO_CONNECT_ENABLED: 'nativeAutoConnectEnabled',
   NATIVE_CONNECTION_STATE: 'nativeConnectionState',
+  NATIVE_INSTANCE_IDENTITY: 'nativeInstanceIdentity',
   CONTENT_MESSAGE_TIMEOUT: 'contentMessageTimeout',
   SEMANTIC_MODEL: 'selectedModel',
   USER_PREFERENCES: 'userPreferences',
