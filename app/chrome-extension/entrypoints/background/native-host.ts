@@ -24,6 +24,8 @@ let nativeConnectionState: NativeConnectionState = 'stopped';
 let negotiatedVersion: number | undefined;
 let nativeCapabilities: NativeConnectionSnapshot['capabilities'];
 let eventSocket: WebSocket | null = null;
+/** True once the server has acked our hello, which makes the socket the data path. */
+let eventChannelReady = false;
 let eventHeartbeat: ReturnType<typeof setInterval> | null = null;
 let portReclaimTimer: ReturnType<typeof setInterval> | null = null;
 let eventKeepaliveRelease: (() => void) | null = null;
@@ -271,7 +273,7 @@ function postProtocolResponseOnce(request: NativeRequest, response: Record<strin
     if (typeof oldest === 'string') respondedProtocolRequests.delete(oldest);
   }
   respondedProtocolRequests.add(request.requestId);
-  nativePort?.postMessage(response);
+  sendToNative(response);
 }
 
 function protocolErrorResponse(
@@ -289,6 +291,7 @@ export function getNativeConnectionState(): NativeConnectionState {
 function closeEventChannel(): void {
   if (eventHeartbeat) clearInterval(eventHeartbeat);
   eventHeartbeat = null;
+  eventChannelReady = false;
   if (eventSocket) {
     try {
       eventSocket.close();
@@ -370,6 +373,29 @@ async function sendInstanceHello(socket: WebSocket): Promise<void> {
   }
 }
 
+/**
+ * Where protocol traffic goes. The socket is the data path once the server has acked our
+ * hello; the native port carries only bootstrap after that, because it is the one thing
+ * that can get a server process started in the first place.
+ */
+function sendToNative(message: unknown): boolean {
+  if (eventChannelReady && eventSocket && eventSocket.readyState === WebSocket.OPEN) {
+    try {
+      eventSocket.send(JSON.stringify(message));
+      return true;
+    } catch {
+      closeEventChannel();
+    }
+  }
+  if (!nativePort) return false;
+  nativePort.postMessage(message);
+  return true;
+}
+
+function hasNativeChannel(): boolean {
+  return Boolean(nativePort) || eventChannelReady;
+}
+
 function connectEventChannel(data: unknown): void {
   const info = data as { port?: unknown; token?: unknown; expiresAt?: unknown };
   if (
@@ -400,7 +426,16 @@ function connectEventChannel(data: unknown): void {
   socket.onmessage = (event) => {
     try {
       const message = JSON.parse(String(event.data));
-      if (message?.type === 'pong' || message?.type === 'hello-ack') return;
+      if (message?.type === 'pong') return;
+      if (message?.type === 'hello-ack') {
+        // From here the socket carries protocol traffic; the port is bootstrap only.
+        if (eventSocket === socket) eventChannelReady = true;
+        return;
+      }
+      if (typeof message?.version === 'number') {
+        void handleNativeProtocolMessage(message);
+        return;
+      }
       chrome.runtime.sendMessage({ type: 'native_event', event: message }).catch(() => undefined);
     } catch {
       // The event channel only accepts JSON messages.
@@ -496,9 +531,9 @@ async function uploadLargeArtifact(
     offset < bytes.byteLength;
     offset += ARTIFACT_CHUNK_SIZE, seq += 1
   ) {
-    if (signal.aborted || !nativePort) throw new Error('Artifact upload canceled');
+    if (signal.aborted || !hasNativeChannel()) throw new Error('Artifact upload canceled');
     const chunk = bytes.slice(offset, Math.min(offset + ARTIFACT_CHUNK_SIZE, bytes.byteLength));
-    nativePort.postMessage({
+    sendToNative({
       version: NATIVE_PROTOCOL_VERSION,
       type: 'artifact',
       requestId: request.requestId,
@@ -549,7 +584,7 @@ async function handleProtocolRequest(message: NativeRequest): Promise<void> {
           controller.signal,
           (progress) => {
             if (controller.signal.aborted) return;
-            nativePort?.postMessage({
+            sendToNative({
               version: NATIVE_PROTOCOL_VERSION,
               type: 'event',
               requestId: message.requestId,
@@ -874,6 +909,142 @@ async function ensureNativeConnected(trigger: string, portOverride?: unknown): P
  * Connect to the native messaging host
  * @returns Whether the connection was initiated successfully
  */
+/**
+ * Handles one inbound protocol message, whichever channel it arrived on. Replies go out
+ * through sendToNative, which resolves to the socket once it is the data path, so a
+ * message is always answered on the channel that is actually carrying traffic.
+ */
+async function handleNativeProtocolMessage(message: any): Promise<void> {
+  let protocolMessage: NativeProtocolMessage;
+  try {
+    protocolMessage = parseNativeProtocolMessage(message);
+  } catch (error) {
+    console.warn(`${LOG_PREFIX} Invalid protocol message`, error);
+    if (typeof message?.requestId === 'string' && typeof message?.traceId === 'string') {
+      sendToNative({
+        version: NATIVE_PROTOCOL_VERSION,
+        type: 'response',
+        requestId: message.requestId,
+        traceId: message.traceId,
+        ok: false,
+        error: {
+          code: error instanceof NativeProtocolError ? error.code : 'INVALID_REQUEST',
+          message: error instanceof Error ? error.message : String(error),
+        },
+      });
+    }
+    return;
+  }
+
+  switch (protocolMessage.type) {
+    case 'hello': {
+      const selected =
+        protocolMessage.selectedVersion ??
+        negotiateNativeProtocolVersion(protocolMessage.supportedVersions);
+      if (selected === null) {
+        setNativeConnectionState('degraded', 'unsupported_protocol_version');
+        console.warn(`${LOG_PREFIX} Native host has no compatible protocol version`);
+        return;
+      }
+      setNativeConnectionState('connected');
+      negotiatedVersion = selected;
+      persistNativeConnectionState();
+      if (!protocolMessage.selectedVersion) {
+        // Bootstrap: the handshake runs on the port, which is what proves the host is up.
+        nativePort?.postMessage({
+          ...createNativeHello(
+            'extension-background',
+            { name: 'chrome-mcp-extension', version: '2' },
+            protocolMessage.traceId,
+          ),
+          selectedVersion: selected,
+        });
+      }
+      nativePort?.postMessage(createNativeCapabilities(protocolMessage.traceId));
+      return;
+    }
+    case 'capabilities':
+      nativeCapabilities = {
+        methods: [...protocolMessage.methods],
+        events: [...protocolMessage.events],
+        features: [...protocolMessage.features],
+      };
+      persistNativeConnectionState();
+      setNativeConnectionState('ready');
+      return;
+    case 'ping':
+      sendToNative({
+        version: NATIVE_PROTOCOL_VERSION,
+        type: 'pong',
+        nonce: protocolMessage.nonce,
+        traceId: protocolMessage.traceId,
+      });
+      return;
+    case 'cancel':
+      activeToolCalls.get(protocolMessage.requestId)?.abort();
+      return;
+    case 'request':
+      await handleProtocolRequest(protocolMessage);
+      return;
+    case 'event':
+      if (protocolMessage.event === 'tool.progress' && protocolMessage.requestId) {
+        // Progress is consumed by the native request callback; no local action is needed.
+      } else if (protocolMessage.event === 'native.serverStarted') {
+        const data = protocolMessage.data as { port?: unknown; reused?: unknown } | undefined;
+        if (data?.reused === true) {
+          // Another process already owns the HTTP port, so this host cannot
+          // serve MCP requests: they arrive at the other process instead.
+          // Reporting "running" here is what made a dead bridge look healthy.
+          await markServerStopped('http_port_owned_by_other_process');
+          setNativeConnectionState('degraded', 'http_port_owned_by_other_process');
+          // The native channel is fine, so the reconnect backoff has nothing to
+          // do — but keep retrying the bind, because the port frees the moment
+          // the other browser exits and nothing else would notice.
+          resetReconnectState();
+          startPortReclaim(normalizePort(data?.port) ?? (await getPreferredPort()));
+          return;
+        }
+        currentServerStatus = {
+          isRunning: true,
+          port: normalizePort(data?.port) ?? currentServerStatus.port,
+          lastUpdated: Date.now(),
+        };
+        await saveServerStatus(currentServerStatus);
+        broadcastServerStatusChange(currentServerStatus);
+        clearPortReclaimTimer();
+        resetReconnectState();
+      } else if (protocolMessage.event === 'native.serverStopped') {
+        await markServerStopped('native_protocol_event');
+      } else if (protocolMessage.event === 'native.eventChannelReady') {
+        connectEventChannel(protocolMessage.data);
+      }
+      return;
+    case 'pong':
+      return;
+    case 'response':
+      if (forwardedFileRequests.delete(protocolMessage.requestId)) {
+        chrome.runtime
+          .sendMessage(
+            protocolMessage.ok
+              ? {
+                  type: 'native_file_operation_response',
+                  requestId: protocolMessage.requestId,
+                  ok: true,
+                  result: protocolMessage.result,
+                }
+              : {
+                  type: 'native_file_operation_response',
+                  requestId: protocolMessage.requestId,
+                  ok: false,
+                  error: protocolMessage.error?.message || 'File operation failed',
+                },
+          )
+          .catch(() => undefined);
+      }
+      return;
+  }
+}
+
 export function connectNativeHost(port: number = NATIVE_HOST.DEFAULT_PORT): boolean {
   if (nativePort) {
     return nativeConnectionState === 'ready';
@@ -886,137 +1057,8 @@ export function connectNativeHost(port: number = NATIVE_HOST.DEFAULT_PORT): bool
     nativePort = chrome.runtime.connectNative(HOST_NAME);
 
     nativePort.onMessage.addListener(async (message) => {
-      if (typeof message?.version === 'number') {
-        let protocolMessage: NativeProtocolMessage;
-        try {
-          protocolMessage = parseNativeProtocolMessage(message);
-        } catch (error) {
-          console.warn(`${LOG_PREFIX} Invalid protocol message`, error);
-          if (typeof message?.requestId === 'string' && typeof message?.traceId === 'string') {
-            nativePort?.postMessage({
-              version: NATIVE_PROTOCOL_VERSION,
-              type: 'response',
-              requestId: message.requestId,
-              traceId: message.traceId,
-              ok: false,
-              error: {
-                code: error instanceof NativeProtocolError ? error.code : 'INVALID_REQUEST',
-                message: error instanceof Error ? error.message : String(error),
-              },
-            });
-          }
-          return;
-        }
-
-        switch (protocolMessage.type) {
-          case 'hello': {
-            const selected =
-              protocolMessage.selectedVersion ??
-              negotiateNativeProtocolVersion(protocolMessage.supportedVersions);
-            if (selected === null) {
-              setNativeConnectionState('degraded', 'unsupported_protocol_version');
-              console.warn(`${LOG_PREFIX} Native host has no compatible protocol version`);
-              return;
-            }
-            setNativeConnectionState('connected');
-            negotiatedVersion = selected;
-            persistNativeConnectionState();
-            if (!protocolMessage.selectedVersion) {
-              nativePort?.postMessage({
-                ...createNativeHello(
-                  'extension-background',
-                  { name: 'chrome-mcp-extension', version: '2' },
-                  protocolMessage.traceId,
-                ),
-                selectedVersion: selected,
-              });
-            }
-            nativePort?.postMessage(createNativeCapabilities(protocolMessage.traceId));
-            return;
-          }
-          case 'capabilities':
-            nativeCapabilities = {
-              methods: [...protocolMessage.methods],
-              events: [...protocolMessage.events],
-              features: [...protocolMessage.features],
-            };
-            persistNativeConnectionState();
-            setNativeConnectionState('ready');
-            return;
-          case 'ping':
-            nativePort?.postMessage({
-              version: NATIVE_PROTOCOL_VERSION,
-              type: 'pong',
-              nonce: protocolMessage.nonce,
-              traceId: protocolMessage.traceId,
-            });
-            return;
-          case 'cancel':
-            activeToolCalls.get(protocolMessage.requestId)?.abort();
-            return;
-          case 'request':
-            await handleProtocolRequest(protocolMessage);
-            return;
-          case 'event':
-            if (protocolMessage.event === 'tool.progress' && protocolMessage.requestId) {
-              // Progress is consumed by the native request callback; no local action is needed.
-            } else if (protocolMessage.event === 'native.serverStarted') {
-              const data = protocolMessage.data as { port?: unknown; reused?: unknown } | undefined;
-              if (data?.reused === true) {
-                // Another process already owns the HTTP port, so this host cannot
-                // serve MCP requests: they arrive at the other process instead.
-                // Reporting "running" here is what made a dead bridge look healthy.
-                await markServerStopped('http_port_owned_by_other_process');
-                setNativeConnectionState('degraded', 'http_port_owned_by_other_process');
-                // The native channel is fine, so the reconnect backoff has nothing to
-                // do — but keep retrying the bind, because the port frees the moment
-                // the other browser exits and nothing else would notice.
-                resetReconnectState();
-                startPortReclaim(normalizePort(data?.port) ?? (await getPreferredPort()));
-                return;
-              }
-              currentServerStatus = {
-                isRunning: true,
-                port: normalizePort(data?.port) ?? currentServerStatus.port,
-                lastUpdated: Date.now(),
-              };
-              await saveServerStatus(currentServerStatus);
-              broadcastServerStatusChange(currentServerStatus);
-              clearPortReclaimTimer();
-              resetReconnectState();
-            } else if (protocolMessage.event === 'native.serverStopped') {
-              await markServerStopped('native_protocol_event');
-            } else if (protocolMessage.event === 'native.eventChannelReady') {
-              connectEventChannel(protocolMessage.data);
-            }
-            return;
-          case 'pong':
-            return;
-          case 'response':
-            if (forwardedFileRequests.delete(protocolMessage.requestId)) {
-              chrome.runtime
-                .sendMessage(
-                  protocolMessage.ok
-                    ? {
-                        type: 'native_file_operation_response',
-                        requestId: protocolMessage.requestId,
-                        ok: true,
-                        result: protocolMessage.result,
-                      }
-                    : {
-                        type: 'native_file_operation_response',
-                        requestId: protocolMessage.requestId,
-                        ok: false,
-                        error: protocolMessage.error?.message || 'File operation failed',
-                      },
-                )
-                .catch(() => undefined);
-            }
-            return;
-        }
-      }
-
-      return;
+      if (typeof message?.version !== 'number') return;
+      await handleNativeProtocolMessage(message);
     });
 
     nativePort.onDisconnect.addListener(() => {
@@ -1271,7 +1313,7 @@ export const initNativeHostListener = () => {
             ? message.request.requestId
             : crypto.randomUUID();
         forwardedFileRequests.add(requestId);
-        nativePort.postMessage({
+        sendToNative({
           version: NATIVE_PROTOCOL_VERSION,
           type: 'request',
           requestId,

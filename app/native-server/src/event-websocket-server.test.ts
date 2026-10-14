@@ -117,10 +117,10 @@ describe('LocalEventWebSocketServer', () => {
   beforeEach(() => {
     seen = [];
     routed = [];
-    server = new LocalEventWebSocketServer(
-      (message, instance) => routed.push({ message, instanceId: instance.instanceId }),
-      (instance) => seen.push(instance),
-    );
+    server = new LocalEventWebSocketServer({
+      onMessage: (message, instance) => routed.push({ message, instanceId: instance.instanceId }),
+      onHello: (instance) => seen.push(instance),
+    });
   });
 
   afterEach(async () => {

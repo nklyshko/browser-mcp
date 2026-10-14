@@ -1,4 +1,3 @@
-import { stdin, stdout } from 'process';
 import { randomUUID } from 'node:crypto';
 import { request as httpRequest } from 'node:http';
 import net from 'node:net';
@@ -23,7 +22,28 @@ import fileHandler from './file-handler';
 import { ArtifactStore } from './artifact-store.js';
 import { LocalEventWebSocketServer, type EventChannelInfo } from './event-websocket-server.js';
 import { RequestStageTimings, structuredLog } from './observability.js';
-import { MAX_NATIVE_MESSAGE_SIZE_BYTES, NativeMessageFrameDecoder } from './native-frame.js';
+import {
+  NullNativeTransport,
+  StdioNativeTransport,
+  type NativeTransport,
+} from './native-transport.js';
+
+export interface NativeMessagingHostOptions {
+  transport?: NativeTransport;
+  eventChannel?: LocalEventWebSocketServer;
+  exitProcessOnClose?: boolean;
+}
+
+/**
+ * A server started by hand or by a stdio proxy has no native peer, so it must not touch
+ * stdin/stdout. That is what CHROME_MCP_STANDALONE has always meant; it is now a choice
+ * of transport rather than a pair of early returns.
+ */
+function defaultNativeTransport(): NativeTransport {
+  return process.env.CHROME_MCP_STANDALONE === '1'
+    ? new NullNativeTransport()
+    : new StdioNativeTransport();
+}
 
 interface PendingRequest {
   resolve: (value: any) => void;
@@ -128,7 +148,11 @@ function waitForPortAvailable(port: number, timeoutMs = 8_000): Promise<void> {
 }
 
 export class NativeMessagingHost {
-  private readonly standaloneMode = process.env.CHROME_MCP_STANDALONE === '1';
+  private readonly transport: NativeTransport;
+  private readonly eventChannel: LocalEventWebSocketServer;
+  private readonly ownsEventChannel: boolean;
+  /** Only the process-owning stdio host exits when its peer goes away. */
+  private readonly exitProcessOnClose: boolean;
   private associatedServer: Server | null = null;
   private pendingRequests: Map<string, PendingRequest> = new Map();
   private connected = false;
@@ -146,8 +170,14 @@ export class NativeMessagingHost {
   private failedArtifactUploads = new Set<string>();
   private readonly maxDeduplicatedRequests = 4096;
   private readonly artifactStore = new ArtifactStore();
-  private readonly eventChannel = new LocalEventWebSocketServer();
   private eventChannelInfo: EventChannelInfo | null = null;
+
+  constructor(options: NativeMessagingHostOptions = {}) {
+    this.transport = options.transport ?? defaultNativeTransport();
+    this.eventChannel = options.eventChannel ?? new LocalEventWebSocketServer();
+    this.ownsEventChannel = options.eventChannel === undefined;
+    this.exitProcessOnClose = options.exitProcessOnClose ?? this.transport.kind === 'stdio';
+  }
 
   public getStatus(): NativeHostStatus {
     return {
@@ -177,8 +207,25 @@ export class NativeMessagingHost {
     this.associatedServer = serverInstance;
   }
 
+  /** The channel this host hands to its extension; the registry adopts it. */
+  public getEventChannel(): LocalEventWebSocketServer {
+    return this.eventChannel;
+  }
+
   public getArtifactStore(): ArtifactStore {
     return this.artifactStore;
+  }
+
+  /**
+   * Begin consuming the transport without touching the HTTP server's lifecycle. A
+   * WS-backed connection arrives at an already-running server; only the stdio host that
+   * owns the process starts one.
+   */
+  public listen(): void {
+    this.connected = false;
+    this.connectionState = 'starting';
+    this.lastActivityAt = new Date();
+    this.setupMessageHandling();
   }
 
   // Start the HTTP server as soon as the native host is connected. The
@@ -189,10 +236,7 @@ export class NativeMessagingHost {
       // The process can be launched by Chrome before the extension has sent
       // its first message. Mark the session ready only after a valid message
       // arrives so callers do not wait for a request that cannot be delivered.
-      this.connected = false;
-      this.connectionState = 'starting';
-      this.lastActivityAt = new Date();
-      this.setupMessageHandling();
+      this.listen();
       void this.startServer(resolveServerPort(NATIVE_SERVER_PORT));
     } catch (error: any) {
       process.exit(1);
@@ -200,43 +244,10 @@ export class NativeMessagingHost {
   }
 
   private setupMessageHandling(): void {
-    if (this.standaloneMode) return;
-
-    const decoder = new NativeMessageFrameDecoder();
-
-    const processAvailable = () => {
-      try {
-        for (const messageBuffer of decoder.readMessages()) {
-          try {
-            const message = JSON.parse(messageBuffer.toString());
-            void this.handleMessage(message);
-          } catch (error: any) {
-            this.sendError(`Failed to parse message: ${error.message}`);
-          }
-        }
-      } catch (error: any) {
-        this.sendError(error.message);
-      }
-
-      // Continue on the next turn if a coalesced input contained more than
-      // the per-read safety limit.
-      if (decoder.hasCompleteMessage()) setImmediate(processAvailable);
-    };
-
-    stdin.on('readable', () => {
-      let chunk;
-      while ((chunk = stdin.read()) !== null) {
-        decoder.append(chunk);
-        processAvailable();
-      }
-    });
-
-    stdin.on('end', () => {
-      this.cleanup();
-    });
-
-    stdin.on('error', () => {
-      this.cleanup();
+    this.transport.listen({
+      onMessage: (message) => void this.handleMessage(message),
+      onClose: () => this.cleanup(),
+      onError: (message) => this.sendError(message),
     });
   }
 
@@ -304,7 +315,10 @@ export class NativeMessagingHost {
         });
         this.sendMessage(createNativeCapabilities(message.traceId));
         this.connectionState = 'ready';
-        void this.openEventChannel(message.traceId);
+        // Only the bootstrap host hands out `{port, token}`. A host that already *is* a
+        // socket on that channel would otherwise bind a second listener and invite its
+        // extension to reconnect to it.
+        if (this.ownsEventChannel) void this.openEventChannel(message.traceId);
         return;
       }
       case 'ping':
@@ -800,26 +814,24 @@ export class NativeMessagingHost {
    * Send message to Chrome extension
    */
   private writeNativeMessage(message: any): Promise<void> {
-    if (this.standaloneMode) return Promise.resolve();
-
-    let frame: Buffer;
+    let payload: string;
     try {
-      const messageString = JSON.stringify(message);
-      const messageBuffer = Buffer.from(messageString);
-      if (messageBuffer.length > MAX_NATIVE_MESSAGE_SIZE_BYTES) {
-        throw new Error(`Native output exceeds ${MAX_NATIVE_MESSAGE_SIZE_BYTES} bytes`);
+      payload = JSON.stringify(message);
+      const limit = this.transport.maxMessageBytes;
+      // Checked here, synchronously, so an oversized message fails before any I/O
+      // rather than on a later microtask.
+      if (limit !== undefined && Buffer.byteLength(payload) > limit) {
+        throw new Error(`Native output exceeds ${limit} bytes`);
       }
-      const headerBuffer = Buffer.alloc(4);
-      headerBuffer.writeUInt32LE(messageBuffer.length, 0);
-      frame = Buffer.concat([headerBuffer, messageBuffer]);
     } catch (error: unknown) {
       this.lastError = error instanceof Error ? error.message : String(error);
       structuredLog('native.send_error', { error: this.lastError });
       return Promise.reject(error instanceof Error ? error : new Error(this.lastError));
     }
-
-    return new Promise((resolve, reject) => {
-      stdout.write(frame, (error) => (error ? reject(error) : resolve()));
+    return this.transport.send(payload).catch((error: unknown) => {
+      this.lastError = error instanceof Error ? error.message : String(error);
+      structuredLog('native.send_error', { error: this.lastError });
+      throw error instanceof Error ? error : new Error(this.lastError);
     });
   }
 
@@ -843,27 +855,40 @@ export class NativeMessagingHost {
   }
 
   /**
-   * Clean up resources
+   * Reject this connection's in-flight work and release its resources.
+   *
+   * Nothing is replayed. The server cannot distinguish "never arrived" from "executed,
+   * reply lost", so re-dispatching on a fresh socket would risk firing a click twice.
+   * Retry is the caller's decision.
    */
-  private cleanup(): void {
+  public dispose(reason = 'Native host is shutting down or Chrome disconnected.'): void {
     this.connected = false;
     this.connectionState = 'stopped';
-    this.lastError = 'Native host is shutting down or Chrome disconnected.';
+    this.lastError = reason;
     this.artifactStore.cleanupIncomplete();
-    void this.eventChannel.stop();
-    // Reject all pending requests
     this.pendingRequests.forEach((pending) => {
       clearTimeout(pending.timeoutId);
       pending.reject(
         new NativeProtocolError(
           pending.sideEffect ? 'EXECUTION_UNKNOWN' : 'NATIVE_DISCONNECTED',
-          'Native host is shutting down or Chrome disconnected.',
+          reason,
         ),
       );
     });
     this.pendingRequests.clear();
     for (const controller of this.activeProtocolControllers.values()) controller.abort();
     this.activeProtocolControllers.clear();
+  }
+
+  /**
+   * Clean up resources
+   */
+  private cleanup(): void {
+    this.dispose();
+    // A shared event channel outlives any one connection, so only its owner stops it.
+    if (this.ownsEventChannel) void this.eventChannel.stop();
+    // One server now serves several browsers: a closing socket must not take it down.
+    if (!this.exitProcessOnClose) return;
 
     if (this.associatedServer && this.associatedServer.isRunning) {
       this.associatedServer

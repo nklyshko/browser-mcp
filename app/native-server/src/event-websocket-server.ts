@@ -115,6 +115,12 @@ export function parseHello(message: unknown): ExtensionInstance | null {
   };
 }
 
+export interface EventChannelHandlers {
+  onMessage?: (message: unknown, instance: ExtensionInstance) => void;
+  onHello?: (instance: ExtensionInstance) => void;
+  onGone?: (instance: ExtensionInstance) => void;
+}
+
 export class LocalEventWebSocketServer {
   private readonly server = http.createServer((_request, response) => {
     response.writeHead(404).end();
@@ -122,19 +128,18 @@ export class LocalEventWebSocketServer {
   private readonly connections = new Set<Connection>();
   /** token -> expiresAt. One token is minted per bootstrap and consumed on upgrade. */
   private readonly pendingTokens = new Map<string, number>();
-  private readonly onMessage: (message: unknown, instance: ExtensionInstance) => void;
-  private readonly onHello: (instance: ExtensionInstance) => void;
+  private handlers: EventChannelHandlers = {};
 
-  constructor(
-    onMessage: (message: unknown, instance: ExtensionInstance) => void = () => undefined,
-    onHello: (instance: ExtensionInstance) => void = () => undefined,
-  ) {
-    this.onMessage = onMessage;
-    this.onHello = onHello;
+  constructor(handlers: EventChannelHandlers = {}) {
+    this.handlers = handlers;
     this.server.maxConnections = MAX_CONNECTIONS;
     this.server.on('upgrade', (request, socket, head) =>
       this.handleUpgrade(request, socket as net.Socket, head),
     );
+  }
+
+  setHandlers(handlers: EventChannelHandlers): void {
+    this.handlers = handlers;
   }
 
   /** Binds on first call, then mints a fresh single-use token for this bootstrap. */
@@ -171,8 +176,13 @@ export class LocalEventWebSocketServer {
   }
 
   publishTo(instanceId: string, message: unknown): boolean {
+    return this.publishRaw(instanceId, JSON.stringify(message));
+  }
+
+  /** For callers that already serialized, so a message is encoded exactly once. */
+  publishRaw(instanceId: string, payload: string): boolean {
     for (const connection of this.connections) {
-      if (connection.instance?.instanceId === instanceId) return this.send(connection, message);
+      if (connection.instance?.instanceId === instanceId) return this.sendRaw(connection, payload);
     }
     return false;
   }
@@ -195,11 +205,15 @@ export class LocalEventWebSocketServer {
   }
 
   private send(connection: Connection, message: unknown): boolean {
+    return this.sendRaw(connection, JSON.stringify(message));
+  }
+
+  private sendRaw(connection: Connection, payload: string): boolean {
     if (connection.socket.destroyed) return false;
-    const payload = Buffer.from(JSON.stringify(message));
-    if (payload.length > MAX_FRAME_BYTES) return false;
+    const bytes = Buffer.from(payload);
+    if (bytes.length > MAX_FRAME_BYTES) return false;
     try {
-      connection.socket.write(frameText(payload));
+      connection.socket.write(frameText(bytes));
       return true;
     } catch {
       return false;
@@ -231,6 +245,9 @@ export class LocalEventWebSocketServer {
     if (!this.connections.delete(connection)) return;
     if (connection.helloTimer) clearTimeout(connection.helloTimer);
     connection.helloTimer = null;
+    // Fires synchronously, so a reconnecting instance is detached before the newer
+    // connection is attached rather than after it.
+    if (connection.instance) this.handlers.onGone?.(connection.instance);
   }
 
   private handleUpgrade(request: http.IncomingMessage, socket: net.Socket, head: Buffer): void {
@@ -298,7 +315,7 @@ export class LocalEventWebSocketServer {
     }
     connection.instance = instance;
     this.send(connection, { type: 'hello-ack', instanceId: instance.instanceId });
-    this.onHello(instance);
+    this.handlers.onHello?.(instance);
   }
 
   private processFrames(connection: Connection): void {
@@ -350,7 +367,7 @@ export class LocalEventWebSocketServer {
         this.acceptHello(connection, message);
         continue;
       }
-      this.onMessage(message, connection.instance);
+      this.handlers.onMessage?.(message, connection.instance);
     }
   }
 }

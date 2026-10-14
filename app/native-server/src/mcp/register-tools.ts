@@ -4,7 +4,7 @@ import {
   CallToolResult,
   ListToolsRequestSchema,
 } from '@modelcontextprotocol/sdk/types.js';
-import nativeMessagingHostInstance from '../native-messaging-host';
+import { activeNativeHost, requireNativeHost } from '../native-host-resolver.js';
 import {
   NativeMessageType,
   NativeProtocolError,
@@ -321,10 +321,10 @@ export function getToolDeadlineAt(meta: unknown): number | undefined {
 }
 
 export async function listDynamicFlowTools(): Promise<Tool[]> {
-  if (!nativeMessagingHostInstance.isExtensionConnected()) return [];
+  if (!activeNativeHost()?.isExtensionConnected()) return [];
 
   try {
-    const response = await nativeMessagingHostInstance.sendRequestToExtensionAndWait(
+    const response = await requireNativeHost().sendRequestToExtensionAndWait(
       {},
       'rr_list_published_flows',
       INTERNAL_TOOL_TIMEOUT_MS,
@@ -538,7 +538,7 @@ function waitForTabQueueTurn(
 
 async function resolveWriteTab(args: any, signal?: AbortSignal, deadlineAt?: number): Promise<any> {
   if (typeof args.tabId === 'number' || args.newWindow) return args;
-  const response = await nativeMessagingHostInstance.sendRequestToExtensionAndWait(
+  const response = await requireNativeHost().sendRequestToExtensionAndWait(
     { name: 'chrome_get_tab_url', args: { windowId: args.windowId } },
     NativeMessageType.CALL_TOOL,
     timeoutUntilDeadline(INTERNAL_TOOL_TIMEOUT_MS, deadlineAt),
@@ -576,7 +576,7 @@ async function resolveRecentOrActiveTab(
     typeof args.windowId === 'number' ? undefined : getRecentTargetTabId(excludeRequestId);
   if (typeof recentTabId === 'number') {
     try {
-      const recentTab = await nativeMessagingHostInstance.sendRequestToExtensionAndWait(
+      const recentTab = await requireNativeHost().sendRequestToExtensionAndWait(
         { name: 'chrome_get_tab_url', args: { tabId: recentTabId } },
         NativeMessageType.CALL_TOOL,
         timeoutUntilDeadline(INTERNAL_TOOL_TIMEOUT_MS, deadlineAt),
@@ -590,7 +590,7 @@ async function resolveRecentOrActiveTab(
     }
   }
 
-  const response = await nativeMessagingHostInstance.sendRequestToExtensionAndWait(
+  const response = await requireNativeHost().sendRequestToExtensionAndWait(
     { name: 'chrome_get_tab_url', args: { windowId: args.windowId } },
     NativeMessageType.CALL_TOOL,
     timeoutUntilDeadline(INTERNAL_TOOL_TIMEOUT_MS, deadlineAt),
@@ -768,7 +768,7 @@ export const handleToolCall = async (
       // We need to resolve flow by slug to ID
       try {
         const nativeStartedAt = Date.now();
-        const resp = await nativeMessagingHostInstance.sendRequestToExtensionAndWait(
+        const resp = await requireNativeHost().sendRequestToExtensionAndWait(
           {},
           'rr_list_published_flows',
           timeoutUntilDeadline(INTERNAL_TOOL_TIMEOUT_MS, deadlineAt),
@@ -790,7 +790,7 @@ export const handleToolCall = async (
             (async () => {
               const nativeStartedAt = Date.now();
               try {
-                return await nativeMessagingHostInstance.sendRequestToExtensionAndWait(
+                return await requireNativeHost().sendRequestToExtensionAndWait(
                   flowArgs,
                   'rr_run_flow',
                   timeoutFor('flow.run', args, deadlineAt),
@@ -851,7 +851,7 @@ export const handleToolCall = async (
         (async () => {
           const nativeStartedAt = Date.now();
           try {
-            return await nativeMessagingHostInstance.sendRequestToExtensionAndWait(
+            return await requireNativeHost().sendRequestToExtensionAndWait(
               { name, args },
               NativeMessageType.CALL_TOOL,
               timeoutFor(name, args, deadlineAt),
@@ -920,6 +920,6 @@ export const handleToolCall = async (
       timings.total - timings.native_queue_wait - timings.browser_execution,
     );
     lastToolTimings = { ...timings };
-    nativeMessagingHostInstance.recordRequestTimings(activity.traceId, timings);
+    activeNativeHost()?.recordRequestTimings(activity.traceId, timings);
   }
 };

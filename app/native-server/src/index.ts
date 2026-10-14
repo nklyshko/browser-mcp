@@ -1,10 +1,18 @@
 #!/usr/bin/env node
 import serverInstance from './server';
 import nativeMessagingHostInstance from './native-messaging-host';
+import { extensionRegistry } from './extension-registry';
+import { setNativeHostResolver } from './native-host-resolver';
 
 try {
   serverInstance.setNativeHost(nativeMessagingHostInstance); // Server needs setNativeHost method
   nativeMessagingHostInstance.setServer(serverInstance); // NativeHost needs setServer method
+  extensionRegistry.adopt(nativeMessagingHostInstance.getEventChannel());
+  extensionRegistry.setServer(serverInstance);
+  // Tool calls go to the browser on the other end of a socket. The stdio host remains
+  // the fallback until the stub owns bootstrap, and it is also what a standalone server
+  // has when nothing has dialled in yet.
+  setNativeHostResolver(() => extensionRegistry.soleHost() ?? nativeMessagingHostInstance);
   nativeMessagingHostInstance.start();
 } catch (error) {
   process.exit(1);
