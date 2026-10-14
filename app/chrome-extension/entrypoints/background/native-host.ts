@@ -309,6 +309,17 @@ function closeEventChannel(): void {
 // ==================== Instance Identity ====================
 
 /**
+ * How long after the service worker starts a claim URL is honoured.
+ *
+ * A launcher controls the start URL, so that is exactly when a legitimate claim arrives.
+ * Without a window the worker would watch tab URLs forever and any page could navigate
+ * the user to /claim and relabel the instance — not an escalation on its own, but enough
+ * to point an agent's selection at the wrong browser.
+ */
+const CLAIM_WINDOW_MS = 10_000;
+const workerStartedAt = Date.now();
+
+/**
  * A browser instance is one extension installation, so the UUID lives in storage.local
  * and survives socket, service-worker and server restarts alike. The label is only a
  * human-readable name for it: editable in the popup, and settable at launch by whoever
@@ -434,6 +445,55 @@ async function connectStandaloneChannel(port: number): Promise<boolean> {
     return eventSocket !== null;
   } catch {
     return false;
+  }
+}
+
+/**
+ * An AI agent launching Chrome knows the profile it passed, but the extension cannot
+ * read it and no agent will ever open the popup. So the identity is pushed in at launch:
+ * start the browser on `http://127.0.0.1:<port>/claim?label=work` and the label is taken
+ * from the URL. No content script, no permission beyond the `tabs` we already hold.
+ */
+export function initInstanceClaimListener(): void {
+  chrome.tabs.onUpdated.addListener((tabId, changeInfo) => {
+    const url = changeInfo.url;
+    if (!url || !url.includes('/claim')) return;
+    if (Date.now() - workerStartedAt > CLAIM_WINDOW_MS) return;
+
+    let label: string | null = null;
+    try {
+      const parsed = new URL(url);
+      if (parsed.hostname !== '127.0.0.1' && parsed.hostname !== 'localhost') return;
+      if (parsed.pathname !== '/claim') return;
+      label = parsed.searchParams.get('label');
+    } catch {
+      return;
+    }
+    if (!label || !label.trim()) return;
+
+    void claimInstanceLabel(label.trim()).then(() => {
+      // The claim page has served its purpose; leaving it open is clutter.
+      chrome.tabs.remove(tabId).catch(() => undefined);
+    });
+  });
+}
+
+async function claimInstanceLabel(label: string): Promise<void> {
+  const identity = await getInstanceIdentity();
+  // Overwrites by design: persistent profile dirs get reused across tasks, and the
+  // second task's label has to win.
+  instanceIdentity = { instanceId: identity.instanceId, label };
+  try {
+    await chrome.storage.local.set({
+      [STORAGE_KEYS.NATIVE_INSTANCE_IDENTITY]: instanceIdentity,
+    });
+  } catch {
+    // The label still applies to this session.
+  }
+  console.debug(`${LOG_PREFIX} Instance claimed as "${label}"`);
+  // Re-announce so the server sees the new label without waiting for a reconnect.
+  if (eventSocket && eventSocket.readyState === WebSocket.OPEN) {
+    void sendInstanceHello(eventSocket);
   }
 }
 

@@ -4,7 +4,13 @@ import {
   CallToolResult,
   ListToolsRequestSchema,
 } from '@modelcontextprotocol/sdk/types.js';
-import { activeNativeHost, requireNativeHost } from '../native-host-resolver.js';
+import {
+  activeNativeHost,
+  getInstanceDirectory,
+  requireNativeHost,
+  withSessionHost,
+} from '../native-host-resolver.js';
+import { listInstances, selectInstance } from '../instance-selection.js';
 import {
   NativeMessageType,
   NativeProtocolError,
@@ -396,7 +402,10 @@ export const setupTools = (server: Server) => {
     const dynamicTools = await listDynamicFlowTools();
     const policy = getToolPermissionPolicy();
     return {
-      tools: filterToolsByPermission([...TOOL_SCHEMAS_EN, ...dynamicTools], policy),
+      tools: [
+        ...filterToolsByPermission([...TOOL_SCHEMAS_EN, ...dynamicTools], policy),
+        SELECT_INSTANCE_TOOL,
+      ],
     };
   });
 
@@ -432,15 +441,71 @@ export const setupTools = (server: Server) => {
               });
             })();
 
-    return handleToolCall(
-      request.params.name,
-      request.params.arguments || {},
-      extra.signal,
-      reportProgress,
-      getToolDeadlineAt(extra._meta),
+    if (request.params.name === SELECT_INSTANCE_TOOL.name) {
+      return handleSelectInstance(request.params.arguments || {}, extra.sessionId);
+    }
+
+    return withSessionHost(extra.sessionId, () =>
+      handleToolCall(
+        request.params.name,
+        request.params.arguments || {},
+        extra.signal,
+        reportProgress,
+        getToolDeadlineAt(extra._meta),
+      ),
     );
   });
 };
+
+/**
+ * No argument lists, an argument binds. One tool does both because a session that
+ * latched onto a single browser never sees the ambiguity error, so it would otherwise
+ * have no way to learn a second browser exists — /status carries the list, but a model
+ * cannot fetch HTTP.
+ */
+export const SELECT_INSTANCE_TOOL = {
+  name: 'chrome_select_instance',
+  description:
+    'List the connected browsers, or bind this session to one of them. Call with no ' +
+    'arguments to see what is connected; pass `instance` (a label or an id prefix) to ' +
+    'direct every later tool call in this session at that browser.',
+  inputSchema: {
+    type: 'object',
+    properties: {
+      instance: {
+        type: 'string',
+        description: 'Label or instance-id prefix of the browser to drive.',
+      },
+    },
+  },
+} as const;
+
+function handleSelectInstance(args: Record<string, unknown>, sessionId?: string): CallToolResult {
+  const selector = typeof args.instance === 'string' ? args.instance : '';
+  const directory = getInstanceDirectory();
+  if (!selector) {
+    return {
+      content: [
+        { type: 'text', text: JSON.stringify(listInstances(directory, sessionId), null, 2) },
+      ],
+    };
+  }
+  if (!sessionId) {
+    throw new NativeProtocolError(
+      'INVALID_REQUEST',
+      'This transport has no session, so a selection could not be remembered.',
+    );
+  }
+  const chosen = selectInstance(directory, sessionId, selector);
+  return {
+    content: [
+      {
+        type: 'text',
+        text: `Now driving ${chosen.label} [${chosen.instanceId.slice(0, 8)}].`,
+      },
+    ],
+  };
+}
 
 function timeoutUntilDeadline(fallbackMs: number, deadlineAt?: number): number {
   if (typeof deadlineAt !== 'number') return fallbackMs;

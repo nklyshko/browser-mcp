@@ -1,6 +1,40 @@
+import { AsyncLocalStorage } from 'node:async_hooks';
 import { NativeProtocolError } from '@ethanwilkins/chrome-mcp-shared-2026';
 import nativeMessagingHostInstance from './native-messaging-host.js';
 import type { NativeMessagingHost } from './native-messaging-host.js';
+import { resolveSessionHost, type InstanceDirectory } from './instance-selection.js';
+
+let directory: InstanceDirectory = {
+  instances: () => [],
+  hostFor: () => null,
+  soleHost: () => nativeMessagingHostInstance,
+};
+
+export function setInstanceDirectory(next: InstanceDirectory): void {
+  directory = next;
+}
+
+export function getInstanceDirectory(): InstanceDirectory {
+  return directory;
+}
+
+/**
+ * Runs a tool call against the host this session is bound to.
+ *
+ * The session id comes from the request handler, so nothing has to be threaded through
+ * the ~50 tool call sites; they keep asking the resolver, which now answers per session.
+ *
+ * AsyncLocalStorage rather than a swapped module variable: tool calls are async and two
+ * sessions overlap freely, so a variable restored in a `finally` would let one session's
+ * call resolve to the other's browser after an await. The plan said this machinery could
+ * be skipped — true only while the browser was bound at server-creation time, which
+ * tool-based selection replaced.
+ */
+const sessionHosts = new AsyncLocalStorage<NativeMessagingHost | null>();
+
+export function withSessionHost<T>(sessionId: string | undefined, run: () => T): T {
+  return sessionHosts.run(resolveSessionHost(directory, sessionId), run);
+}
 
 /**
  * Defaults to the process's own stdio host, which is the right answer whenever nobody
@@ -20,7 +54,8 @@ export function setNativeHostResolver(next: () => NativeMessagingHost | null): v
 }
 
 export function activeNativeHost(): NativeMessagingHost | null {
-  return resolver();
+  // A session's bound host wins; otherwise fall back to whatever was wired globally.
+  return sessionHosts.getStore() ?? resolver();
 }
 
 /**

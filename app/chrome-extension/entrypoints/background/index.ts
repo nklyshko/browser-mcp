@@ -1,4 +1,4 @@
-import { initNativeHostListener } from './native-host';
+import { initInstanceClaimListener, initNativeHostListener } from './native-host';
 import { initSemanticSimilarityListener } from './semantic-similarity-router';
 import { initStorageManagerListener } from './storage-manager';
 import { cleanupModelCache, hasAnyModelCache } from '@/utils/model-cache-lifecycle';
@@ -33,6 +33,7 @@ export default defineBackground(() => {
 
   // Initialize core services
   initNativeHostListener();
+  initInstanceClaimListener();
   initSemanticSimilarityListener();
   initStorageManagerListener();
   bootstrapV3()

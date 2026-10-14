@@ -2,7 +2,7 @@
 import serverInstance from './server';
 import nativeMessagingHostInstance from './native-messaging-host';
 import { extensionRegistry } from './extension-registry';
-import { setNativeHostResolver } from './native-host-resolver';
+import { setInstanceDirectory, setNativeHostResolver } from './native-host-resolver';
 import { startIdleShutdown } from './idle-shutdown';
 
 try {
@@ -14,6 +14,12 @@ try {
   // the fallback until the stub owns bootstrap, and it is also what a standalone server
   // has when nothing has dialled in yet.
   setNativeHostResolver(() => extensionRegistry.soleHost() ?? nativeMessagingHostInstance);
+  // Lets a session bind one browser and keeps ambiguity an error rather than a guess.
+  setInstanceDirectory({
+    instances: () => extensionRegistry.instances(),
+    hostFor: (instanceId) => extensionRegistry.hostFor(instanceId),
+    soleHost: () => extensionRegistry.soleHost() ?? nativeMessagingHostInstance,
+  });
   startIdleShutdown(
     {
       connectedBrowsers: () => extensionRegistry.instances().length,
