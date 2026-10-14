@@ -62,3 +62,13 @@ app/desktop-client/src-tauri/target/
 .build-temp/
 .windows-stage/
 scripts/portable-launcher/target/
+
+# Working notes at the repo root: findings, reports and plans are scratch, not
+# deliverables. Ignore root-level Markdown by default and whitelist the docs
+# that are genuinely part of the repo, so a new note cannot be committed by a
+# stray `git add -A`. Only affects the root; nested *.md is untouched.
+/*.md
+!/README.md
+!/README_en.md
+!/README_zh.md
+!/design-qa.md
