@@ -85,23 +85,15 @@
                 <PopupIcon name="warning" class="service-warning-icon-glyph" />
               </div>
               <div class="service-warning-body">
-                <div class="service-warning-title">{{
-                  portOwnedByOtherBrowser
-                    ? getMessage('portOwnedByOtherBrowserTitle')
-                    : getMessage('connectedServiceNotStartedStatus')
-                }}</div>
-                <div class="service-warning-desc">{{
-                  portOwnedByOtherBrowser
-                    ? getMessage('portOwnedByOtherBrowserTip')
-                    : getMessage('serviceNotStartedTip')
-                }}</div>
+                <div class="service-warning-title">
+                  {{ getMessage('connectedServiceNotStartedStatus') }}
+                </div>
+                <div class="service-warning-desc">{{ getMessage('serviceNotStartedTip') }}</div>
                 <div class="service-warning-actions">
                   <button class="service-warning-btn" @click="refreshServerStatus">
                     {{ getMessage('refreshStatusButton') }}
                   </button>
-                  <!-- Starting cannot succeed while another browser holds the port. -->
                   <button
-                    v-if="!portOwnedByOtherBrowser"
                     class="service-warning-btn service-warning-btn-primary"
                     @click="startService"
                   >
@@ -1516,10 +1508,6 @@ const runFlow = async (flowId: string) => {
 
 const nativeConnectionStatus = ref<'unknown' | 'connected' | 'disconnected'>('unknown');
 /** Reason the bridge is degraded, e.g. another browser owns the HTTP port. */
-const nativeConnectionReason = ref<string>('');
-const portOwnedByOtherBrowser = computed(
-  () => nativeConnectionReason.value === 'http_port_owned_by_other_process',
-);
 const isConnecting = ref(false);
 const nativeServerPort = ref<number>(12306);
 /** Handed to the extension over the event channel; the server reads it from a file. */
@@ -2542,10 +2530,7 @@ const loadNativeConnectionReason = async () => {
     const stored = await chrome.storage.local.get([STORAGE_KEYS.NATIVE_CONNECTION_STATE]);
     const snapshot = stored[STORAGE_KEYS.NATIVE_CONNECTION_STATE] as
       { state?: string; lastError?: string } | undefined;
-    nativeConnectionReason.value = snapshot?.state === 'degraded' ? (snapshot.lastError ?? '') : '';
-  } catch {
-    nativeConnectionReason.value = '';
-  }
+  } catch {}
 };
 
 const checkNativeConnection = async () => {

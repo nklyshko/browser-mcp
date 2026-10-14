@@ -635,7 +635,6 @@ describe('server', () => {
     const previousNativeHost = server.nativeHost;
     server.nativeHost = nativeMessagingHostInstance;
     server.isRunning = true;
-    server.takeoverRequested = false;
     try {
       const response = await supertest(Server.getInstance().server)
         .post('/__chrome_mcp_bridge/bootstrap')
@@ -676,52 +675,6 @@ describe('server', () => {
     } finally {
       server.isRunning = wasRunning;
     }
-  });
-
-  test('a bridge driving a browser refuses to hand over its port', async () => {
-    // The accept path calls process.exit(0), which would take the test runner with
-    // it, so only the refusal branch is exercised here.
-    const server = Server as any;
-    const connected = jest
-      .spyOn(nativeMessagingHostInstance, 'isExtensionConnected')
-      .mockReturnValue(true);
-    const wasRunning = server.isRunning;
-    const previousNativeHost = server.nativeHost;
-    // Tests never run the real entry point, so the server has no native host wired;
-    // production sets it in index.ts before the HTTP server ever listens.
-    server.nativeHost = nativeMessagingHostInstance;
-    server.isRunning = true;
-    server.takeoverRequested = false;
-    try {
-      const response = await supertest(Server.getInstance().server)
-        .post('/__chrome_mcp_bridge/takeover')
-        .set('Origin', 'http://127.0.0.1:1420')
-        .expect(409);
-      expect(response.body).toEqual({ status: 'busy_with_extension' });
-      // Refusing must not begin a shutdown: that is what let two browsers trade
-      // the port back and forth indefinitely.
-      expect(server.takeoverRequested).toBe(false);
-    } finally {
-      server.isRunning = wasRunning;
-      server.nativeHost = previousNativeHost;
-      server.takeoverRequested = false;
-      connected.mockRestore();
-    }
-  });
-
-  test('takeover rejects a cross-origin caller so a web page cannot stop the bridge', async () => {
-    // Unprotected, any page could POST here and trigger process.exit(0). A browser
-    // forces the Origin header on a cross-origin request, so the check is what
-    // actually stops a drive-by page.
-    const response = await supertest(Server.getInstance().server)
-      .post('/__chrome_mcp_bridge/takeover')
-      .set('Origin', 'https://evil.example')
-      .expect(403);
-    expect(response.body.error).toBe(ERROR_MESSAGES.ORIGIN_NOT_ALLOWED);
-  });
-
-  test('takeover rejects a caller with neither Origin nor API key', async () => {
-    await supertest(Server.getInstance().server).post('/__chrome_mcp_bridge/takeover').expect(403);
   });
 
   test('the agent settings accept a cross-origin PUT to save', async () => {

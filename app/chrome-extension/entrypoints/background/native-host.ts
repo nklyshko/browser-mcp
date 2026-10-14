@@ -27,7 +27,6 @@ let eventSocket: WebSocket | null = null;
 /** True once the server has acked our hello, which makes the socket the data path. */
 let eventChannelReady = false;
 let eventHeartbeat: ReturnType<typeof setInterval> | null = null;
-let portReclaimTimer: ReturnType<typeof setInterval> | null = null;
 let eventKeepaliveRelease: (() => void) | null = null;
 const activeToolCalls = new Map<string, AbortController>();
 const respondedProtocolRequests = new Set<string>();
@@ -41,8 +40,6 @@ const RECONNECT_BASE_DELAY_MS = 500;
 const RECONNECT_MAX_DELAY_MS = 60_000;
 const RECONNECT_MAX_FAST_ATTEMPTS = 8;
 const RECONNECT_COOLDOWN_DELAY_MS = 5 * 60_000;
-/** How often a browser that lost the HTTP port re-tries binding it. */
-const PORT_RECLAIM_INTERVAL_MS = 20_000;
 
 // ==================== Auto-connect State ====================
 
@@ -233,12 +230,6 @@ function requestServerStart(port: number): void {
   });
 }
 
-function clearPortReclaimTimer(): void {
-  if (!portReclaimTimer) return;
-  clearInterval(portReclaimTimer);
-  portReclaimTimer = null;
-}
-
 /**
  * Retry binding the HTTP port while another browser's bridge owns it.
  *
@@ -251,21 +242,6 @@ function clearPortReclaimTimer(): void {
  * other browser exiting) whose timing carries no information, and the cost of a
  * tick is one message to an already-open port.
  */
-function startPortReclaim(port: number): void {
-  if (portReclaimTimer) return;
-  portReclaimTimer = setInterval(() => {
-    if (!nativePort || manualDisconnect || !autoConnectEnabled) {
-      clearPortReclaimTimer();
-      return;
-    }
-    if (currentServerStatus.isRunning) {
-      clearPortReclaimTimer();
-      return;
-    }
-    requestServerStart(port);
-  }, PORT_RECLAIM_INTERVAL_MS);
-}
-
 function postProtocolResponseOnce(request: NativeRequest, response: Record<string, unknown>): void {
   if (respondedProtocolRequests.has(request.requestId)) return;
   if (respondedProtocolRequests.size >= MAX_DEDUPLICATED_REQUESTS) {
@@ -1116,9 +1092,8 @@ async function handleNativeProtocolMessage(message: any): Promise<void> {
         const data = protocolMessage.data as
           { port?: unknown; reused?: unknown; viaIncumbent?: unknown } | undefined;
         if (data?.viaIncumbent === true) {
-          // Another browser's server owns the port, and we are now a second connection
-          // on it. MCP tool calls reach this browser over that socket, so the service
-          // genuinely is running — unlike the `reused` case below, which predates it.
+          // Another browser's server owns the port and we are a second connection on
+          // it. Tool calls reach this browser over that socket, so it is running.
           currentServerStatus = {
             isRunning: true,
             port: normalizePort(data?.port) ?? currentServerStatus.port,
@@ -1126,21 +1101,7 @@ async function handleNativeProtocolMessage(message: any): Promise<void> {
           };
           await saveServerStatus(currentServerStatus);
           broadcastServerStatusChange(currentServerStatus);
-          clearPortReclaimTimer();
           resetReconnectState();
-          return;
-        }
-        if (data?.reused === true) {
-          // Another process already owns the HTTP port, so this host cannot
-          // serve MCP requests: they arrive at the other process instead.
-          // Reporting "running" here is what made a dead bridge look healthy.
-          await markServerStopped('http_port_owned_by_other_process');
-          setNativeConnectionState('degraded', 'http_port_owned_by_other_process');
-          // The native channel is fine, so the reconnect backoff has nothing to
-          // do — but keep retrying the bind, because the port frees the moment
-          // the other browser exits and nothing else would notice.
-          resetReconnectState();
-          startPortReclaim(normalizePort(data?.port) ?? (await getPreferredPort()));
           return;
         }
         currentServerStatus = {
@@ -1150,7 +1111,6 @@ async function handleNativeProtocolMessage(message: any): Promise<void> {
         };
         await saveServerStatus(currentServerStatus);
         broadcastServerStatusChange(currentServerStatus);
-        clearPortReclaimTimer();
         resetReconnectState();
       } else if (protocolMessage.event === 'native.serverStopped') {
         await markServerStopped('native_protocol_event');
@@ -1358,7 +1318,6 @@ export const initNativeHostListener = () => {
         // Explicit user disconnect: disable auto-connect and stop reconnect loop
         await setNativeAutoConnectEnabled(false);
         clearReconnectTimer();
-        clearPortReclaimTimer();
         reconnectAttempts = 0;
         syncKeepaliveHold();
 

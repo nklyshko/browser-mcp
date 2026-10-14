@@ -140,70 +140,6 @@ function requestIncumbentChannel(port: number): Promise<EventChannelInfo | null>
   });
 }
 
-function requestPortTakeover(port: number): Promise<boolean> {
-  return new Promise((resolve) => {
-    const request = httpRequest(
-      {
-        hostname: '127.0.0.1',
-        port,
-        path: '/__chrome_mcp_bridge/takeover',
-        method: 'POST',
-        // /takeover is an Origin-protected route; a loopback Origin satisfies it and
-        // keeps the standalone-server handoff working.
-        headers: { Connection: 'close', Origin: 'http://127.0.0.1' },
-        timeout: 2_000,
-      },
-      (response) => {
-        response.resume();
-        resolve(response.statusCode === 200);
-      },
-    );
-    request.on('timeout', () => request.destroy());
-    request.on('error', () => resolve(false));
-    request.end();
-  });
-}
-
-function waitForPortAvailable(port: number, timeoutMs = 8_000): Promise<void> {
-  return new Promise((resolve, reject) => {
-    const deadline = Date.now() + timeoutMs;
-    let settled = false;
-    const retry = () => {
-      if (settled) return;
-      if (Date.now() >= deadline) {
-        settled = true;
-        reject(new Error(`Timed out waiting for port ${port} to be released.`));
-        return;
-      }
-      setTimeout(attempt, 100);
-    };
-    const attempt = () => {
-      if (settled) return;
-      const probe = net.createServer();
-      probe.once('listening', () => {
-        probe.close(() => {
-          if (settled) return;
-          settled = true;
-          resolve();
-        });
-      });
-      probe.once('error', (error: any) => {
-        probe.close();
-        if (error?.code === 'EADDRINUSE') {
-          retry();
-          return;
-        }
-        if (!settled) {
-          settled = true;
-          reject(error);
-        }
-      });
-      probe.listen({ host: '127.0.0.1', port });
-    };
-    attempt();
-  });
-}
-
 export class NativeMessagingHost {
   private readonly transportOverride: NativeTransport | undefined;
   private resolvedTransport: NativeTransport | null = null;
@@ -793,7 +729,7 @@ export class NativeMessagingHost {
   /**
    * Start Fastify server (now accepts Server instance)
    */
-  private async startServer(port: number, allowPortTakeover = true): Promise<void> {
+  private async startServer(port: number): Promise<void> {
     if (!this.associatedServer) {
       this.sendError('Internal error: server instance not set');
       return;
@@ -843,30 +779,15 @@ export class NativeMessagingHost {
         }
       }
 
-      // A manually opened service instance may already own the port. Ask that
-      // instance to stop, then let the Chrome-launched Native Messaging host
-      // take over so HTTP requests and the native connection share one process.
-      if (allowPortTakeover && isAddressInUse(error)) {
-        const takeoverAccepted = await requestPortTakeover(port);
-        if (takeoverAccepted) {
-          await waitForPortAvailable(port);
-          await this.startServer(port, false);
-          return;
-        }
-      }
-
-      // Another process owns the port and would not hand it over, because it is
-      // already driving its own browser. Keep the native connection so the popup can
-      // explain the situation, but do not pretend this host is serving MCP: its tool
-      // calls would never arrive, since HTTP requests reach the other process.
+      // Could neither bind the port nor join whoever holds it. There is no retry to
+      // make here: binding cannot succeed while another process holds the port, and the
+      // join already failed. Say so once, plainly.
       if (isAddressInUse(error)) {
-        structuredLog('native.http_port_unavailable', { port });
-        this.sendMessage({
-          version: NATIVE_PROTOCOL_VERSION,
-          type: 'event',
-          event: 'native.serverStarted',
-          data: { port, reused: true },
-        });
+        structuredLog('native.join_failed', { port });
+        this.sendError(
+          `Port ${port} is held by another process and it would not share its channel.`,
+          'BROWSER_ERROR',
+        );
         return;
       }
       this.sendError(`Failed to start server: ${error.message}`);

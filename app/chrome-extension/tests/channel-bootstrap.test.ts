@@ -168,23 +168,9 @@ describe('joining an incumbent', () => {
     await vi.advanceTimersByTimeAsync(0);
 
     expect(stored.serverStatus).toMatchObject({ isRunning: true, port: 12306 });
-    // The port-reclaim loop exists for the degraded case; joining is not that.
+    // Joining is not a degraded state, so nothing re-asks for the port.
     await vi.advanceTimersByTimeAsync(61_000);
     expect(port.posted.filter((m) => m?.method === 'native.start').length).toBe(before);
-  });
-
-  it('still degrades when the incumbent is too old to share', async () => {
-    const { connectNativeHost } = await import('../entrypoints/background/native-host');
-    connectNativeHost(12306);
-    await vi.advanceTimersByTimeAsync(0);
-
-    port.emit(serverStarted({ reused: true }));
-    await vi.advanceTimersByTimeAsync(0);
-
-    expect(stored.serverStatus).toMatchObject({ isRunning: false });
-    expect(stored.nativeConnectionState).toMatchObject({
-      lastError: 'http_port_owned_by_other_process',
-    });
   });
 });
 

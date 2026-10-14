@@ -234,7 +234,6 @@ export class Server {
   private startedAt = Date.now();
   private reclaimedSessions = 0;
   private cleanupTimer: NodeJS.Timeout | null = null;
-  private takeoverRequested = false;
   private agentStreamManager: AgentStreamManager;
   private agentChatService: AgentChatService;
   private readonly runtimeRegistry = new RuntimeRegistry();
@@ -338,10 +337,6 @@ export class Server {
         // Mints a WS token, so it must not be reachable from a page. A browser forces
         // a cross-origin Origin header; P6 tightens this to require the API key.
         pathname === '/__chrome_mcp_bridge/bootstrap' ||
-        // Unauthenticated, this lets any web page POST here and call process.exit(0)
-        // on the bridge. A browser forces a cross-origin Origin header, so the check
-        // blocks a drive-by page; a local process could always kill us directly.
-        pathname === '/__chrome_mcp_bridge/takeover' ||
         pathname === '/__chrome_mcp_bridge/stop' ||
         pathname.startsWith('/__chrome_mcp_bridge/requests/') ||
         pathname.startsWith('/__chrome_mcp_bridge/mcp-new/requests/');
@@ -831,7 +826,7 @@ export class Server {
     // channel and forwards it to its own extension. That browser then becomes another
     // socket on this server rather than a rival for the port.
     this.fastify.post('/__chrome_mcp_bridge/bootstrap', async (_request, reply) => {
-      if (!this.isRunning || this.takeoverRequested) {
+      if (!this.isRunning) {
         return reply.status(404).send({ status: 'not_available' });
       }
       const channel = this.nativeHost?.getEventChannel();
@@ -847,27 +842,6 @@ export class Server {
           message: error instanceof Error ? error.message : String(error),
         });
       }
-    });
-
-    this.fastify.post('/__chrome_mcp_bridge/takeover', async (_request, reply) => {
-      if (!this.isRunning || this.takeoverRequested) {
-        return reply.status(404).send({ status: 'not_available' });
-      }
-      // Only a bridge that is not already driving a browser may hand the port over.
-      // Yielding while an extension is attached would kill a working bridge, and the
-      // evicted host's extension reconnects and takes the port straight back — two
-      // browsers then trade it indefinitely. The original reason for takeover (a
-      // manually launched standalone server with no browser attached) still applies,
-      // because such a process reports no extension here.
-      if (this.nativeHost?.isExtensionConnected()) {
-        return reply.status(HTTP_STATUS.CONFLICT).send({ status: 'busy_with_extension' });
-      }
-      this.takeoverRequested = true;
-      reply.status(HTTP_STATUS.OK).send({ status: 'stopping' });
-      const stop = () => {
-        void this.stop().finally(() => process.exit(0));
-      };
-      setTimeout(stop, 100).unref();
     });
   }
 
