@@ -1458,6 +1458,10 @@ export class Server {
       process.env.CHROME_MCP_PORT = String(port);
       process.env.MCP_HTTP_PORT = String(port);
 
+      // Serve the event-channel upgrade here rather than on a private ephemeral port,
+      // so a browser with no stub to tell it where to dial can use the port it knows.
+      this.nativeHost?.getEventChannel().attachTo(this.fastify.server, port);
+
       this.isRunning = true;
       this.serviceEnabled = true;
       this.startedAt = Date.now();

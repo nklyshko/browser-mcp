@@ -4655,5 +4655,11 @@
   },
   "portOwnedByOtherBrowserTip": {
     "message": "另一个浏览器已在该端口运行 MCP 服务，因此此浏览器无法处理工具调用。当另一个浏览器关闭时，它会自动接管端口，无需手动操作。"
+  },
+  "apiKeyLabel": {
+    "message": "API 密钥"
+  },
+  "apiKeyPlaceholder": {
+    "message": "连接后自动填充"
   }
 }

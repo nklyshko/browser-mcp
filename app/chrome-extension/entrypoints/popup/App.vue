@@ -193,6 +193,20 @@
                 </div>
               </div>
 
+              <div class="port-section">
+                <label for="apiKey" class="port-label">{{ getMessage('apiKeyLabel') }}</label>
+                <div class="port-input-wrapper">
+                  <input
+                    type="text"
+                    id="apiKey"
+                    :value="mcpApiKey"
+                    :placeholder="getMessage('apiKeyPlaceholder')"
+                    @input="updateApiKey"
+                    class="port-input"
+                  />
+                </div>
+              </div>
+
               <button class="connect-button" :disabled="isConnecting" @click="testNativeConnection">
                 <PopupIcon name="bolt" />
                 <span>{{
@@ -2760,6 +2774,21 @@ const savePortPreference = async (port: number) => {
     console.log(`Port preference saved: ${port}`);
   } catch (error) {
     console.error('Failed to save the port preference:', error);
+  }
+};
+
+/**
+ * Editable because a standalone server has no channel to hand the key over: the file it
+ * lives in is on disk, and this is where it gets pasted in. When a browser does bootstrap
+ * normally, the channel fills this in by itself.
+ */
+const updateApiKey = async (event: Event) => {
+  const value = (event.target as HTMLInputElement).value.trim();
+  mcpApiKey.value = value;
+  try {
+    await chrome.storage.local.set({ [STORAGE_KEYS.MCP_API_KEY]: value });
+  } catch (error) {
+    console.error('Failed to save the MCP API key:', error);
   }
 };
 

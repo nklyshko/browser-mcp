@@ -420,6 +420,23 @@ function rebootstrapChannel(reason: string): void {
   scheduleReconnect(reason);
 }
 
+/**
+ * The no-stub path. Nothing handed us `{wsPort, token}`, so the stored API key stands in
+ * for the token and the configured HTTP port is the channel's port — the upgrade is
+ * served on it, which is why standalone needs nothing extra configured.
+ */
+async function connectStandaloneChannel(port: number): Promise<boolean> {
+  try {
+    const stored = await chrome.storage.local.get([STORAGE_KEYS.MCP_API_KEY]);
+    const key = stored[STORAGE_KEYS.MCP_API_KEY];
+    if (typeof key !== 'string' || !key) return false;
+    connectEventChannel({ port, token: key, expiresAt: Date.now() + 60_000 });
+    return eventSocket !== null;
+  } catch {
+    return false;
+  }
+}
+
 function connectEventChannel(data: unknown): void {
   const info = data as { port?: unknown; token?: unknown; expiresAt?: unknown };
   if (
@@ -923,6 +940,10 @@ async function ensureNativeConnected(trigger: string, portOverride?: unknown): P
     const ok = connectNativeHost(port);
     if (!ok) {
       console.warn(`${LOG_PREFIX} Connection failed (trigger=${trigger})`);
+      // No native host answered. If a server is running anyway — started by hand, or
+      // by an MCP client's stdio proxy — the channel is reachable on the port we
+      // already know, so dial it directly instead of only waiting to retry.
+      if (await connectStandaloneChannel(port)) return true;
       scheduleReconnect(`connect_failed:${trigger}`);
       return false;
     }

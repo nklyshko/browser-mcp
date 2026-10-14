@@ -269,6 +269,9 @@ program
   .action(async (options) => {
     try {
       const port = parseInt(options.port, 10);
+      // Started by hand, so there is no native peer: stdin belongs to the terminal and
+      // writing framed messages to stdout would corrupt its output.
+      process.env.CHROME_MCP_STANDALONE = '1';
       server.setNativeHost(nativeHost);
       nativeHost.setServer(server);
       await server.start(port, nativeHost);

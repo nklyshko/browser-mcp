@@ -4655,5 +4655,11 @@
   },
   "portOwnedByOtherBrowserTip": {
     "message": "Another browser is already running the MCP service on this port, so this one cannot serve tool calls. It will take the port over automatically when the other browser closes - nothing to do here."
+  },
+  "apiKeyLabel": {
+    "message": "API key"
+  },
+  "apiKeyPlaceholder": {
+    "message": "Filled in automatically once connected"
   }
 }

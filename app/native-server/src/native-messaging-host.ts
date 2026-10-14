@@ -205,11 +205,11 @@ function waitForPortAvailable(port: number, timeoutMs = 8_000): Promise<void> {
 }
 
 export class NativeMessagingHost {
-  private readonly transport: NativeTransport;
+  private readonly transportOverride: NativeTransport | undefined;
+  private resolvedTransport: NativeTransport | null = null;
   private readonly eventChannel: LocalEventWebSocketServer;
   private readonly ownsEventChannel: boolean;
-  /** Only the process-owning stdio host exits when its peer goes away. */
-  private readonly exitProcessOnClose: boolean;
+  private readonly exitProcessOnCloseOverride: boolean | undefined;
   private associatedServer: Server | null = null;
   private pendingRequests: Map<string, PendingRequest> = new Map();
   private connected = false;
@@ -230,10 +230,27 @@ export class NativeMessagingHost {
   private eventChannelInfo: EventChannelInfo | null = null;
 
   constructor(options: NativeMessagingHostOptions = {}) {
-    this.transport = options.transport ?? defaultNativeTransport();
+    this.transportOverride = options.transport;
     this.eventChannel = options.eventChannel ?? new LocalEventWebSocketServer();
     this.ownsEventChannel = options.eventChannel === undefined;
-    this.exitProcessOnClose = options.exitProcessOnClose ?? this.transport.kind === 'stdio';
+    this.exitProcessOnCloseOverride = options.exitProcessOnClose;
+  }
+
+  /**
+   * Resolved on first use, not in the constructor: this class is a module singleton, so
+   * deciding at construction time would read the environment before an entry point such
+   * as `cli.ts start` has had any chance to set it.
+   */
+  private get transport(): NativeTransport {
+    if (!this.resolvedTransport) {
+      this.resolvedTransport = this.transportOverride ?? defaultNativeTransport();
+    }
+    return this.resolvedTransport;
+  }
+
+  /** Only the process-owning stdio host exits when its peer goes away. */
+  private get exitProcessOnClose(): boolean {
+    return this.exitProcessOnCloseOverride ?? this.transport.kind === 'stdio';
   }
 
   public getStatus(): NativeHostStatus {

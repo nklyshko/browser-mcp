@@ -36,6 +36,7 @@ const IDLE_TIMEOUT_MS = 90_000;
 const HELLO_TIMEOUT_MS = 10_000;
 const TOKEN_TTL_MS = 5 * 60_000;
 const MAX_LABEL_BYTES = 64;
+const TOKEN_BYTES = 32;
 const INSTANCE_ID_PATTERN = /^[A-Za-z0-9_-]{8,64}$/;
 
 function allowedOrigins(): string[] {
@@ -124,28 +125,63 @@ export interface EventChannelHandlers {
 }
 
 export class LocalEventWebSocketServer {
-  private readonly server = http.createServer((_request, response) => {
+  /** Used only when nothing else is hosting the upgrade. */
+  private readonly ownServer = http.createServer((_request, response) => {
     response.writeHead(404).end();
   });
+  private server: http.Server = this.ownServer;
+  private attached = false;
+  private attachedPort: number | null = null;
   private readonly connections = new Set<Connection>();
   /** token -> expiresAt. One token is minted per bootstrap and consumed on upgrade. */
   private readonly pendingTokens = new Map<string, number>();
   private handlers: EventChannelHandlers = {};
+  private readonly upgradeListener = (
+    request: http.IncomingMessage,
+    socket: net.Socket,
+    head: Buffer,
+  ) => this.handleUpgrade(request, socket, head);
 
   constructor(handlers: EventChannelHandlers = {}) {
     this.handlers = handlers;
-    this.server.maxConnections = MAX_CONNECTIONS;
-    this.server.on('upgrade', (request, socket, head) =>
-      this.handleUpgrade(request, socket as net.Socket, head),
-    );
+    this.ownServer.maxConnections = MAX_CONNECTIONS;
+    this.ownServer.on('upgrade', this.upgradeListener);
   }
 
   setHandlers(handlers: EventChannelHandlers): void {
     this.handlers = handlers;
   }
 
+  /**
+   * Serve the upgrade on an existing HTTP server instead of a private one.
+   *
+   * This is what lets a standalone browser dial in with nothing but the port it already
+   * knows: the channel lives on the same 12306 everything else uses, so there is no
+   * second, ephemeral port to discover or configure.
+   */
+  attachTo(server: http.Server, port: number): void {
+    if (this.attached) return;
+    this.detachOwnServer();
+    this.server = server;
+    this.attached = true;
+    this.attachedPort = port;
+    server.on('upgrade', this.upgradeListener);
+  }
+
+  private detachOwnServer(): void {
+    this.ownServer.off('upgrade', this.upgradeListener);
+    if (this.ownServer.listening) this.ownServer.close();
+  }
+
   /** Binds on first call, then mints a fresh single-use token for this bootstrap. */
   async start(): Promise<EventChannelInfo> {
+    if (this.attached) {
+      this.pruneTokens();
+      const token = crypto.randomBytes(TOKEN_BYTES).toString('base64url');
+      const expiresAt = Date.now() + TOKEN_TTL_MS;
+      this.pendingTokens.set(token, expiresAt);
+      return { port: this.attachedPort!, token, expiresAt };
+    }
     if (!this.server.listening) {
       await new Promise<void>((resolve, reject) => {
         const onError = (error: Error) => {
@@ -164,7 +200,7 @@ export class LocalEventWebSocketServer {
     const address = this.server.address();
     if (!address || typeof address === 'string') throw new Error('Event channel failed to bind');
     this.pruneTokens();
-    const token = crypto.randomBytes(32).toString('base64url');
+    const token = crypto.randomBytes(TOKEN_BYTES).toString('base64url');
     const expiresAt = Date.now() + TOKEN_TTL_MS;
     this.pendingTokens.set(token, expiresAt);
     return { port: address.port, token, expiresAt };
@@ -231,6 +267,14 @@ export class LocalEventWebSocketServer {
 
   private consumeToken(provided: string): boolean {
     if (!provided) return false;
+
+    // No stub ran, so no token was minted: a standalone browser presents the API key
+    // instead. Not consumed, because it is long-lived by design.
+    const apiKey = this.handlers.apiKey?.();
+    if (apiKey && provided.length === apiKey.length) {
+      if (crypto.timingSafeEqual(Buffer.from(provided), Buffer.from(apiKey))) return true;
+    }
+
     this.pruneTokens();
     const candidate = Buffer.from(provided);
     for (const token of this.pendingTokens.keys()) {

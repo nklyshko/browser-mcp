@@ -120,6 +120,33 @@ export CHROME_MCP_NODE_PATH=/path/to/your/node
 
 You can also run `mcp-chrome-bridge doctor --fix` in a terminal to have the tool attempt to write the current Node.js path. Restart the service and run `mcp-chrome-bridge doctor` to confirm the path check passes.
 
+## Q: How do I start the server by hand?
+
+**A:** Run it with `CHROME_MCP_STANDALONE=1` set, which tells the process it has no native
+messaging peer and must not read stdin or write to stdout:
+
+```bash
+CHROME_MCP_STANDALONE=1 mcp-chrome-bridge start --port 12306
+```
+
+You need this in three situations: a browser without native messaging, an installation too
+locked down to run `register`, and on Windows, where Chrome may terminate a server that one
+of its native hosts started (see the Job Object note below).
+
+The extension finds a hand-started server on its own. The event channel is served on the
+same port as everything else — 12306 by default — so there is no second port to configure.
+It does need the API key: the server generates one on first run and stores it at
+`~/.chrome-mcp-agent/api-key` (`%USERPROFILE%\.chrome-mcp-agent\api-key` on Windows). Copy
+that value into the extension popup's **API key** field. When a browser bootstraps normally
+the popup fills that field in by itself; it is editable for exactly this case.
+
+## Q: Why does the server stop when I close Chrome on Windows?
+
+**A:** Chrome runs native messaging hosts inside a Job Object, and terminating a job kills
+its descendants, so a server started by one browser's host can go down when that browser
+exits. There is no workaround in the product: start the server by hand as above, and it
+will outlive any individual browser.
+
 ## Q: What should I do if startup still fails after checking installation, the manifest, permissions, and Node.js?
 
 **A:** The issue may not be one of the common configuration problems above. Check the latest wrapper log in the user log directory and run `mcp-chrome-bridge report` to create a redacted report. Include both the relevant log and report when opening an issue so the cause can be investigated further.
