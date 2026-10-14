@@ -116,6 +116,8 @@ export function parseHello(message: unknown): ExtensionInstance | null {
 }
 
 export interface EventChannelHandlers {
+  /** Supplies the API key surfaced to the extension in the hello ack. */
+  apiKey?: () => string;
   onMessage?: (message: unknown, instance: ExtensionInstance) => void;
   onHello?: (instance: ExtensionInstance) => void;
   onGone?: (instance: ExtensionInstance) => void;
@@ -314,7 +316,15 @@ export class LocalEventWebSocketServer {
       this.dropConnection(existing);
     }
     connection.instance = instance;
-    this.send(connection, { type: 'hello-ack', instanceId: instance.instanceId });
+    // The key travels back over the channel because an extension cannot read the file
+    // it lives in, and the popup has to put it in the snippet people copy. No new
+    // capability is granted: anything that can complete this hello can already drive
+    // the browser directly.
+    this.send(connection, {
+      type: 'hello-ack',
+      instanceId: instance.instanceId,
+      apiKey: this.handlers.apiKey?.() ?? null,
+    });
     this.handlers.onHello?.(instance);
   }
 

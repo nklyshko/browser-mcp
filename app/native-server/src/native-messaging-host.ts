@@ -20,6 +20,7 @@ import {
 import { NATIVE_SERVER_PORT, TIMEOUTS } from './constant';
 import fileHandler from './file-handler';
 import { ArtifactStore } from './artifact-store.js';
+import { resolveApiKey } from './api-key.js';
 import { LocalEventWebSocketServer, type EventChannelInfo } from './event-websocket-server.js';
 import { RequestStageTimings, structuredLog } from './observability.js';
 import {
@@ -95,7 +96,12 @@ function requestIncumbentChannel(port: number): Promise<EventChannelInfo | null>
         port,
         path: '/__chrome_mcp_bridge/bootstrap',
         method: 'POST',
-        headers: { Connection: 'close', Origin: 'http://127.0.0.1' },
+        // Same machine, same user, so the incumbent's key file is readable here.
+        headers: {
+          Connection: 'close',
+          Origin: 'http://127.0.0.1',
+          Authorization: `Bearer ${resolveApiKey()}`,
+        },
         timeout: 3_000,
       },
       (response) => {

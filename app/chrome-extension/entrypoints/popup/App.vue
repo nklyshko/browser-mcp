@@ -1508,6 +1508,8 @@ const portOwnedByOtherBrowser = computed(
 );
 const isConnecting = ref(false);
 const nativeServerPort = ref<number>(12306);
+/** Handed to the extension over the event channel; the server reads it from a file. */
+const mcpApiKey = ref<string>('');
 const backgroundOperations = ref(true);
 const contentMessageTimeoutSeconds = ref(30);
 const sendScrollCoordinates = ref(false);
@@ -1549,6 +1551,10 @@ const expandedMcpTransport = computed(
 const mcpTransportOptions = computed<McpTransportOption[]>(() => {
   const port = serverStatus.value.port || nativeServerPort.value;
   const baseUrl = `http://127.0.0.1:${port}`;
+  // The server requires this on its MCP routes, so the snippet has to carry it or
+  // everything pasted from here is dead on arrival. Until the channel has handed it
+  // over, show a placeholder rather than a config that silently 401s.
+  const headers = { Authorization: `Bearer ${mcpApiKey.value || 'KEY-NOT-YET-AVAILABLE'}` };
 
   return [
     {
@@ -1562,6 +1568,7 @@ const mcpTransportOptions = computed<McpTransportOption[]>(() => {
           'streamable-mcp-server': {
             type: 'streamable-http',
             url: `${baseUrl}/mcp`,
+            headers,
           },
         },
       },
@@ -1577,6 +1584,7 @@ const mcpTransportOptions = computed<McpTransportOption[]>(() => {
           'streamable-mcp-server-new': {
             type: 'streamable-http',
             url: `${baseUrl}/mcp-new`,
+            headers,
           },
         },
       },
@@ -1591,6 +1599,7 @@ const mcpTransportOptions = computed<McpTransportOption[]>(() => {
         mcpServers: {
           'sse-mcp-server': {
             url: `${baseUrl}/sse`,
+            headers,
           },
         },
       },
@@ -1607,6 +1616,7 @@ const mcpTransportOptions = computed<McpTransportOption[]>(() => {
             command: 'mcp-chrome-stdio',
             env: {
               MCP_SERVER_URL: `${baseUrl}/mcp-new`,
+              CHROME_MCP_API_KEY: mcpApiKey.value || 'KEY-NOT-YET-AVAILABLE',
             },
           },
         },
@@ -2753,6 +2763,16 @@ const savePortPreference = async (port: number) => {
   }
 };
 
+const loadApiKey = async () => {
+  try {
+    const result = await chrome.storage.local.get([STORAGE_KEYS.MCP_API_KEY]);
+    const key = result[STORAGE_KEYS.MCP_API_KEY];
+    if (typeof key === 'string' && key) mcpApiKey.value = key;
+  } catch (error) {
+    console.error('Failed to load the MCP API key:', error);
+  }
+};
+
 const loadPortPreference = async () => {
   try {
     const result = await chrome.storage.local.get(['nativeServerPort']);
@@ -3131,6 +3151,7 @@ onMounted(async () => {
   // Initialise the theme
   await initTheme();
   await loadPortPreference();
+  await loadApiKey();
   await loadProxySettings();
   void refreshCurrentProxyInfo();
   await loadBackgroundOperations();

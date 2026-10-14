@@ -1,6 +1,7 @@
 import { LocalEventWebSocketServer, type ExtensionInstance } from './event-websocket-server.js';
 import { NativeMessagingHost } from './native-messaging-host.js';
 import { WebSocketNativeTransport } from './native-transport.js';
+import { resolveApiKey } from './api-key.js';
 import { structuredLog } from './observability.js';
 import type { Server } from './server';
 
@@ -27,6 +28,7 @@ export class ExtensionRegistry {
   adopt(channel: LocalEventWebSocketServer): void {
     this.eventChannel = channel;
     channel.setHandlers({
+      apiKey: () => resolveApiKey(),
       onMessage: (message, instance) => this.route(message, instance),
       onHello: (instance) => this.attach(instance),
       onGone: (instance) => this.detach(instance.instanceId),

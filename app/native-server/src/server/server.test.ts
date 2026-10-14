@@ -1,5 +1,15 @@
 import { describe, expect, test, afterAll, beforeAll, jest } from '@jest/globals';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
 import supertest from 'supertest';
+import { resolveApiKey } from '../api-key.js';
+
+// Set before anything resolves a key, so generating one cannot touch the real
+// ~/.chrome-mcp-agent during a test run.
+const TEST_DATA_DIR = fs.mkdtempSync(path.join(os.tmpdir(), 'chrome-mcp-test-'));
+process.env.CHROME_MCP_AGENT_DATA_DIR = TEST_DATA_DIR;
+
 import Server from './index';
 import { ERROR_MESSAGES, isAllowedCorsOrigin, MCP_API_KEY_ENV } from '../constant';
 import nativeMessagingHostInstance from '../native-messaging-host';
@@ -77,6 +87,7 @@ describe('server', () => {
     try {
       const response = await supertest(Server.getInstance().server)
         .post('/mcp')
+        .set('Authorization', `Bearer ${resolveApiKey()}`)
         .set('Origin', 'http://127.0.0.1:1420')
         .set('Accept', 'application/json, text/event-stream')
         .send({
@@ -106,6 +117,7 @@ describe('server', () => {
       if (sessionId) {
         await supertest(Server.getInstance().server)
           .delete('/mcp')
+          .set('Authorization', `Bearer ${resolveApiKey()}`)
           .set('Origin', 'http://127.0.0.1:1420')
           .set('Mcp-Session-Id', sessionId);
       }
@@ -134,6 +146,7 @@ describe('server', () => {
     try {
       const initialized = await supertest(Server.getInstance().server)
         .post('/mcp')
+        .set('Authorization', `Bearer ${resolveApiKey()}`)
         .set('Origin', 'http://127.0.0.1:1420')
         .set('Accept', 'application/json, text/event-stream')
         .send({
@@ -152,6 +165,7 @@ describe('server', () => {
 
       await supertest(Server.getInstance().server)
         .post('/mcp')
+        .set('Authorization', `Bearer ${resolveApiKey()}`)
         .set('Origin', 'http://127.0.0.1:1420')
         .set('Accept', 'application/json, text/event-stream')
         .set('Mcp-Session-Id', sessionId!)
@@ -160,6 +174,7 @@ describe('server', () => {
 
       const listed = await supertest(Server.getInstance().server)
         .post('/mcp')
+        .set('Authorization', `Bearer ${resolveApiKey()}`)
         .set('Origin', 'http://127.0.0.1:1420')
         .set('Accept', 'application/json, text/event-stream')
         .set('Mcp-Session-Id', sessionId!)
@@ -171,6 +186,7 @@ describe('server', () => {
 
       const called = await supertest(Server.getInstance().server)
         .post('/mcp')
+        .set('Authorization', `Bearer ${resolveApiKey()}`)
         .set('Origin', 'http://127.0.0.1:1420')
         .set('Accept', 'application/json, text/event-stream')
         .set('Mcp-Session-Id', sessionId!)
@@ -200,6 +216,7 @@ describe('server', () => {
       if (sessionId) {
         await supertest(Server.getInstance().server)
           .delete('/mcp')
+          .set('Authorization', `Bearer ${resolveApiKey()}`)
           .set('Origin', 'http://127.0.0.1:1420')
           .set('Mcp-Session-Id', sessionId);
       }
@@ -215,6 +232,7 @@ describe('server', () => {
     try {
       const response = await supertest(Server.getInstance().server)
         .post('/mcp')
+        .set('Authorization', `Bearer ${resolveApiKey()}`)
         .set('Origin', 'chrome-extension://mcp-stdio')
         .set('Accept', 'application/json, text/event-stream')
         .send({
@@ -243,6 +261,7 @@ describe('server', () => {
       if (sessionId) {
         await supertest(Server.getInstance().server)
           .delete('/mcp')
+          .set('Authorization', `Bearer ${resolveApiKey()}`)
           .set('Origin', 'chrome-extension://mcp-stdio')
           .set('Mcp-Session-Id', sessionId);
       }
@@ -255,6 +274,7 @@ describe('server', () => {
     try {
       const response = await supertest(Server.getInstance().server)
         .post('/mcp-new')
+        .set('Authorization', `Bearer ${resolveApiKey()}`)
         .set('Origin', 'http://127.0.0.1:1420')
         .set('MCP-Protocol-Version', '2026-07-28')
         .set('Mcp-Method', 'tools/list')
@@ -430,6 +450,7 @@ describe('server', () => {
     try {
       const response = await supertest(Server.getInstance().server)
         .post('/mcp')
+        .set('Authorization', `Bearer ${resolveApiKey()}`)
         .set('Origin', 'http://127.0.0.1:1420')
         .send({ jsonrpc: '2.0', id: 99, method: 'tools/call', params: { name: 'chrome_wait' } })
         .expect(400);
@@ -458,6 +479,7 @@ describe('server', () => {
     try {
       const posted = await supertest(Server.getInstance().server)
         .post('/mcp')
+        .set('Authorization', `Bearer ${resolveApiKey()}`)
         .set('Origin', origin)
         .set('Accept', 'application/json, text/event-stream')
         .set('Mcp-Session-Id', staleSessionId)
@@ -467,6 +489,7 @@ describe('server', () => {
 
       const streamed = await supertest(Server.getInstance().server)
         .get('/mcp')
+        .set('Authorization', `Bearer ${resolveApiKey()}`)
         .set('Origin', origin)
         .set('Mcp-Session-Id', staleSessionId)
         .expect(404);
@@ -474,6 +497,7 @@ describe('server', () => {
 
       const deleted = await supertest(Server.getInstance().server)
         .delete('/mcp')
+        .set('Authorization', `Bearer ${resolveApiKey()}`)
         .set('Origin', origin)
         .set('Mcp-Session-Id', staleSessionId)
         .expect(404);
@@ -483,6 +507,7 @@ describe('server', () => {
       // session the client could recover by re-initializing.
       const missing = await supertest(Server.getInstance().server)
         .delete('/mcp')
+        .set('Authorization', `Bearer ${resolveApiKey()}`)
         .set('Origin', origin)
         .expect(400);
       expect(missing.body.error).toBe(ERROR_MESSAGES.INVALID_SESSION_ID);
@@ -515,6 +540,7 @@ describe('server', () => {
     const initialize = async (clientName: string): Promise<string> => {
       const response = await supertest(Server.getInstance().server)
         .post('/mcp')
+        .set('Authorization', `Bearer ${resolveApiKey()}`)
         .set('Origin', origin)
         .set('Accept', 'application/json, text/event-stream')
         .send({
@@ -531,6 +557,7 @@ describe('server', () => {
       const sessionId = response.headers['mcp-session-id'];
       await supertest(Server.getInstance().server)
         .post('/mcp')
+        .set('Authorization', `Bearer ${resolveApiKey()}`)
         .set('Origin', origin)
         .set('Accept', 'application/json, text/event-stream')
         .set('Mcp-Session-Id', sessionId)
@@ -542,6 +569,7 @@ describe('server', () => {
     const callTool = (sessionId: string, tabId: number) =>
       supertest(Server.getInstance().server)
         .post('/mcp')
+        .set('Authorization', `Bearer ${resolveApiKey()}`)
         .set('Origin', origin)
         .set('Accept', 'application/json, text/event-stream')
         .set('Mcp-Session-Id', sessionId)
@@ -591,6 +619,7 @@ describe('server', () => {
       for (const sessionId of sessionIds) {
         await supertest(Server.getInstance().server)
           .delete('/mcp')
+          .set('Authorization', `Bearer ${resolveApiKey()}`)
           .set('Origin', origin)
           .set('Mcp-Session-Id', sessionId);
       }
@@ -610,6 +639,7 @@ describe('server', () => {
     try {
       const response = await supertest(Server.getInstance().server)
         .post('/__chrome_mcp_bridge/bootstrap')
+        .set('Authorization', `Bearer ${resolveApiKey()}`)
         .set('Origin', 'http://127.0.0.1:1420')
         .expect(200);
       expect(response.body.status).toBe('ok');
@@ -622,6 +652,7 @@ describe('server', () => {
       // A second ask mints a different token: they are single-use on upgrade.
       const again = await supertest(Server.getInstance().server)
         .post('/__chrome_mcp_bridge/bootstrap')
+        .set('Authorization', `Bearer ${resolveApiKey()}`)
         .set('Origin', 'http://127.0.0.1:1420')
         .expect(200);
       expect(again.body.channel.token).not.toBe(response.body.channel.token);

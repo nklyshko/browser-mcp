@@ -169,7 +169,11 @@ describe('LocalEventWebSocketServer', () => {
     b.send(hello('instance-bbbb-2222', 'B'));
     await settle();
 
-    expect(a.messages).toEqual([{ type: 'hello-ack', instanceId: 'instance-aaaa-1111' }]);
+    // The ack carries the API key, because an extension cannot read the file it
+    // lives in and the popup has to put it in the snippet people copy.
+    expect(a.messages).toEqual([
+      { type: 'hello-ack', instanceId: 'instance-aaaa-1111', apiKey: null },
+    ]);
     expect(server.publishTo('instance-aaaa-1111', { type: 'event' })).toBe(true);
     expect(server.publishTo('instance-nope-0000', { type: 'event' })).toBe(false);
     await settle();
@@ -179,6 +183,18 @@ describe('LocalEventWebSocketServer', () => {
     expect(server.broadcast({ type: 'all' })).toBe(2);
     a.destroy();
     b.destroy();
+  });
+
+  test('surfaces the api key in the ack when one is supplied', async () => {
+    server.setHandlers({ apiKey: () => 'generated-key' });
+    const info = await server.start();
+    const client = new TestClient();
+    await client.connect(info.port, info.token);
+    client.send(hello('instance-aaaa-1111', 'A'));
+    await settle();
+
+    expect(client.messages[0]).toMatchObject({ apiKey: 'generated-key' });
+    client.destroy();
   });
 
   test('burns a token on use and refuses a replay of it', async () => {

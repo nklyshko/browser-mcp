@@ -17,10 +17,11 @@ import {
   HTTP_STATUS,
   ERROR_MESSAGES,
   isAllowedCorsOrigin,
-  MCP_API_KEY_ENV,
   MCP_ENABLE_DEBUG_ENDPOINTS_ENV,
   MCP_MAX_HTTP_BODY_BYTES_ENV,
+  MCP_API_KEY_ENV,
 } from '../constant';
+import { resolveApiKey } from '../api-key.js';
 import { NativeMessagingHost } from '../native-messaging-host';
 import { SSEServerTransport } from '@modelcontextprotocol/sdk/server/sse.js';
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
@@ -323,6 +324,7 @@ export class Server {
     this.fastify.addHook('onRequest', async (request, reply) => {
       const pathname = (request.raw.url ?? '').split('?')[0];
       const isMcpRoute = ['/mcp', '/mcp-new', '/sse', '/messages'].includes(pathname);
+      const isChannelMintRoute = pathname === '/__chrome_mcp_bridge/bootstrap';
       const isProtectedLocalRoute =
         pathname === '/status' ||
         pathname === '/__chrome_mcp_bridge/error-diagnostics' ||
@@ -347,7 +349,11 @@ export class Server {
         pathname.startsWith('/__chrome_mcp_bridge/runtime/');
       if (!isMcpRoute && !isProtectedLocalRoute && !isRuntimeRoute) return;
 
-      const expectedKey = process.env[MCP_API_KEY_ENV]?.trim();
+      // Generated and persisted on first use, so there is always a key to require on
+      // the MCP surface. An explicitly configured key stays strict everywhere, which
+      // is what it has always meant — only the generated baseline is narrower.
+      const configuredKey = process.env[MCP_API_KEY_ENV]?.trim();
+      const expectedKey = resolveApiKey();
       const origin = request.headers.origin;
       if (origin && !isAllowedCorsOrigin(origin)) {
         reply.status(HTTP_STATUS.FORBIDDEN).send({ error: ERROR_MESSAGES.ORIGIN_NOT_ALLOWED });
@@ -365,7 +371,21 @@ export class Server {
       );
       if (artifactTokenAccepted) return;
 
-      if ((isMcpRoute || isProtectedLocalRoute || isRuntimeRoute) && !origin && !expectedKey) {
+      const authorization = request.headers.authorization;
+      const bearer = authorization?.match(/^Bearer\s+(.+)$/i)?.[1];
+      const providedKey = bearer ?? request.headers['x-api-key'];
+
+      // Neither an Origin nor a credential: nothing identifies this caller. Keyed off
+      // what was *presented*, not off whether a key exists — now that one is always
+      // generated, testing `!expectedKey` here would let an anonymous caller through.
+      // With a key explicitly configured, a missing credential has always been 401
+      // "missing or invalid key"; only the keyless case answers 403.
+      if (
+        (isMcpRoute || isProtectedLocalRoute || isRuntimeRoute) &&
+        !origin &&
+        !providedKey &&
+        !configuredKey
+      ) {
         reply.status(HTTP_STATUS.FORBIDDEN).send({ error: ERROR_MESSAGES.ORIGIN_NOT_ALLOWED });
         return;
       }
@@ -373,16 +393,24 @@ export class Server {
       // actual MCP request is authenticated below.
       if (request.method === 'OPTIONS') return;
 
-      const authorization = request.headers.authorization;
-      const bearer = authorization?.match(/^Bearer\s+(.+)$/i)?.[1];
-      const providedKey = bearer ?? request.headers['x-api-key'];
       if (expectedKey && providedKey === expectedKey) return;
-      if (expectedKey || artifactId) {
+
+      // A loopback Origin used to be sufficient here, which meant a plain curl with
+      // `Origin: http://127.0.0.1` could drive the browser. The key is now required on
+      // the MCP surface and on the route that mints WS tokens. A generated key that
+      // nothing enforces is theatre, and "enforce later" is the version that never
+      // happens — so this breaks existing client configs deliberately.
+      if (isMcpRoute || isChannelMintRoute) {
         reply.status(HTTP_STATUS.UNAUTHORIZED).send({ error: ERROR_MESSAGES.UNAUTHORIZED });
         return;
       }
-      // The server is loopback-only; non-artifact local routes remain compatible
-      // when the optional API key is not configured.
+
+      if (configuredKey || artifactId) {
+        reply.status(HTTP_STATUS.UNAUTHORIZED).send({ error: ERROR_MESSAGES.UNAUTHORIZED });
+        return;
+      }
+      // The server is loopback-only; the remaining local routes — /status among them,
+      // which the popup reads with no headers of its own — stay Origin-checked only.
     });
   }
 

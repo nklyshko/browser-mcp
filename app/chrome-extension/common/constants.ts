@@ -249,6 +249,7 @@ export const STORAGE_KEYS = {
   NATIVE_AUTO_CONNECT_ENABLED: 'nativeAutoConnectEnabled',
   NATIVE_CONNECTION_STATE: 'nativeConnectionState',
   NATIVE_INSTANCE_IDENTITY: 'nativeInstanceIdentity',
+  MCP_API_KEY: 'mcpApiKey',
   CONTENT_MESSAGE_TIMEOUT: 'contentMessageTimeout',
   SEMANTIC_MODEL: 'selectedModel',
   USER_PREFERENCES: 'userPreferences',

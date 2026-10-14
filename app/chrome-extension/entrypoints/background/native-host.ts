@@ -454,6 +454,13 @@ function connectEventChannel(data: unknown): void {
       if (message?.type === 'hello-ack') {
         // From here the socket carries protocol traffic; the port is bootstrap only.
         if (eventSocket === socket) eventChannelReady = true;
+        // The key lives in a file the extension cannot read, so the server hands it
+        // back here for the popup to put in the config snippet.
+        if (typeof message.apiKey === 'string' && message.apiKey) {
+          void chrome.storage.local
+            .set({ [STORAGE_KEYS.MCP_API_KEY]: message.apiKey })
+            .catch(() => undefined);
+        }
         return;
       }
       if (typeof message?.version === 'number') {

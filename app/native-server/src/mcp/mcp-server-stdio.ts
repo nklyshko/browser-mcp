@@ -10,6 +10,7 @@ import type { RequestHandlerExtra } from '@modelcontextprotocol/sdk/shared/proto
 import { TOOL_SCHEMAS_EN } from '@ethanwilkins/chrome-mcp-shared-2026';
 import * as fs from 'fs';
 import * as path from 'path';
+import { resolveApiKey } from '../api-key.js';
 import { spawn, type ChildProcess } from 'node:child_process';
 import packageJson from '../../package.json';
 import { checkToolAccess, filterToolsByPermission } from './permission-policy.js';
@@ -157,10 +158,10 @@ export const ensureMcpClient = async (options: UnifiedRequestOptions = {}) => {
         throw new Error('MCP_SERVER_URL, or the url in stdio-config.json, is invalid');
       }
       await ensureLocalHttpServer(config.url);
-      const apiKey = process.env.CHROME_MCP_API_KEY?.trim();
+      // Falls back to the server's key file, so a proxy launched by an MCP client with
+      // no environment of its own still authenticates.
+      const apiKey = resolveApiKey();
       const requestHeaders: Record<string, string> = {
-        // Keep the backwards-compatible no-key STDIO transport distinguishable
-        // from an unauthenticated request with no Origin header.
         Origin: process.env.MCP_SERVER_ORIGIN?.trim() || DEFAULT_MCP_SERVER_ORIGIN,
         ...(apiKey ? { Authorization: `Bearer ${apiKey}` } : {}),
       };
