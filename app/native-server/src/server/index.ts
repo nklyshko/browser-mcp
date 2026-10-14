@@ -830,6 +830,11 @@ export class Server {
     });
   }
 
+  /** Live MCP sessions. Zero does not mean idle on its own — see the idle watcher. */
+  public get activeSessionCount(): number {
+    return this.transportsMap.size;
+  }
+
   public observeNativeResponse(method: string, result: unknown): void {
     if (method !== 'rr.runFlow' || !result || typeof result !== 'object') return;
     const envelope = result as { data?: { content?: Array<{ type?: string; text?: string }> } };

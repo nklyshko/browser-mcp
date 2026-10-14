@@ -3,6 +3,7 @@ import serverInstance from './server';
 import nativeMessagingHostInstance from './native-messaging-host';
 import { extensionRegistry } from './extension-registry';
 import { setNativeHostResolver } from './native-host-resolver';
+import { startIdleShutdown } from './idle-shutdown';
 
 try {
   serverInstance.setNativeHost(nativeMessagingHostInstance); // Server needs setNativeHost method
@@ -13,6 +14,16 @@ try {
   // the fallback until the stub owns bootstrap, and it is also what a standalone server
   // has when nothing has dialled in yet.
   setNativeHostResolver(() => extensionRegistry.soleHost() ?? nativeMessagingHostInstance);
+  startIdleShutdown(
+    {
+      connectedBrowsers: () => extensionRegistry.instances().length,
+      activeSessions: () => serverInstance.activeSessionCount,
+      nativePeerConnected: () => nativeMessagingHostInstance.isExtensionConnected(),
+    },
+    () => {
+      void serverInstance.stop().finally(() => process.exit(0));
+    },
+  );
   nativeMessagingHostInstance.start();
 } catch (error) {
   process.exit(1);
