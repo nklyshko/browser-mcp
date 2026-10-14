@@ -22,6 +22,7 @@ import {
   MCP_API_KEY_ENV,
 } from '../constant';
 import { resolveApiKey } from '../api-key.js';
+import { getInstanceDirectory } from '../native-host-resolver.js';
 import { NativeMessagingHost } from '../native-messaging-host';
 import { SSEServerTransport } from '@modelcontextprotocol/sdk/server/sse.js';
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
@@ -470,6 +471,18 @@ export class Server {
           packages: {
             'mcp-chrome-bridge-2026': packageJson.version,
           },
+          // Additive: every field above and below is untouched, because the popup and
+          // the profile manager already read this payload.
+          instances: getInstanceDirectory()
+            .instances()
+            .map((instance) => ({
+              instanceId: instance.instanceId,
+              label: instance.label,
+              browser: instance.browser,
+              connectedAt: instance.connectedAt,
+              protocolVersion: instance.protocolVersion,
+              extensionVersion: instance.extensionVersion,
+            })),
           mcp: {
             activeSessions: sessions.length,
             activeRequests: activeMcpRequests.length,

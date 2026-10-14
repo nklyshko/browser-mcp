@@ -538,6 +538,16 @@ function connectEventChannel(data: unknown): void {
             .set({ [STORAGE_KEYS.MCP_API_KEY]: message.apiKey })
             .catch(() => undefined);
         }
+        // Handshake on the data path as well. The host on the other end of this socket
+        // is a different object from the one that bootstrapped us, with its own
+        // negotiated version and capabilities; without this it never marks itself
+        // connected and rejects every tool call.
+        sendToNative(
+          createNativeHello('extension-background', {
+            name: 'chrome-mcp-extension',
+            version: '2',
+          }),
+        );
         return;
       }
       if (typeof message?.version === 'number') {
@@ -1064,8 +1074,7 @@ async function handleNativeProtocolMessage(message: any): Promise<void> {
       negotiatedVersion = selected;
       persistNativeConnectionState();
       if (!protocolMessage.selectedVersion) {
-        // Bootstrap: the handshake runs on the port, which is what proves the host is up.
-        nativePort?.postMessage({
+        sendToNative({
           ...createNativeHello(
             'extension-background',
             { name: 'chrome-mcp-extension', version: '2' },
@@ -1074,7 +1083,7 @@ async function handleNativeProtocolMessage(message: any): Promise<void> {
           selectedVersion: selected,
         });
       }
-      nativePort?.postMessage(createNativeCapabilities(protocolMessage.traceId));
+      sendToNative(createNativeCapabilities(protocolMessage.traceId));
       return;
     }
     case 'capabilities':
