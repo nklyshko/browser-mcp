@@ -1089,21 +1089,9 @@ async function handleNativeProtocolMessage(message: any): Promise<void> {
       if (protocolMessage.event === 'tool.progress' && protocolMessage.requestId) {
         // Progress is consumed by the native request callback; no local action is needed.
       } else if (protocolMessage.event === 'native.serverStarted') {
-        const data = protocolMessage.data as
-          { port?: unknown; reused?: unknown; viaIncumbent?: unknown } | undefined;
-        if (data?.viaIncumbent === true) {
-          // Another browser's server owns the port and we are a second connection on
-          // it. Tool calls reach this browser over that socket, so it is running.
-          currentServerStatus = {
-            isRunning: true,
-            port: normalizePort(data?.port) ?? currentServerStatus.port,
-            lastUpdated: Date.now(),
-          };
-          await saveServerStatus(currentServerStatus);
-          broadcastServerStatusChange(currentServerStatus);
-          resetReconnectState();
-          return;
-        }
+        // One answer for every case now: the stub reports the server it reached,
+        // whether it started one or found one another browser was already using.
+        const data = protocolMessage.data as { port?: unknown } | undefined;
         currentServerStatus = {
           isRunning: true,
           port: normalizePort(data?.port) ?? currentServerStatus.port,
@@ -1175,8 +1163,18 @@ export function connectNativeHost(port: number = NATIVE_HOST.DEFAULT_PORT): bool
           .catch(() => undefined);
       }
       forwardedFileRequests.clear();
-      closeEventChannel();
       nativePort = null;
+
+      // The bootstrap stub exits as soon as it has handed over the channel, so losing
+      // the port is the *expected* end of bootstrap rather than a failure. The socket is
+      // the data path by then: tearing it down here, marking the server stopped and
+      // scheduling a reconnect would each undo work that just succeeded.
+      if (eventChannelReady && eventSocket && eventSocket.readyState === WebSocket.OPEN) {
+        console.debug(`${LOG_PREFIX} Bootstrap port closed; serving over the event channel`);
+        return;
+      }
+
+      closeEventChannel();
 
       // Mark server as stopped since native host disconnection means server is down
       void markServerStopped('native_port_disconnected');

@@ -84,62 +84,6 @@ function isAddressInUse(error: any): boolean {
   return error?.code === 'EADDRINUSE' || String(error?.message || '').includes('EADDRINUSE');
 }
 
-/**
- * Ask whoever owns the port for a channel on their server. Returns null when there is
- * no incumbent, it is shutting down, or it is too old to know this route.
- */
-function requestIncumbentChannel(port: number): Promise<EventChannelInfo | null> {
-  return new Promise((resolve) => {
-    const request = httpRequest(
-      {
-        hostname: '127.0.0.1',
-        port,
-        path: '/__chrome_mcp_bridge/bootstrap',
-        method: 'POST',
-        // Same machine, same user, so the incumbent's key file is readable here.
-        headers: {
-          Connection: 'close',
-          Origin: 'http://127.0.0.1',
-          Authorization: `Bearer ${resolveApiKey()}`,
-        },
-        timeout: 3_000,
-      },
-      (response) => {
-        if (response.statusCode !== 200) {
-          response.resume();
-          resolve(null);
-          return;
-        }
-        let body = '';
-        response.setEncoding('utf8');
-        response.on('data', (chunk) => {
-          // A truthful peer sends a few hundred bytes; stop reading past that.
-          if (body.length < 4096) body += chunk;
-        });
-        response.on('end', () => {
-          try {
-            const parsed = JSON.parse(body) as { channel?: EventChannelInfo };
-            const channel = parsed.channel;
-            resolve(
-              channel &&
-                typeof channel.port === 'number' &&
-                typeof channel.token === 'string' &&
-                typeof channel.expiresAt === 'number'
-                ? channel
-                : null,
-            );
-          } catch {
-            resolve(null);
-          }
-        });
-      },
-    );
-    request.on('timeout', () => request.destroy());
-    request.on('error', () => resolve(null));
-    request.end();
-  });
-}
-
 export class NativeMessagingHost {
   private readonly transportOverride: NativeTransport | undefined;
   private resolvedTransport: NativeTransport | null = null;
@@ -755,39 +699,16 @@ export class NativeMessagingHost {
         data: { port },
       });
     } catch (error: any) {
-      // Someone else owns the port. Under one-server-many-browsers the right move is
-      // to join them: ask for a channel and hand it to our extension, which then dials
-      // their WS and becomes a second instance there. No port changes hands.
       if (isAddressInUse(error)) {
-        const channel = await requestIncumbentChannel(port);
-        if (channel) {
-          this.eventChannelInfo = channel;
-          structuredLog('native.joined_incumbent', { port, wsPort: channel.port });
-          this.sendMessage({
-            version: NATIVE_PROTOCOL_VERSION,
-            type: 'event',
-            event: 'native.eventChannelReady',
-            data: channel,
-          });
-          this.sendMessage({
-            version: NATIVE_PROTOCOL_VERSION,
-            type: 'event',
-            event: 'native.serverStarted',
-            data: { port, viaIncumbent: true },
-          });
-          return;
+        // Decision 13: the bind is the lock, so the loser of a spawn race simply exits
+        // and the stub polls for whoever won. Only a stub-spawned server may do that
+        // silently — a human running `start` deserves the error below.
+        if (process.env.CHROME_MCP_SPAWNED_BY_STUB === '1') {
+          structuredLog('native.lost_bind_race', { port });
+          process.exit(0);
         }
-      }
-
-      // Could neither bind the port nor join whoever holds it. There is no retry to
-      // make here: binding cannot succeed while another process holds the port, and the
-      // join already failed. Say so once, plainly.
-      if (isAddressInUse(error)) {
-        structuredLog('native.join_failed', { port });
-        this.sendError(
-          `Port ${port} is held by another process and it would not share its channel.`,
-          'BROWSER_ERROR',
-        );
+        structuredLog('native.port_unavailable', { port });
+        this.sendError(`Port ${port} is already in use.`, 'BROWSER_ERROR');
         return;
       }
       this.sendError(`Failed to start server: ${error.message}`);

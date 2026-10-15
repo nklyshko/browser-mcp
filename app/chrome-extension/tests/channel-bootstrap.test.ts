@@ -1,10 +1,10 @@
 /**
  * Channel bootstrap tests
- * @description Two things this pins. First, a browser whose host could not bind the
- * HTTP port is still serving once it has joined the incumbent, so it must not report
- * itself degraded. Second, Model B: losing the socket is the normal state, and the way
- * out is the same bootstrap that runs when a browser opens — not a separate recovery
- * branch that only ever executes in rare conditions.
+ * @description Three things this pins. The instance identity is minted once and reused.
+ * A server the stub reports is treated as running, whether the stub started it or found
+ * one another browser was already using. And Model B: losing the socket is the normal
+ * state, and the way out is the same bootstrap that runs when a browser opens — not a
+ * separate recovery branch that only ever executes in rare conditions.
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -157,14 +157,14 @@ describe('instance identity', () => {
   });
 });
 
-describe('joining an incumbent', () => {
-  it('reports the service as running, with no reclaim retries', async () => {
+describe('the stub reporting a server', () => {
+  it('marks the service running whether the stub started it or found it', async () => {
     const { connectNativeHost } = await import('../entrypoints/background/native-host');
     connectNativeHost(12306);
     await vi.advanceTimersByTimeAsync(0);
     const before = port.posted.filter((m) => m?.method === 'native.start').length;
 
-    port.emit(serverStarted({ viaIncumbent: true }));
+    port.emit(serverStarted({}));
     await vi.advanceTimersByTimeAsync(0);
 
     expect(stored.serverStatus).toMatchObject({ isRunning: true, port: 12306 });

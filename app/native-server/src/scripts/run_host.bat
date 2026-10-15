@@ -4,7 +4,9 @@ setlocal enabledelayedexpansion
 REM Setup paths
 set "SCRIPT_DIR=%~dp0"
 if "%SCRIPT_DIR:~-1%"=="\" set "SCRIPT_DIR=%SCRIPT_DIR:~0,-1%"
-set "NODE_SCRIPT=%SCRIPT_DIR%\index.js"
+rem The stub, not the server: it ensures a server exists, hands the extension a
+rem channel to it, and exits. See src/stub.ts.
+set "NODE_SCRIPT=%SCRIPT_DIR%\stub.js"
 
 REM Setup log directory - prefer user-writable locations
 REM Windows: %LOCALAPPDATA%\mcp-chrome-bridge\logs

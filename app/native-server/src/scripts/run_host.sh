@@ -6,7 +6,9 @@ LOG_RETENTION_COUNT=5
 
 # Setup paths
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-NODE_SCRIPT="${SCRIPT_DIR}/index.js"
+# The stub, not the server: it ensures a server exists, hands the extension a
+# channel to it, and exits. See src/stub.ts.
+NODE_SCRIPT="${SCRIPT_DIR}/stub.js"
 
 # Setup log directory - prefer user-writable locations
 # macOS: ~/Library/Logs/mcp-chrome-bridge
