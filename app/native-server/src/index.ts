@@ -10,15 +10,17 @@ try {
   nativeMessagingHostInstance.setServer(serverInstance); // NativeHost needs setServer method
   extensionRegistry.adopt(nativeMessagingHostInstance.getEventChannel());
   extensionRegistry.setServer(serverInstance);
-  // Tool calls go to the browser on the other end of a socket. The stdio host remains
-  // the fallback until the stub owns bootstrap, and it is also what a standalone server
-  // has when nothing has dialled in yet.
-  setNativeHostResolver(() => extensionRegistry.soleHost() ?? nativeMessagingHostInstance);
+  // Tool calls only ever go to a browser on the other end of a socket. There is
+  // deliberately no fallback to this process's own stdio host: now that the stub owns
+  // bootstrap, that host has a null transport and is never connected, so falling back to
+  // it turned "two browsers, pick one" and "no browser at all" into the same misleading
+  // NATIVE_DISCONNECTED. Returning null lets each case report itself.
+  setNativeHostResolver(() => extensionRegistry.soleHost());
   // Lets a session bind one browser and keeps ambiguity an error rather than a guess.
   setInstanceDirectory({
     instances: () => extensionRegistry.instances(),
     hostFor: (instanceId) => extensionRegistry.hostFor(instanceId),
-    soleHost: () => extensionRegistry.soleHost() ?? nativeMessagingHostInstance,
+    soleHost: () => extensionRegistry.soleHost(),
   });
   startIdleShutdown(
     {
