@@ -281,13 +281,15 @@ export function getNativeConnectionState(): NativeConnectionState {
   return nativeConnectionState;
 }
 
-function closeEventChannel(): void {
+function closeEventChannel(reason = 'unspecified'): void {
   if (eventHeartbeat) clearInterval(eventHeartbeat);
   eventHeartbeat = null;
   eventChannelReady = false;
   if (eventSocket) {
     try {
-      eventSocket.close();
+      // 4000 is the application range; the reason rides along so the server can log
+      // which path closed the channel instead of merely that something did.
+      eventSocket.close(4000, reason.slice(0, 120));
     } catch {
       // The socket may already be closed.
     }
@@ -373,7 +375,7 @@ async function sendInstanceHello(socket: WebSocket): Promise<void> {
       }),
     );
   } catch {
-    closeEventChannel();
+    closeEventChannel('hello_send_failed');
   }
 }
 
@@ -388,7 +390,7 @@ function sendToNative(message: unknown): boolean {
       eventSocket.send(JSON.stringify(message));
       return true;
     } catch {
-      closeEventChannel();
+      closeEventChannel('send_failed');
     }
   }
   if (!nativePort) return false;
@@ -509,7 +511,7 @@ function connectEventChannel(data: unknown): void {
     info.expiresAt <= Date.now()
   )
     return;
-  closeEventChannel();
+  closeEventChannel('channel_replaced');
   const socket = new WebSocket(
     `ws://127.0.0.1:${info.port}/events?token=${encodeURIComponent(info.token)}`,
   );
@@ -523,7 +525,7 @@ function connectEventChannel(data: unknown): void {
       try {
         socket.send(JSON.stringify({ type: 'ping' }));
       } catch {
-        closeEventChannel();
+        closeEventChannel('heartbeat_send_failed');
       }
     }, 20_000);
   };
@@ -563,11 +565,11 @@ function connectEventChannel(data: unknown): void {
     }
   };
   socket.onerror = () => {
-    if (eventSocket === socket) closeEventChannel();
+    if (eventSocket === socket) closeEventChannel('socket_error');
   };
   socket.onclose = () => {
     if (eventSocket !== socket) return;
-    closeEventChannel();
+    closeEventChannel('socket_closed');
     rebootstrapChannel('event_channel_closed');
   };
 }
@@ -1221,7 +1223,7 @@ export function connectNativeHost(port: number = NATIVE_HOST.DEFAULT_PORT): bool
         return;
       }
 
-      closeEventChannel();
+      closeEventChannel('native_port_disconnected');
 
       // Mark server as stopped since native host disconnection means server is down
       void markServerStopped('native_port_disconnected');

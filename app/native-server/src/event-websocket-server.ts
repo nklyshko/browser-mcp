@@ -403,7 +403,12 @@ export class LocalEventWebSocketServer {
       connection.buffer = connection.buffer.subarray(frameSize);
       const opcode = first & 0x0f;
       if (opcode === 0x8) {
-        connection.endedBy = 'client_close_frame';
+        // The peer says why it is going: a 2-byte code then an optional UTF-8 reason.
+        // Five different paths in the extension close the channel, and without this
+        // they were indistinguishable in a live log.
+        const code = payload.length >= 2 ? payload.readUInt16BE(0) : 0;
+        const why = payload.length > 2 ? payload.subarray(2).toString('utf8') : '';
+        connection.endedBy = `client_close:${code}${why ? `:${why}` : ''}`;
         return closeSocket(socket, 1000);
       }
       if (opcode === 0x9) {
