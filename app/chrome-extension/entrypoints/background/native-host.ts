@@ -1238,8 +1238,20 @@ export function connectNativeHost(port: number = NATIVE_HOST.DEFAULT_PORT): bool
         setNativeConnectionState('stopped', 'auto_connect_disabled');
         return;
       }
-      setNativeConnectionState('degraded', 'native_port_disconnected');
-      scheduleReconnect('native_port_disconnected');
+      // A missing native host does not fail synchronously: Chrome hands back a Port and
+      // only reports the problem here. So this is the one place that can tell "the stub
+      // did its job and left" from "there is no host at all", which is why the
+      // standalone dial belongs here and not only on the synchronous failure above —
+      // where, in practice, it never ran.
+      void (async () => {
+        const port = await getPreferredPort();
+        if (await connectStandaloneChannel(port)) {
+          console.debug(`${LOG_PREFIX} No native host; dialled the channel directly`);
+          return;
+        }
+        setNativeConnectionState('degraded', 'native_port_disconnected');
+        scheduleReconnect('native_port_disconnected');
+      })();
     });
 
     nativePort.postMessage(
