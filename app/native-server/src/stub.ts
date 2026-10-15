@@ -11,6 +11,7 @@
  * the wrapper script captures.
  */
 import { spawn } from 'node:child_process';
+import fs from 'node:fs';
 import path from 'node:path';
 import { stdin, stdout } from 'node:process';
 import {
@@ -22,6 +23,7 @@ import {
 import { NATIVE_SERVER_PORT } from './constant/index.js';
 import { MAX_NATIVE_MESSAGE_SIZE_BYTES, NativeMessageFrameDecoder } from './native-frame.js';
 import { isServerReady, requestChannel, waitForServer } from './bootstrap-client.js';
+import { getLogDir } from './scripts/utils.js';
 
 /** Give up rather than hold Chrome's port open forever if nothing can be reached. */
 const OVERALL_DEADLINE_MS = 20_000;
@@ -60,7 +62,10 @@ function spawnServer(port: number): void {
   const entry = path.join(__dirname, 'index.js');
   const child = spawn(process.execPath, [entry], {
     detached: true,
-    stdio: 'ignore',
+    // Not 'ignore'. The server writes every diagnostic it has to stderr, and discarding
+    // it would leave the one long-lived process in the system with no log at all —
+    // exactly the output that made earlier bridge failures diagnosable.
+    stdio: ['ignore', 'ignore', openServerLog()],
     windowsHide: true,
     env: {
       ...process.env,
@@ -74,6 +79,31 @@ function spawnServer(port: number): void {
   });
   child.unref();
   log(`spawned a server for port ${port}`);
+}
+
+/** Append, but truncate first if it has grown past this, so nothing unbounded. */
+const MAX_SERVER_LOG_BYTES = 4 * 1024 * 1024;
+
+/**
+ * A file descriptor for the spawned server's stderr, in the same directory `doctor` and
+ * `report` already read. Falls back to discarding only if the log cannot be opened,
+ * because failing to log must never stop the server from starting.
+ */
+function openServerLog(): number | 'ignore' {
+  try {
+    const dir = getLogDir();
+    fs.mkdirSync(dir, { recursive: true });
+    const file = path.join(dir, 'server.log');
+    try {
+      if (fs.statSync(file).size > MAX_SERVER_LOG_BYTES) fs.truncateSync(file, 0);
+    } catch {
+      // No existing file; nothing to trim.
+    }
+    return fs.openSync(file, 'a');
+  } catch (error) {
+    log(`could not open a server log: ${error instanceof Error ? error.message : String(error)}`);
+    return 'ignore';
+  }
 }
 
 let bootstrapped = false;
