@@ -40,6 +40,17 @@ const RECONNECT_BASE_DELAY_MS = 500;
 const RECONNECT_MAX_DELAY_MS = 60_000;
 const RECONNECT_MAX_FAST_ATTEMPTS = 8;
 const RECONNECT_COOLDOWN_DELAY_MS = 5 * 60_000;
+/**
+ * A reconnect has to survive the service worker being evicted.
+ *
+ * setTimeout does not: once the channel closes its keepalive is released, MV3 is free to
+ * tear the worker down, and any pending timer dies with it — leaving the browser
+ * disconnected with nothing scheduled to ever try again. An alarm is the only timer that
+ * wakes the worker back up, so it backstops every delay.
+ */
+const RECONNECT_ALARM = 'native-host-reconnect';
+/** Chrome clamps alarms to roughly 30s, so faster retries stay on setTimeout. */
+const MIN_ALARM_DELAY_MINUTES = 0.5;
 
 // ==================== Auto-connect State ====================
 
@@ -198,6 +209,7 @@ function getReconnectDelayMs(attempt: number): number {
  * Clear the reconnect timer if active.
  */
 function clearReconnectTimer(): void {
+  void chrome.alarms?.clear(RECONNECT_ALARM);
   if (!reconnectTimer) return;
   clearTimeout(reconnectTimer);
   reconnectTimer = null;
@@ -447,9 +459,19 @@ export function initInstanceClaimListener(): void {
     }
     if (!label || !label.trim()) return;
 
-    void claimInstanceLabel(label.trim()).then(() => {
-      // The claim page has served its purpose; leaving it open is clutter.
-      chrome.tabs.remove(tabId).catch(() => undefined);
+    void claimInstanceLabel(label.trim()).then(async () => {
+      // Tidying the claim tab away is nice, but closing the *last* tab quits the
+      // browser — and a launcher usually puts the claim URL on the command line as the
+      // only thing to open, so one tab is the normal case rather than an edge one.
+      // Killing the browser an agent just started would make the whole mechanism
+      // self-defeating.
+      try {
+        const tabs = await chrome.tabs.query({});
+        if (tabs.length > 1) await chrome.tabs.remove(tabId);
+        else await chrome.tabs.update(tabId, { url: 'about:blank' });
+      } catch {
+        // Leaving the tab open is harmless; the label is already claimed.
+      }
     });
   });
 }
@@ -914,6 +936,26 @@ function scheduleReconnect(reason: string): void {
     reconnectAttempts += 1;
     void ensureNativeConnected(`reconnect:${reason}`).catch(() => {});
   }, delay);
+
+  // Backstop the timer above. Whichever fires first wins; the other is a no-op, because
+  // ensureNativeConnected short-circuits once a port exists.
+  void chrome.alarms?.create(RECONNECT_ALARM, {
+    delayInMinutes: Math.max(MIN_ALARM_DELAY_MINUTES, delay / 60_000),
+  });
+}
+
+/**
+ * Registered at the top level so a worker woken purely by this alarm still has the
+ * handler attached.
+ */
+export function initNativeReconnectAlarm(): void {
+  chrome.alarms?.onAlarm.addListener((alarm) => {
+    if (alarm.name !== RECONNECT_ALARM) return;
+    if (nativePort || manualDisconnect || !autoConnectEnabled) return;
+    console.debug(`${LOG_PREFIX} Reconnect alarm fired; the worker had been asleep`);
+    reconnectAttempts += 1;
+    void ensureNativeConnected('reconnect:alarm').catch(() => {});
+  });
 }
 
 // ==================== Server Status Update ====================
