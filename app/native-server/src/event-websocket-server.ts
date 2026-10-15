@@ -28,6 +28,8 @@ interface Connection {
   buffer: Buffer;
   instance: ExtensionInstance | null;
   helloTimer: ReturnType<typeof setTimeout> | null;
+  /** Why the connection ended. Absent means the socket died without saying. */
+  endedBy?: string;
 }
 
 const MAX_FRAME_BYTES = 1 * 1024 * 1024;
@@ -121,7 +123,7 @@ export interface EventChannelHandlers {
   apiKey?: () => string;
   onMessage?: (message: unknown, instance: ExtensionInstance) => void;
   onHello?: (instance: ExtensionInstance) => void;
-  onGone?: (instance: ExtensionInstance) => void;
+  onGone?: (instance: ExtensionInstance, endedBy?: string) => void;
 }
 
 export class LocalEventWebSocketServer {
@@ -293,7 +295,7 @@ export class LocalEventWebSocketServer {
     connection.helloTimer = null;
     // Fires synchronously, so a reconnecting instance is detached before the newer
     // connection is attached rather than after it.
-    if (connection.instance) this.handlers.onGone?.(connection.instance);
+    if (connection.instance) this.handlers.onGone?.(connection.instance, connection.endedBy);
   }
 
   private handleUpgrade(request: http.IncomingMessage, socket: net.Socket, head: Buffer): void {
@@ -400,7 +402,10 @@ export class LocalEventWebSocketServer {
         payload[i] = connection.buffer[offset + 4 + i] ^ mask[i % 4];
       connection.buffer = connection.buffer.subarray(frameSize);
       const opcode = first & 0x0f;
-      if (opcode === 0x8) return closeSocket(socket, 1000);
+      if (opcode === 0x8) {
+        connection.endedBy = 'client_close_frame';
+        return closeSocket(socket, 1000);
+      }
       if (opcode === 0x9) {
         socket.write(Buffer.concat([Buffer.from([0x8a, payload.length]), payload]));
         continue;

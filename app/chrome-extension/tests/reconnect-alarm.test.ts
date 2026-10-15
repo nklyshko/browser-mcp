@@ -81,8 +81,9 @@ afterEach(() => {
 });
 
 describe('reconnect alarm', () => {
-  it('schedules an alarm when the channel drops, so an evicted worker still retries', async () => {
+  it('registers a repeating watchdog, which cannot be cleared into uselessness', async () => {
     const mod = await import('../entrypoints/background/native-host');
+    mod.initNativeReconnectAlarm();
     mod.connectNativeHost(12306);
     await vi.advanceTimersByTimeAsync(0);
 
@@ -102,12 +103,15 @@ describe('reconnect alarm', () => {
     await vi.advanceTimersByTimeAsync(0);
 
     const reconnect = alarms.filter((a) => a.name === 'native-host-reconnect');
-    expect(reconnect.length).toBeGreaterThan(0);
-    // Chrome clamps short alarms, so the floor has to be at least 30s.
-    expect(reconnect[0].info.delayInMinutes).toBeGreaterThanOrEqual(0.5);
+    expect(reconnect.length).toBe(1);
+    // Repeating, not one-shot: an arm-and-clear scheme left a worker with nothing
+    // scheduled if it was evicted at the wrong moment.
+    expect(reconnect[0].info.periodInMinutes).toBe(1);
+    // And a reconnect must never clear it.
+    expect(cleared).not.toContain('native-host-reconnect');
   });
 
-  it('retries when only the alarm fires, with every timer lost', async () => {
+  it('retries when only the watchdog fires, with every timer lost', async () => {
     // No port can be obtained, so nothing else could mask the alarm doing the work.
     connectNative = vi.fn().mockImplementation(() => {
       throw new Error('native host unavailable');
@@ -119,7 +123,7 @@ describe('reconnect alarm', () => {
     await vi.advanceTimersByTimeAsync(0);
     const before = connectNative.mock.calls.length;
 
-    // Simulate eviction: drop pending timers entirely, then deliver the alarm.
+    // Simulate eviction: discard every pending timer, then deliver the alarm.
     vi.clearAllTimers();
     for (const fn of alarmListeners) fn({ name: 'native-host-reconnect' });
     await vi.advanceTimersByTimeAsync(0);

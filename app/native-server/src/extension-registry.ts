@@ -31,7 +31,7 @@ export class ExtensionRegistry {
       apiKey: () => resolveApiKey(),
       onMessage: (message, instance) => this.route(message, instance),
       onHello: (instance) => this.attach(instance),
-      onGone: (instance) => this.detach(instance.instanceId),
+      onGone: (instance, endedBy) => this.detach(instance.instanceId, endedBy),
     });
   }
 
@@ -85,12 +85,16 @@ export class ExtensionRegistry {
   }
 
   /** Called when a socket closes; rejects that connection's in-flight work only. */
-  detach(instanceId: string): void {
+  detach(instanceId: string, endedBy?: string): void {
     const entry = this.connections.get(instanceId);
     if (!entry) return;
     this.connections.delete(instanceId);
     entry.transport.disconnected();
-    structuredLog('extension.disconnected', { instanceId, total: this.connections.size });
+    structuredLog('extension.disconnected', {
+      instanceId,
+      total: this.connections.size,
+      endedBy: endedBy ?? 'socket_closed',
+    });
   }
 }
 

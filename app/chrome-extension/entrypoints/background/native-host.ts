@@ -41,16 +41,22 @@ const RECONNECT_MAX_DELAY_MS = 60_000;
 const RECONNECT_MAX_FAST_ATTEMPTS = 8;
 const RECONNECT_COOLDOWN_DELAY_MS = 5 * 60_000;
 /**
- * A reconnect has to survive the service worker being evicted.
+ * A standing watchdog, because a reconnect has to survive the worker being evicted.
  *
  * setTimeout does not: once the channel closes its keepalive is released, MV3 is free to
- * tear the worker down, and any pending timer dies with it — leaving the browser
- * disconnected with nothing scheduled to ever try again. An alarm is the only timer that
- * wakes the worker back up, so it backstops every delay.
+ * tear the worker down, and any pending timer dies with it. An alarm is the only timer
+ * that wakes the worker back up.
+ *
+ * It repeats rather than being armed per attempt. Arming and clearing around each retry
+ * looked tidier and had a hole: resetReconnectState cleared the alarm the moment a
+ * server reported itself started, so a worker evicted before the channel-close handler
+ * could re-arm it was left with nothing scheduled at all — observed live as a browser
+ * that stopped retrying after two attempts. A watchdog that is simply always on cannot
+ * get into that state.
  */
 const RECONNECT_ALARM = 'native-host-reconnect';
-/** Chrome clamps alarms to roughly 30s, so faster retries stay on setTimeout. */
-const MIN_ALARM_DELAY_MINUTES = 0.5;
+/** Chrome's floor for a repeating alarm. Worst-case recovery is therefore ~1 minute. */
+const RECONNECT_ALARM_PERIOD_MINUTES = 1;
 
 // ==================== Auto-connect State ====================
 
@@ -209,7 +215,6 @@ function getReconnectDelayMs(attempt: number): number {
  * Clear the reconnect timer if active.
  */
 function clearReconnectTimer(): void {
-  void chrome.alarms?.clear(RECONNECT_ALARM);
   if (!reconnectTimer) return;
   clearTimeout(reconnectTimer);
   reconnectTimer = null;
@@ -936,25 +941,25 @@ function scheduleReconnect(reason: string): void {
     reconnectAttempts += 1;
     void ensureNativeConnected(`reconnect:${reason}`).catch(() => {});
   }, delay);
-
-  // Backstop the timer above. Whichever fires first wins; the other is a no-op, because
-  // ensureNativeConnected short-circuits once a port exists.
-  void chrome.alarms?.create(RECONNECT_ALARM, {
-    delayInMinutes: Math.max(MIN_ALARM_DELAY_MINUTES, delay / 60_000),
-  });
 }
 
 /**
- * Registered at the top level so a worker woken purely by this alarm still has the
+ * Registered at the top level so a worker woken by nothing but this alarm still has the
  * handler attached.
  */
 export function initNativeReconnectAlarm(): void {
+  void chrome.alarms?.create(RECONNECT_ALARM, {
+    periodInMinutes: RECONNECT_ALARM_PERIOD_MINUTES,
+    delayInMinutes: RECONNECT_ALARM_PERIOD_MINUTES,
+  });
   chrome.alarms?.onAlarm.addListener((alarm) => {
     if (alarm.name !== RECONNECT_ALARM) return;
-    if (nativePort || manualDisconnect || !autoConnectEnabled) return;
-    console.debug(`${LOG_PREFIX} Reconnect alarm fired; the worker had been asleep`);
-    reconnectAttempts += 1;
-    void ensureNativeConnected('reconnect:alarm').catch(() => {});
+    if (manualDisconnect || !autoConnectEnabled) return;
+    // Healthy: a live channel is the thing that matters, not the bootstrap port.
+    if (eventChannelReady && eventSocket && eventSocket.readyState === WebSocket.OPEN) return;
+    if (nativePort) return;
+    console.debug(`${LOG_PREFIX} Reconnect watchdog firing; no channel`);
+    void ensureNativeConnected('reconnect:watchdog').catch(() => {});
   });
 }
 
