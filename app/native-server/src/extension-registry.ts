@@ -74,6 +74,7 @@ export class ExtensionRegistry {
       label: instance.label,
       browser: instance.browser,
       protocolVersion: instance.protocolVersion,
+      extensionVersion: instance.extensionVersion,
       total: this.connections.size,
     });
   }

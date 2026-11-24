@@ -2,6 +2,7 @@ import crypto from 'node:crypto';
 import http from 'node:http';
 import net from 'node:net';
 import { MCP_ALLOWED_ORIGINS_ENV, MCP_EXTENSION_ID_ENV } from './constant/index.js';
+import { structuredLog } from './observability.js';
 
 export interface EventChannelInfo {
   port: number;
@@ -302,20 +303,17 @@ export class LocalEventWebSocketServer {
     const url = new URL(request.url || '/', 'http://127.0.0.1');
     const key = request.headers['sec-websocket-key'];
     const origin = typeof request.headers.origin === 'string' ? request.headers.origin : undefined;
-    if (
-      url.pathname !== '/events' ||
-      typeof key !== 'string' ||
-      !isAllowedOrigin(origin) ||
-      this.connections.size >= MAX_CONNECTIONS
-    ) {
+    const refuse = (reason: string): void => {
+      structuredLog('channel.upgrade_refused', { reason, path: url.pathname, origin });
       socket.destroy();
-      return;
-    }
+    };
+    if (url.pathname !== '/events') return refuse('not_the_channel_path');
+    if (typeof key !== 'string') return refuse('missing_websocket_key');
+    if (!isAllowedOrigin(origin)) return refuse('origin_not_allowed');
+    if (this.connections.size >= MAX_CONNECTIONS) return refuse('too_many_connections');
     // Checked last so a rejected upgrade cannot burn a live token.
-    if (!this.consumeToken(url.searchParams.get('token') || '')) {
-      socket.destroy();
-      return;
-    }
+    if (!this.consumeToken(url.searchParams.get('token') || '')) return refuse('token_rejected');
+    structuredLog('channel.upgrade_accepted', { connections: this.connections.size + 1 });
 
     const connection: Connection = { socket, buffer: head, instance: null, helloTimer: null };
     this.connections.add(connection);

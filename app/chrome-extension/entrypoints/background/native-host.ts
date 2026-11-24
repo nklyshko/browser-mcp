@@ -281,6 +281,13 @@ export function getNativeConnectionState(): NativeConnectionState {
   return nativeConnectionState;
 }
 
+function eventChannelOutlivesBootstrap(): boolean {
+  if (!eventSocket) return false;
+  const stillHandshaking = eventSocket.readyState === WebSocket.CONNECTING;
+  const socketOpen = eventSocket.readyState === WebSocket.OPEN;
+  return stillHandshaking || socketOpen;
+}
+
 function closeEventChannel(reason = 'unspecified'): void {
   if (eventHeartbeat) clearInterval(eventHeartbeat);
   eventHeartbeat = null;
@@ -359,6 +366,11 @@ async function getInstanceIdentity(): Promise<InstanceIdentity> {
   return identity;
 }
 
+function runningBuildVersion(): string {
+  const { version, version_name: versionWithCommit } = chrome.runtime.getManifest();
+  return versionWithCommit ?? version;
+}
+
 /** The server closes any connection that does not identify itself within 10s. */
 async function sendInstanceHello(socket: WebSocket): Promise<void> {
   const identity = await getInstanceIdentity();
@@ -371,7 +383,7 @@ async function sendInstanceHello(socket: WebSocket): Promise<void> {
         label: identity.label,
         browser: browserTag(),
         protocolVersion: NATIVE_PROTOCOL_VERSION,
-        extensionVersion: chrome.runtime.getManifest().version,
+        extensionVersion: runningBuildVersion(),
       }),
     );
   } catch {
@@ -435,10 +447,16 @@ async function connectStandaloneChannel(port: number): Promise<boolean> {
   try {
     const stored = await chrome.storage.local.get([STORAGE_KEYS.MCP_API_KEY]);
     const key = stored[STORAGE_KEYS.MCP_API_KEY];
-    if (typeof key !== 'string' || !key) return false;
+    if (typeof key !== 'string' || !key) {
+      console.warn(
+        `${LOG_PREFIX} Cannot dial the channel directly: no API key stored yet (only a completed hello-ack stores one)`,
+      );
+      return false;
+    }
     connectEventChannel({ port, token: key, expiresAt: Date.now() + 60_000 });
     return eventSocket !== null;
-  } catch {
+  } catch (error) {
+    console.warn(`${LOG_PREFIX} Could not read the stored API key`, error);
     return false;
   }
 }
@@ -502,15 +520,32 @@ async function claimInstanceLabel(label: string): Promise<void> {
   }
 }
 
+type EventChannelOffer = { port?: unknown; token?: unknown; expiresAt?: unknown };
+
+function describeEventChannelOffer(data: unknown) {
+  const offer = data as EventChannelOffer | undefined;
+  return {
+    port: offer?.port,
+    hasToken: typeof offer?.token === 'string' && Boolean(offer.token),
+    expiresAt: offer?.expiresAt,
+    now: Date.now(),
+  };
+}
+
 function connectEventChannel(data: unknown): void {
-  const info = data as { port?: unknown; token?: unknown; expiresAt?: unknown };
+  const info = data as EventChannelOffer;
   if (
     typeof info?.port !== 'number' ||
     typeof info.token !== 'string' ||
     typeof info.expiresAt !== 'number' ||
     info.expiresAt <= Date.now()
-  )
+  ) {
+    console.warn(
+      `${LOG_PREFIX} Ignored an unusable event channel; the server will never see this browser`,
+      describeEventChannelOffer(info),
+    );
     return;
+  }
   closeEventChannel('channel_replaced');
   const socket = new WebSocket(
     `ws://127.0.0.1:${info.port}/events?token=${encodeURIComponent(info.token)}`,
@@ -564,14 +599,13 @@ function connectEventChannel(data: unknown): void {
       // The event channel only accepts JSON messages.
     }
   };
-  socket.onerror = () => {
-    if (eventSocket === socket) closeEventChannel('socket_error');
-  };
-  socket.onclose = () => {
+  const abandonAndRebootstrap = (reason: string) => {
     if (eventSocket !== socket) return;
-    closeEventChannel('socket_closed');
+    closeEventChannel(reason);
     rebootstrapChannel('event_channel_closed');
   };
+  socket.onerror = () => abandonAndRebootstrap('socket_error');
+  socket.onclose = () => abandonAndRebootstrap('socket_closed');
 }
 
 const INLINE_ARTIFACT_LIMIT_BYTES = 256 * 1024;
@@ -1152,6 +1186,10 @@ async function handleNativeProtocolMessage(message: any): Promise<void> {
       } else if (protocolMessage.event === 'native.serverStopped') {
         await markServerStopped('native_protocol_event');
       } else if (protocolMessage.event === 'native.eventChannelReady') {
+        console.debug(
+          `${LOG_PREFIX} Event channel offered (before validation)`,
+          describeEventChannelOffer(protocolMessage.data),
+        );
         connectEventChannel(protocolMessage.data);
       }
       return;
@@ -1214,11 +1252,7 @@ export function connectNativeHost(port: number = NATIVE_HOST.DEFAULT_PORT): bool
       forwardedFileRequests.clear();
       nativePort = null;
 
-      // The bootstrap stub exits as soon as it has handed over the channel, so losing
-      // the port is the *expected* end of bootstrap rather than a failure. The socket is
-      // the data path by then: tearing it down here, marking the server stopped and
-      // scheduling a reconnect would each undo work that just succeeded.
-      if (eventChannelReady && eventSocket && eventSocket.readyState === WebSocket.OPEN) {
+      if (eventChannelOutlivesBootstrap()) {
         console.debug(`${LOG_PREFIX} Bootstrap port closed; serving over the event channel`);
         return;
       }

@@ -23,6 +23,7 @@ import { runReport } from './scripts/report';
 import { safeUpgrade } from './scripts/safe-upgrade';
 import server from './server';
 import nativeHost from './native-messaging-host';
+import { wireExtensionRouting } from './extension-routing';
 
 program
   .name('mcp-chrome-bridge')
@@ -274,6 +275,7 @@ program
       process.env.CHROME_MCP_STANDALONE = '1';
       server.setNativeHost(nativeHost);
       nativeHost.setServer(server);
+      wireExtensionRouting(server, nativeHost);
       await server.start(port, nativeHost);
       console.log(colorText(`HTTP server started on http://127.0.0.1:${port}/mcp`, 'green'));
       console.log(colorText('Press Ctrl+C to stop', 'blue'));

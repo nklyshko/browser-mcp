@@ -3,12 +3,32 @@ import tailwindcss from '@tailwindcss/vite';
 import { viteStaticCopy } from 'vite-plugin-static-copy';
 import { config } from 'dotenv';
 import { resolve } from 'path';
+import { execSync } from 'node:child_process';
+import { readFileSync } from 'node:fs';
 import Icons from 'unplugin-icons/vite';
 import Components from 'unplugin-vue-components/vite';
 import IconsResolver from 'unplugin-icons/resolver';
 
 config({ path: resolve(process.cwd(), '.env') });
 config({ path: resolve(process.cwd(), '.env.local') });
+
+function gitOutputOrNull(args: string): string | null {
+  try {
+    return execSync(`git ${args}`, { stdio: ['ignore', 'pipe', 'ignore'] })
+      .toString()
+      .trim();
+  } catch {
+    return null;
+  }
+}
+
+function versionNameWithCommit(): string {
+  const { version } = JSON.parse(readFileSync(resolve(process.cwd(), 'package.json'), 'utf8'));
+  const commit = gitOutputOrNull('rev-parse --short HEAD');
+  if (commit === null) return version;
+  const hasUncommittedChanges = Boolean(gitOutputOrNull('status --porcelain'));
+  return `${version}+${commit}${hasUncommittedChanges ? '-dirty' : ''}`;
+}
 
 const CHROME_EXTENSION_KEY = process.env.CHROME_EXTENSION_KEY;
 // Detect dev mode early for manifest-level switches
@@ -37,6 +57,7 @@ export default defineConfig({
   manifest: {
     // Use environment variable for the key, fallback to undefined if not set
     key: CHROME_EXTENSION_KEY,
+    version_name: versionNameWithCommit(),
     default_locale: 'en',
     name: '__MSG_extensionName__',
     description: '__MSG_extensionDescription__',

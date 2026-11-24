@@ -6,11 +6,15 @@
  * guarded on the synchronous failure never runs. That is what these pin.
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { NATIVE_PROTOCOL_VERSION } from '@ethanwilkins/chrome-mcp-shared-2026';
 
 class FakeWebSocket {
   static instances: FakeWebSocket[] = [];
+  static readonly CONNECTING = 0;
+  static readonly OPEN = 1;
   readonly OPEN = 1;
   readyState = 1;
+  closed = false;
   onopen: (() => void) | null = null;
   onmessage: ((e: { data: string }) => void) | null = null;
   onerror: (() => void) | null = null;
@@ -20,18 +24,24 @@ class FakeWebSocket {
   }
   send(): void {}
   close(): void {
+    this.closed = true;
     this.readyState = 3;
   }
 }
 
 let disconnectListeners: Array<() => void>;
+let messageListeners: Array<(message: unknown) => void | Promise<void>>;
 let stored: Record<string, any>;
 
 function makePort() {
   disconnectListeners = [];
+  messageListeners = [];
   return {
     posted: [] as any[],
-    onMessage: { addListener: vi.fn(), removeListener: vi.fn() },
+    onMessage: {
+      addListener: (fn: (message: unknown) => void | Promise<void>) => messageListeners.push(fn),
+      removeListener: vi.fn(),
+    },
     onDisconnect: {
       addListener: (fn: () => void) => disconnectListeners.push(fn),
       removeListener: vi.fn(),
@@ -101,5 +111,56 @@ describe('standalone fallback', () => {
     // Nothing to authenticate with, so it must not dial, and must keep retrying.
     expect(FakeWebSocket.instances).toHaveLength(0);
     expect(stored.nativeConnectionState?.state).toBe('degraded');
+  });
+
+  async function offerChannelFromStubThenExit(
+    readyState: number = FakeWebSocket.CONNECTING,
+  ): Promise<FakeWebSocket> {
+    for (const fn of messageListeners) {
+      await fn({
+        version: NATIVE_PROTOCOL_VERSION,
+        type: 'event',
+        event: 'native.eventChannelReady',
+        data: { port: 12306, token: 'minted-token', expiresAt: Date.now() + 60_000 },
+      });
+    }
+    const socket = FakeWebSocket.instances[0];
+    socket.readyState = readyState;
+    for (const fn of disconnectListeners) fn();
+    await vi.advanceTimersByTimeAsync(10);
+    return socket;
+  }
+
+  it.each([
+    { state: 'connecting', readyState: FakeWebSocket.CONNECTING },
+    { state: 'open but awaiting hello-ack', readyState: FakeWebSocket.OPEN },
+  ])(
+    'keeps a $state channel when the stub exits without a stored fallback key',
+    async ({ readyState }) => {
+      delete stored.mcpApiKey;
+      const { connectNativeHost } = await import('../entrypoints/background/native-host');
+      connectNativeHost(12306);
+      await vi.advanceTimersByTimeAsync(0);
+
+      const socket = await offerChannelFromStubThenExit(readyState);
+
+      expect(socket.url).toContain('token=minted-token');
+      expect(socket.closed).toBe(false);
+      expect(FakeWebSocket.instances).toHaveLength(1);
+    },
+  );
+
+  it('reconnects right away when that still-handshaking channel then fails', async () => {
+    const { connectNativeHost } = await import('../entrypoints/background/native-host');
+    connectNativeHost(12306);
+    await vi.advanceTimersByTimeAsync(0);
+    const socket = await offerChannelFromStubThenExit();
+    const connectNative = (globalThis as any).chrome.runtime.connectNative;
+    const attemptsBeforeFailure = connectNative.mock.calls.length;
+
+    socket.onerror?.();
+    await vi.advanceTimersByTimeAsync(1_000);
+
+    expect(connectNative.mock.calls.length).toBeGreaterThan(attemptsBeforeFailure);
   });
 });
